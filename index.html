@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broken Arrow Maggot Index v2.3</title>
+    <title>Broken Arrow Maggot Index v2.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
@@ -44,7 +44,6 @@
         .rank-pill-kill { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
         .rank-pill-cap { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
         
-        /* 队友名字可点击 - 样式改为放大镜/搜索图标 */
         .teammate-link { cursor: pointer; border-bottom: 1px dashed rgba(255,255,255,0.3); transition: all 0.2s; position: relative; }
         .teammate-link:hover { color: #22d3ee; border-bottom-color: #22d3ee; text-shadow: 0 0 8px rgba(34, 211, 238, 0.6); }
         .teammate-link:hover::after { content: "🔍"; font-size: 0.6rem; position: absolute; top: -8px; right: -12px; }
@@ -100,7 +99,7 @@
     </div>
 
     <div class="w-full max-w-5xl flex justify-between items-center mb-4 px-2">
-        <div class="text-xs text-slate-500">v2.3 Search & Link</div>
+        <div class="text-xs text-slate-500">v2.4 Search & Link</div>
         <div class="flex gap-2 items-center">
             <button onclick="window.location.href='batch.html'" class="px-3 py-1 text-xs rounded bg-gradient-to-r from-cyan-900 to-blue-900 hover:from-cyan-800 hover:to-blue-800 border border-cyan-700 text-cyan-100 transition flex items-center gap-1 mr-2 shadow-lg">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
@@ -149,9 +148,12 @@
                     <div id="tagsContainer" class="absolute top-4 right-4 flex flex-col gap-2 items-end"></div>
                     <h2 class="text-xl font-bold text-slate-300 mb-2" id="lbl_maggot_index">蛆指数 (Maggot Index)</h2>
                     <div class="text-6xl font-black mb-1" id="maggotScoreDisplay" style="text-shadow: 0 0 20px rgba(0,0,0,0.5);">-</div>
-                    <div class="text-[10px] text-slate-600 font-mono mb-2" id="calcTime">Calculated at: --:--:--</div>
-                    <div id="currentPlayerName" class="cool-name text-2xl text-cyan-300 font-bold mb-4 px-6 py-2 rounded-lg tracking-wide"></div>
-                    <div class="text-lg font-bold mb-4" id="maggotLabel">Unknown</div>
+                    <div class="text-[10px] text-slate-600 font-mono mb-2" id="calcTime">Calculated at: --/--/-- --:--:--</div>
+                    <div class="flex flex-col items-center">
+                        <div id="currentPlayerName" class="cool-name text-2xl text-cyan-300 font-bold px-6 py-2 rounded-lg tracking-wide"></div>
+                        <div id="currentPlayerLevel" class="text-xs text-yellow-500 font-mono border border-yellow-800 bg-yellow-900/20 px-2 py-0.5 rounded mt-1 hidden">Lv.?</div>
+                    </div>
+                    <div class="text-lg font-bold mb-4 mt-2" id="maggotLabel">Unknown</div>
                     <div class="w-full max-w-lg">
                         <div class="flex justify-between text-xs text-slate-400 mb-1"><span id="lbl_god">神 (1.0)</span><span id="lbl_maggot">纯蛆 (10.0)</span></div>
                         <div class="maggot-meter-bg"><div id="meterIndicator" class="maggot-indicator" style="left: 50%;"></div></div>
@@ -184,21 +186,31 @@
         function escapeHtml(text) { if (!text && text !== 0) return ""; return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
         
         const translations = {
-            zh: { title: "断箭蛆指数", subtitle: "Broken Arrow Maggot Index", source: "数据来自 batrace.aoeiaol.top", check: "开始检测", analyzing: "正在分析战局数据...", searching: "正在搜索玩家...", maggot_index: "蛆指数", god: "神 (1.0)", maggot: "纯蛆 (10.0)", lbl_avg_rank_total: "平均综合排名", lbl_avg_rank_kill: "平均击杀排名", lbl_avg_rank_cap: "平均占点排名", matches: "统计局数 (12场)", history: "最近战绩明细", th_score: "我的贡献", th_team_details: "队伍详情 (点击名字搜此人)", th_status: "评价", err_input: "请输入 Steam64 ID 或玩家名称", err_network: "网络请求失败，请检查网络", err_data: "未能解析到有效数据", err_no_matches: "未找到对局数据", err_player_not_found: "未找到该玩家", err_insufficient_prefix: "有效对局不足 12 局", err_insufficient_suffix: "。系统已自动过滤掉人数不足 5 人或全员 0 分的异常对局。", label_carry: "CARRY", label_normal: "普通", label_pot: "背锅", tag_killer: "⚔️ 击杀达人", tag_capper: "🚩 占点达人", tag_trend_up: "📈 最近状态变好", tag_trend_down: "📉 最近状态不佳", tag_trend_flat: "➡️ 最近状态平稳", maggot_levels: ["👑 绝世大腿 / 疑似开挂", "🦁 团队中坚", "😐 也就是个混子", "🐛 只有一点蛆", "💩 纯种蛆王"], sel_title: "身份确认", sel_desc: "发现多名玩家场次相同（疑似组队），请确认哪一位是您：", me: "这就是我" },
+            zh: { title: "断箭蛆指数", subtitle: "Broken Arrow Maggot Index", source: "数据来自 batrace.aoeiaol.top", check: "开始检测", analyzing: "正在分析战局数据...", searching: "正在搜索玩家...", maggot_index: "蛆指数", god: "神 (1.0)", maggot: "纯蛆 (10.0)", lbl_avg_rank_total: "平均综合排名", lbl_avg_rank_kill: "平均击杀排名", lbl_avg_rank_cap: "平均占点排名", matches: "统计局数 (12场)", history: "最近战绩明细", th_score: "我的贡献", th_team_details: "队伍详情 (点击名字搜此人)", th_status: "评价", err_input: "请输入 Steam64 ID 或玩家名称", err_network: "网络请求失败，请检查网络", err_data: "未能解析到有效数据", err_no_matches: "未找到对局数据", err_player_not_found: "未找到该玩家", err_insufficient_prefix: "有效对局不足 12 局", err_insufficient_suffix: "。系统已自动过滤掉人数不足 5 人或全员 0 分的异常对局。", label_carry: "CARRY", label_normal: "普通", label_pot: "背锅", tag_killer: "⚔️ 击杀达人", tag_capper: "🚩 占点达人", tag_trend_up: "📈 最近状态变好", tag_trend_down: "📉 最近状态不佳", tag_trend_flat: "➡️ 最近状态平稳", maggot_levels: ["👑 绝世大腿", "🦁 团队中坚", "😐 平平淡淡", "🐛 只有一点蛆", "💩 纯种蛆王"], sel_title: "身份确认", sel_desc: "发现多名玩家场次相同（疑似组队），请确认哪一位是您：", me: "这就是我" },
             en: { title: "Maggot Index", subtitle: "Broken Arrow Player Analysis", source: "Data: batrace.aoeiaol.top", check: "Check Now", analyzing: "Analyzing match data...", searching: "Searching player...", maggot_index: "Maggot Index", god: "GOD (1.0)", maggot: "MAGGOT (10.0)", lbl_avg_rank_total: "Avg Team Rank", lbl_avg_rank_kill: "Avg Kill Rank", lbl_avg_rank_cap: "Avg Cap Rank", matches: "Matches (12 Games)", history: "Recent Match Details", th_score: "My Score", th_team_details: "Team Details (Click Name to Search)", th_status: "Rating", err_input: "Please enter Steam64 ID or Name", err_network: "Network request failed", err_data: "Failed to parse data", err_no_matches: "No matches found", err_player_not_found: "Player not found", err_insufficient_prefix: "Insufficient valid matches", err_insufficient_suffix: ". Abnormal matches (<5 players or 0-score bug) were filtered out.", label_carry: "CARRY", label_normal: "NORMAL", label_pot: "SCAPEGOAT", tag_killer: "⚔️ TERMINATOR", tag_capper: "🚩 OBJ MASTER", tag_trend_up: "📈 IMPROVING", tag_trend_down: "📉 DECLINING", tag_trend_flat: "➡️ STABLE", maggot_levels: ["👑 GODLIKE", "🦁 TEAM CARRY", "😐 AVERAGE JOE", "🐛 BIT OF A MAGGOT", "💩 PURE MAGGOT"], sel_title: "Identify Yourself", sel_desc: "Multiple players have identical match history. Please select yourself:", me: "This is me" },
             ru: { title: "Индекс Личинки", subtitle: "Анализ игрока Broken Arrow", source: "Данные: batrace.aoeiaol.top", check: "Проверить", analyzing: "Анализ данных...", searching: "Поиск игрока...", maggot_index: "Индекс Личинки", god: "БОГ (1.0)", maggot: "ЛИЧИНКА (10.0)", lbl_avg_rank_total: "Ср. ранг", lbl_avg_rank_kill: "Ранг убийств", lbl_avg_rank_cap: "Ранг точек", matches: "Матчей (12 игр)", history: "История матчей", th_score: "Мой счет", th_team_details: "Команда (Клик для проверки)", th_status: "Рейтинг", err_input: "Введите Steam64 ID или имя", err_network: "Ошибка сети", err_data: "Ошибка данных", err_no_matches: "Матчи не найдены", err_player_not_found: "Игрок не найден", err_insufficient_prefix: "Недостаточно матчей", err_insufficient_suffix: ". Исключены матчи с <5 игроками или багом 0 очков.", label_carry: "ТАЩЕР", label_normal: "НОРМ", label_pot: "ВАГОН", tag_killer: "⚔️ УБИЙЦА", tag_capper: "🚩 ЗАХВАТЧИК", tag_trend_up: "📈 УЛУЧШЕНИЕ", tag_trend_down: "📉 УХУДШЕНИЕ", tag_trend_flat: "➡️ СТАБИЛЬНО", maggot_levels: ["👑 БОГ", "🦁 ТАЩЕР", "😐 СРЕДНЯЧОК", "🐛 НЕМНОГО ЛИЧИНКА", "💩 100% ЛИЧИНКА"], sel_title: "Подтверждение", sel_desc: "Несколько игроков имеют одинаковую историю. Выберите себя:", me: "Это я" }
         };
 
         let currentLang = 'zh';
         let sortedAllMatches = []; 
+        let currentLevel = null; // Store level from search result
         const HISTORY_KEY = 'broken_arrow_history';
 
         function setCookie(name, value, days) { const date = new Date(); date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); document.cookie = name + "=" + value + ";expires=" + date.toUTCString() + ";path=/"; }
         function getCookie(name) { const nameEQ = name + "="; const ca = document.cookie.split(';'); for(let i=0;i < ca.length;i++) { let c = ca[i]; while (c.charAt(0)==' ') c = c.substring(1,c.length); if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length); } return null; }
 
-        function addToHistory(id, name) { let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); history = history.filter(h => h.id !== id); history.unshift({ id: id, name: name }); if (history.length > 10) history.pop(); localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); renderHistory(); }
+        function addToHistory(id, name) { 
+            let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); 
+            // Remove existing entry for this ID to update it
+            history = history.filter(h => h.id !== id); 
+            // Add new entry to the top
+            history.unshift({ id: id, name: name }); 
+            if (history.length > 10) history.pop(); 
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); 
+            renderHistory(); 
+        }
         function renderHistory() { const container = document.getElementById('historyContainer'); const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); container.innerHTML = ''; history.forEach(h => { const chip = document.createElement('div'); chip.className = 'history-chip'; const safeName = escapeHtml(h.name); chip.innerHTML = `<span onclick="useHistory('${h.id}')" class="truncate max-w-[100px]">${safeName}</span><span class="history-remove" onclick="removeHistory('${h.id}')">×</span>`; container.appendChild(chip); }); }
-        function useHistory(id) { document.getElementById('steamInput').value = id; runAnalysis(); }
+        function useHistory(id) { document.getElementById('steamInput').value = id; currentLevel = null; runAnalysis(); }
         function removeHistory(id) { let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); history = history.filter(h => h.id !== id); localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); renderHistory(); }
 
         window.onload = function() {
@@ -227,6 +239,7 @@
             const t = translations[currentLang];
             if (!inputVal) { showError(t.err_input); return; }
             const isId = /^\d{16,18}$/.test(inputVal);
+            currentLevel = null; // Reset level
             if (isId) runAnalysis(); else searchPlayerByName(inputVal);
         }
 
@@ -234,7 +247,6 @@
             const t = translations[currentLang];
             document.getElementById('loading').classList.remove('hidden'); document.getElementById('lbl_analyzing').innerText = t.searching; document.getElementById('resultPanel').classList.add('hidden'); document.getElementById('errorMsg').classList.add('hidden');
             try {
-                // Limit changed to 8
                 const url = `https://batrace.aoeiaol.top/api/v1/search/players?q=${encodeURIComponent(name)}&limit=8`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(t.err_network);
@@ -242,7 +254,11 @@
                 const results = data.results || [];
                 if (results.length === 0) { showError(t.err_player_not_found); document.getElementById('loading').classList.add('hidden'); return; }
                 const exactMatch = results.filter(p => p.name.toLowerCase() === name.toLowerCase());
-                if (exactMatch.length === 1 && results.length === 1) { document.getElementById('steamInput').value = exactMatch[0].steam_id; runAnalysis(); } else { showSearchSelectModal(results); document.getElementById('loading').classList.add('hidden'); }
+                if (exactMatch.length === 1 && results.length === 1) { 
+                    document.getElementById('steamInput').value = exactMatch[0].steam_id; 
+                    currentLevel = exactMatch[0].level; // Store level
+                    runAnalysis(); 
+                } else { showSearchSelectModal(results); document.getElementById('loading').classList.add('hidden'); }
             } catch(e) { showError(e.message); document.getElementById('loading').classList.add('hidden'); }
         }
 
@@ -252,16 +268,16 @@
                 const btn = document.createElement('button'); btn.className = "w-full text-left p-4 rounded bg-slate-700 hover:bg-cyan-700 hover:shadow-lg transition border border-slate-600 flex justify-between items-center group";
                 const level = p.level || 0; const safeName = escapeHtml(p.name);
                 btn.innerHTML = `<div class="overflow-hidden"><div class="font-bold text-white group-hover:text-white truncate pr-2 text-lg">${safeName}</div><div class="text-xs text-slate-400">ID: ${p.steam_id}</div></div><div class="flex flex-col items-end gap-1 flex-shrink-0"><div class="text-xs px-2 py-0.5 bg-yellow-900/50 text-yellow-200 rounded border border-yellow-700">Lv.${level}</div></div>`;
-                btn.onclick = () => { modal.classList.add('hidden'); document.getElementById('steamInput').value = p.steam_id; runAnalysis(); }; list.appendChild(btn);
+                btn.onclick = () => { modal.classList.add('hidden'); document.getElementById('steamInput').value = p.steam_id; currentLevel = p.level; runAnalysis(); }; list.appendChild(btn);
             });
             modal.classList.remove('hidden');
         }
 
-        // 修改后的队友点击逻辑：直接填入名字并搜索，不再尝试跳转ID
+        // 修改后的队友点击逻辑：直接填入名字并搜索
         function inspectTeammateByName(name) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             document.getElementById('steamInput').value = name;
-            handleCheckBtn(); // 触发搜索流程
+            handleCheckBtn(); 
         }
 
         async function runAnalysis() {
@@ -319,9 +335,29 @@
                 validStats.push({ myScore: myEntry.totalScore, myRank: myRank, myKillRank: myKillRank, myCapRank: myCapRank, teamSize: processed.length, teamDetails: processed });
             }
             if (validStats.length < 12) { const scannedMsg = `(Scanned: ${idx}, Valid: ${validStats.length})`; showError(`${t.err_insufficient_prefix} ${scannedMsg}${t.err_insufficient_suffix}`); return; }
+            
             const nameEl = document.getElementById('currentPlayerName');
-            if (mainPlayerName) { nameEl.innerHTML = escapeHtml(mainPlayerName); nameEl.classList.remove('hidden'); addToHistory(document.getElementById('steamInput').value, mainPlayerName); } else { nameEl.innerHTML = `ID: ${mainPlayerId}`; }
-            const now = new Date(); document.getElementById('calcTime').innerText = "Calculated at: " + now.toLocaleTimeString();
+            const levelEl = document.getElementById('currentPlayerLevel');
+            
+            if (mainPlayerName) { 
+                nameEl.innerHTML = escapeHtml(mainPlayerName); 
+                addToHistory(document.getElementById('steamInput').value, mainPlayerName); 
+            } else { 
+                nameEl.innerHTML = `ID: ${mainPlayerId}`; 
+            }
+            nameEl.classList.remove('hidden');
+
+            if (currentLevel !== null && currentLevel !== undefined) {
+                levelEl.innerText = `Lv.${currentLevel}`;
+                levelEl.classList.remove('hidden');
+            } else {
+                levelEl.classList.add('hidden');
+            }
+
+            // 日期+时间格式
+            const now = new Date();
+            const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+            document.getElementById('calcTime').innerText = "Calculated at: " + dateStr;
             renderResults(validStats);
         }
 
@@ -343,7 +379,15 @@
 
             const scoreEl = document.getElementById('maggotScoreDisplay'); scoreEl.innerText = maggotIndex.toFixed(1);
             if (maggotIndex <= 3) scoreEl.className = "text-6xl font-black mb-1 text-green-400"; else if (maggotIndex <= 7) scoreEl.className = "text-6xl font-black mb-1 text-yellow-400"; else scoreEl.className = "text-6xl font-black mb-1 text-red-500";
-            let labelIndex = 0; if (maggotIndex <= 2) labelIndex = 0; else if (maggotIndex <= 4) labelIndex = 1; else if (maggotIndex <= 6) labelIndex = 2; else if (maggotIndex <= 8) labelIndex = 3; else labelIndex = 4; document.getElementById('maggotLabel').innerText = t.maggot_levels[labelIndex];
+            
+            let labelIndex = 0; 
+            if (maggotIndex <= 2) labelIndex = 0; 
+            else if (maggotIndex <= 4) labelIndex = 1; 
+            else if (maggotIndex <= 6) labelIndex = 2; 
+            else if (maggotIndex <= 8) labelIndex = 3; 
+            else labelIndex = 4; 
+            document.getElementById('maggotLabel').innerText = t.maggot_levels[labelIndex];
+            
             const percentage = ((maggotIndex - 1) / 9) * 100; document.getElementById('meterIndicator').style.left = `${percentage}%`;
             document.getElementById('avgRank').innerText = avgRank.toFixed(1); document.getElementById('avgKillRank').innerText = avgKillRank.toFixed(1); document.getElementById('avgCapRank').innerText = avgCapRank.toFixed(1); document.getElementById('matchCount').innerText = stats.length;
 
@@ -354,7 +398,6 @@
                 let teamHtml = `<div class="flex flex-col gap-1">`;
                 s.teamDetails.forEach(p => {
                     const isMeClass = p.isMe ? "is-me" : "text-slate-400"; const safeTeammateName = escapeHtml(p.name);
-                    // 点击队友执行名字搜索
                     const nameHtml = `<span class="teammate-link" onclick="inspectTeammateByName('${safeTeammateName}')" title="搜此人成分">${safeTeammateName}</span>`;
                     teamHtml += `<div class="teammate-badge ${isMeClass}"><span class="truncate max-w-[120px]">${nameHtml}</span><span>${p.totalScore.toFixed(2)}</span></div>`;
                 }); teamHtml += `</div>`;
