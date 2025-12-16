@@ -68,7 +68,6 @@
             color: #fff;
             font-weight: bold;
         }
-        /* 新增：排名小胶囊 */
         .rank-pill {
             display: inline-block;
             padding: 2px 6px;
@@ -79,23 +78,40 @@
         }
         .rank-pill-kill { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
         .rank-pill-cap { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center pt-10 px-4 pb-10">
 
     <div id="langModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
-        <div class="glass-panel p-8 rounded-xl max-w-sm w-full text-center">
+        <div class="glass-panel p-8 rounded-xl max-w-sm w-full text-center shadow-2xl">
             <h2 class="text-xl font-bold mb-6 text-white">Select Language / 选择语言</h2>
             <div class="flex flex-col gap-3">
-                <button onclick="selectLanguage('en')" class="p-3 rounded bg-slate-700 hover:bg-cyan-600 transition text-white">English</button>
-                <button onclick="selectLanguage('zh')" class="p-3 rounded bg-slate-700 hover:bg-cyan-600 transition text-white">中文</button>
-                <button onclick="selectLanguage('ru')" class="p-3 rounded bg-slate-700 hover:bg-cyan-600 transition text-white">Русский</button>
+                <button onclick="selectLanguage('en')" class="p-3 rounded bg-slate-700 hover:bg-cyan-600 transition text-white border border-slate-600">English</button>
+                <button onclick="selectLanguage('zh')" class="p-3 rounded bg-slate-700 hover:bg-cyan-600 transition text-white border border-slate-600">中文</button>
+                <button onclick="selectLanguage('ru')" class="p-3 rounded bg-slate-700 hover:bg-cyan-600 transition text-white border border-slate-600">Русский</button>
             </div>
         </div>
     </div>
 
+    <div id="playerSelectModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass-panel p-8 rounded-xl max-w-md w-full shadow-2xl">
+            <h2 class="text-xl font-bold mb-2 text-white text-center" id="lbl_select_player_title">Identity Confirmation</h2>
+            <p class="text-sm text-slate-400 mb-6 text-center" id="lbl_select_player_desc">Multiple players have identical match history. Please select yourself:</p>
+            
+            <div id="playerSelectList" class="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+                </div>
+            <button onclick="closePlayerModal()" class="mt-4 w-full py-2 text-xs text-slate-500 hover:text-white transition">Cancel</button>
+        </div>
+    </div>
+
     <div class="w-full max-w-5xl flex justify-between items-center mb-4 px-2">
-        <div class="text-xs text-slate-500">v1.4 U-Curve Edition</div>
+        <div class="text-xs text-slate-500">v1.5 Team Detection</div>
         <div class="flex gap-2">
             <button onclick="setLanguage('en')" id="btn_en" class="lang-btn">EN</button>
             <button onclick="setLanguage('zh')" id="btn_zh" class="lang-btn">中文</button>
@@ -217,7 +233,7 @@
                 lbl_avg_rank_total: "平均综合排名",
                 lbl_avg_rank_kill: "平均击杀排名",
                 lbl_avg_rank_cap: "平均占点排名",
-                matches: "统计局数",
+                matches: "统计局数 (最近10场)",
                 history: "最近战绩明细",
                 th_score: "我的贡献",
                 th_team_details: "队伍详情 (ID: 分数)",
@@ -231,7 +247,10 @@
                 label_pot: "背锅",
                 tag_killer: "⚔️ 击杀达人",
                 tag_capper: "🚩 占点达人",
-                maggot_levels: ["👑 绝世大腿 / 疑似开挂", "🦁 团队中坚", "😐 也就是个混子", "🐛 只有一点蛆", "💩 纯种蛆王"]
+                maggot_levels: ["👑 绝世大腿 / 疑似开挂", "🦁 团队中坚", "😐 也就是个混子", "🐛 只有一点蛆", "💩 纯种蛆王"],
+                sel_title: "身份确认",
+                sel_desc: "发现多名玩家场次相同（疑似组队），请确认哪一位是您：",
+                me: "这就是我"
             },
             en: {
                 title: "Maggot Index",
@@ -245,7 +264,7 @@
                 lbl_avg_rank_total: "Avg Team Rank",
                 lbl_avg_rank_kill: "Avg Kill Rank",
                 lbl_avg_rank_cap: "Avg Cap Rank",
-                matches: "Matches Analyzed",
+                matches: "Matches (Last 10)",
                 history: "Recent Match Details",
                 th_score: "My Score",
                 th_team_details: "Team Details (Sorted by Score)",
@@ -259,7 +278,10 @@
                 label_pot: "SCAPEGOAT",
                 tag_killer: "⚔️ TERMINATOR",
                 tag_capper: "🚩 OBJ MASTER",
-                maggot_levels: ["👑 GODLIKE", "🦁 TEAM CARRY", "😐 AVERAGE JOE", "🐛 BIT OF A MAGGOT", "💩 PURE MAGGOT"]
+                maggot_levels: ["👑 GODLIKE", "🦁 TEAM CARRY", "😐 AVERAGE JOE", "🐛 BIT OF A MAGGOT", "💩 PURE MAGGOT"],
+                sel_title: "Identify Yourself",
+                sel_desc: "Multiple players have identical match history. Please select yourself:",
+                me: "This is me"
             },
             ru: {
                 title: "Индекс Личинки",
@@ -273,7 +295,7 @@
                 lbl_avg_rank_total: "Ср. ранг",
                 lbl_avg_rank_kill: "Ранг убийств",
                 lbl_avg_rank_cap: "Ранг точек",
-                matches: "Матчей",
+                matches: "Матчей (Посл. 10)",
                 history: "История матчей",
                 th_score: "Мой счет",
                 th_team_details: "Команда (по счету)",
@@ -287,11 +309,15 @@
                 label_pot: "ВАГОН",
                 tag_killer: "⚔️ УБИЙЦА",
                 tag_capper: "🚩 ЗАХВАТЧИК",
-                maggot_levels: ["👑 БОГ", "🦁 ТАЩЕР", "😐 СРЕДНЯЧОК", "🐛 НЕМНОГО ЛИЧИНКА", "💩 100% ЛИЧИНКА"]
+                maggot_levels: ["👑 БОГ", "🦁 ТАЩЕР", "😐 СРЕДНЯЧОК", "🐛 НЕМНОГО ЛИЧИНКА", "💩 100% ЛИЧИНКА"],
+                sel_title: "Подтверждение",
+                sel_desc: "Несколько игроков имеют одинаковую историю. Выберите себя:",
+                me: "Это я"
             }
         };
 
         let currentLang = 'zh';
+        let cachedMatches = []; // 暂存数据用于手动选择后的回调
 
         // ================= Cookie 工具 =================
         function setCookie(name, value, days) {
@@ -359,6 +385,8 @@
             setText('th_score', t.th_score);
             setText('th_team_details', t.th_team_details);
             setText('th_status', t.th_status);
+            setText('lbl_select_player_title', t.sel_title);
+            setText('lbl_select_player_desc', t.sel_desc);
         }
 
         // ================= 核心逻辑 =================
@@ -401,6 +429,7 @@
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('resultPanel').classList.add('hidden');
             document.getElementById('errorMsg').classList.add('hidden');
+            document.getElementById('playerSelectModal').classList.add('hidden');
 
             try {
                 const url = `https://batrace.aoeiaol.top/api/v1/matches_steam64?steam64=${steamId}`;
@@ -411,7 +440,7 @@
                 
                 if (allObjects.length === 0) throw new Error(t.err_data);
 
-                analyzeData(allObjects, steamId);
+                prepareData(allObjects);
 
             } catch (err) {
                 showError(err.message);
@@ -421,37 +450,98 @@
             }
         }
 
-        function analyzeData(allObjects, targetSteamId) {
-            const matches = allObjects.filter(obj => obj.type === 'match');
+        function prepareData(allObjects) {
             const t = translations[currentLang];
+            const matches = allObjects.filter(obj => obj.type === 'match');
 
             if (matches.length === 0) {
                 showError(t.err_no_matches);
                 return;
             }
 
+            // 修改点：只保留最近10局
+            const recentMatches = matches.slice(-10);
+            cachedMatches = recentMatches;
+
+            // 智能识别玩家 ID
             const idCounts = {};
-            matches.forEach(m => {
+            const idNames = {}; // 记录 ID 对应的名字
+
+            recentMatches.forEach(m => {
                 if(m.data && m.data.Data) {
-                    Object.keys(m.data.Data).forEach(id => {
-                        idCounts[id] = (idCounts[id] || 0) + 1;
+                    Object.values(m.data.Data).forEach(p => {
+                        idCounts[p.Id] = (idCounts[p.Id] || 0) + 1;
+                        if (p.Name) idNames[p.Id] = p.Name; // 只要有一次有名字就记录
                     });
                 }
             });
 
-            let mainPlayerId = null;
-            let maxCount = -1;
+            // 找出出现次数最多的次数 (maxCount)
+            let maxCount = 0;
+            for (const count of Object.values(idCounts)) {
+                if (count > maxCount) maxCount = count;
+            }
+
+            // 找出所有出现次数等于 maxCount 的候选人
+            const candidates = [];
             for (const [id, count] of Object.entries(idCounts)) {
-                if (count > maxCount) {
-                    maxCount = count;
-                    mainPlayerId = id;
+                if (count === maxCount) {
+                    candidates.push({
+                        id: id,
+                        name: idNames[id] || `Unknown (${id})`
+                    });
                 }
             }
 
-            const stats = [];
-            const recentMatches = matches.slice(-20);
+            if (candidates.length === 0) {
+                showError(t.err_data);
+            } else if (candidates.length === 1) {
+                // 只有一个人选，直接分析
+                analyzeData(candidates[0].id);
+            } else {
+                // 有多个人选，弹出选择框
+                showPlayerSelectModal(candidates);
+            }
+        }
 
-            recentMatches.forEach(match => {
+        function showPlayerSelectModal(candidates) {
+            const modal = document.getElementById('playerSelectModal');
+            const list = document.getElementById('playerSelectList');
+            const t = translations[currentLang];
+            
+            list.innerHTML = '';
+            
+            candidates.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded bg-slate-700 hover:bg-cyan-700 hover:shadow-lg transition border border-slate-600 flex justify-between items-center group";
+                btn.innerHTML = `
+                    <div>
+                        <div class="font-bold text-white group-hover:text-white">${c.name}</div>
+                        <div class="text-xs text-slate-400">ID: ${c.id}</div>
+                    </div>
+                    <div class="text-xs px-3 py-1 bg-slate-800 rounded text-slate-300 group-hover:bg-cyan-600 group-hover:text-white transition">
+                        ${t.me}
+                    </div>
+                `;
+                btn.onclick = () => {
+                    modal.classList.add('hidden');
+                    analyzeData(c.id);
+                };
+                list.appendChild(btn);
+            });
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closePlayerModal() {
+            document.getElementById('playerSelectModal').classList.add('hidden');
+        }
+
+        function analyzeData(mainPlayerId) {
+            const t = translations[currentLang];
+            const stats = [];
+
+            cachedMatches.forEach(match => {
                 if (!match.data || !match.data.Data || !match.data.Data[mainPlayerId]) return;
 
                 const data = match.data.Data;
@@ -514,34 +604,21 @@
             const avgKillRank = stats.reduce((sum, s) => sum + s.myKillRank, 0) / stats.length;
             const avgCapRank = stats.reduce((sum, s) => sum + s.myCapRank, 0) / stats.length;
 
-            // ================= 蛆指数核心算法 V3 (S-Curve Mapping) =================
-            // 目标：将 Rank 1-5 映射到 Index 1-10，但在两端更密集（U型分布 / S型函数）
-            // 线性归一化: x = (avgRank - 1) / 4   (Range 0 ~ 1)
-            // Cosine S-Curve: y = (1 - cos(x * PI)) / 2
-            // 映射回 1-10: Index = 1 + 9 * y
-            // 效果：
-            // Rank 1 (x=0) -> y=0 -> Index 1
-            // Rank 2 (x=0.25) -> y=0.146 -> Index 2.3 (线性本应是 3.25，变得更好了)
-            // Rank 3 (x=0.5) -> y=0.5 -> Index 5.5
-            // Rank 4 (x=0.75) -> y=0.853 -> Index 8.6 (线性本应是 7.75，变得更差了)
-            // Rank 5 (x=1) -> y=1 -> Index 10
-            
+            // U-Curve / S-Curve 映射
             const normalizedRank = (avgRank - 1) / 4; 
-            // 限制范围防止溢出（比如队伍小于5人时）
             const clampedNorm = Math.max(0, Math.min(1, normalizedRank));
-            
-            // S-Curve 变换
             const sCurveValue = (1 - Math.cos(clampedNorm * Math.PI)) / 2;
-            
             let maggotIndex = 1 + sCurveValue * 9;
             
-            // 保留一位小数
+            // 边界修正
+            if (maggotIndex < 1) maggotIndex = 1;
+            if (maggotIndex > 10) maggotIndex = 10;
+
             document.getElementById('resultPanel').classList.remove('hidden');
             
-            // 1. 渲染风格标签 (比较平均排名，排名越小越好)
+            // 1. 风格标签
             const tagEl = document.getElementById('playstyleTag');
             if (avgKillRank <= avgCapRank) {
-                // 击杀排名更靠前（数值更小），或者是平手
                 tagEl.innerText = t.tag_killer;
                 tagEl.className = "absolute top-4 right-4 px-3 py-1 rounded text-xs font-bold border transform rotate-3 bg-red-900/80 border-red-500 text-red-200 shadow-[0_0_10px_rgba(239,68,68,0.5)]";
             } else {
@@ -549,7 +626,7 @@
                 tagEl.className = "absolute top-4 right-4 px-3 py-1 rounded text-xs font-bold border transform rotate-3 bg-blue-900/80 border-blue-500 text-blue-200 shadow-[0_0_10px_rgba(59,130,246,0.5)]";
             }
 
-            // 2. 渲染蛆指数
+            // 2. 蛆指数
             const scoreEl = document.getElementById('maggotScoreDisplay');
             scoreEl.innerText = maggotIndex.toFixed(1);
             
@@ -568,7 +645,7 @@
             const percentage = ((maggotIndex - 1) / 9) * 100;
             document.getElementById('meterIndicator').style.left = `${percentage}%`;
 
-            // 3. 基础数据 (新增具体的平均排名)
+            // 3. 基础数据
             document.getElementById('avgRank').innerText = avgRank.toFixed(1);
             document.getElementById('avgKillRank').innerText = avgKillRank.toFixed(1);
             document.getElementById('avgCapRank').innerText = avgCapRank.toFixed(1);
@@ -578,32 +655,26 @@
             const tbody = document.getElementById('matchTableBody');
             tbody.innerHTML = "";
             
-            // 倒序显示
             [...stats].reverse().forEach((s) => {
                 const tr = document.createElement('tr');
                 tr.className = "match-row bg-slate-800 border-b border-slate-700";
                 
-                // 我的排名颜色
                 let scoreColor = "text-slate-300";
                 if (s.myRank === 1) scoreColor = "text-green-400 font-bold";
                 else if (s.myRank === 5) scoreColor = "text-red-400";
 
-                // 生成队伍详情
                 let teamHtml = `<div class="flex flex-col gap-1">`;
                 s.teamDetails.forEach(p => {
                     const isMeClass = p.isMe ? "is-me" : "text-slate-400";
                     teamHtml += `
                         <div class="teammate-badge ${isMeClass}">
                             <span class="truncate max-w-[120px]">${p.name}</span>
-                            <span>
-                                ${p.totalScore.toFixed(2)}
-                            </span>
+                            <span>${p.totalScore.toFixed(2)}</span>
                         </div>
                     `;
                 });
                 teamHtml += `</div>`;
 
-                // 状态标签
                 let statusLabel = "";
                 if (s.myRank === 1) {
                     statusLabel = `<span class="px-2 py-1 rounded bg-green-900 text-green-300 text-xs font-bold whitespace-nowrap">${t.label_carry}</span>`;
@@ -613,7 +684,6 @@
                     statusLabel = `<span class="px-2 py-1 rounded bg-blue-900 text-blue-300 text-xs whitespace-nowrap">${t.label_normal}</span>`;
                 }
 
-                // 添加击杀/占点的小Rank显示
                 const detailedRanks = `
                     <div class="mt-1 flex gap-1 justify-center">
                         <span class="rank-pill rank-pill-kill" title="Kill Rank">K#${s.myKillRank}</span>
@@ -622,14 +692,9 @@
                 `;
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 align-top ${scoreColor} text-lg font-mono">
-                        ${s.myScore.toFixed(2)}
-                    </td>
+                    <td class="px-6 py-4 align-top ${scoreColor} text-lg font-mono">${s.myScore.toFixed(2)}</td>
                     <td class="px-6 py-4 align-top">${teamHtml}</td>
-                    <td class="px-6 py-4 align-top text-center">
-                        ${statusLabel}
-                        ${detailedRanks}
-                    </td>
+                    <td class="px-6 py-4 align-top text-center">${statusLabel}${detailedRanks}</td>
                 `;
                 tbody.appendChild(tr);
             });
