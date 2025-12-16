@@ -2,6 +2,8 @@
 
 '人含量 1%，含量不如鸡尾酒'
 
+[点击访问](https://zawinzala.github.io/Broken-Arrow-Maggot/)
+
 ### 项目介绍
 
 **断箭蛆指数计算器 (Broken Arrow Maggot Index)** 是一个轻量级的单文件网页工具，用于分析《断箭 (Broken Arrow)》玩家的近期战绩。
