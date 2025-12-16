@@ -1,62 +1,6 @@
-这是一个为你准备的 `README.md` 文件。不仅包含了项目介绍，还详细解释了你独特的“蛆指数”算法，显得既专业又硬核。
-
-你可以直接复制以下内容保存为 `README.md`。
-
------
-
 # Broken Arrow Maggot Index / 断箭蛆指数计算器
 
-  
-
-**[English](https://www.google.com/search?q=%23english) | [中文](https://www.google.com/search?q=%23chinese)**
-
------
-
-\<a name="english"\>\</a\>
-
-## 🇺🇸 English
-
-### Introduction
-
-**Broken Arrow Maggot Index** is a lightweight, single-file HTML/JS tool designed for the RTS game *Broken Arrow*. It analyzes a player's recent combat history via Steam64 ID to determine their contribution level.
-
-The tool calculates a **"Maggot Index"** (1.0 to 10.0).
-
-  - **1.0 (GOD):** You carry the team.
-  - **10.0 (MAGGOT):** You are a burden/leech.
-
-### Key Features
-
-  * **🛠️ Corrupted JSON Repair:** Automatically detects and fixes truncated JSON responses from the game API (recovers valid matches from broken strings).
-  * **📉 S-Curve Algorithm:** Uses a Cosine S-Curve mapping to polarize scores. It pushes ratings towards 1 or 10, minimizing "average" scores to highlight extreme performance.
-  * **🏷️ Playstyle Analysis:** Automatically tags players as **Terminator** (Kill focus) or **Objective Master** (Capture focus) based on team ranking comparison.
-  * **🌍 Multi-language:** Supports English, Chinese, and Russian (auto-saved via Cookies).
-  * **🎨 Modern UI:** Glassmorphism design with military aesthetic, built with Tailwind CSS.
-
-### The Algorithm
-
-The rating is **NOT** based on absolute K/D, but on your **relative ranking** within your team (usually 5 players).
-
-1.  **Contribution Score:**
-    $$Score = \frac{(DestructionScore - LossesScore)}{1000} + ObjectivesCaptured$$
-2.  **Team Ranking:** Calculates your rank (1-5) in every match based on the score above.
-3.  **Maggot Index (S-Curve):**
-    Maps the average rank to a 1-10 scale using a non-linear cosine function. If you consistently rank \#1, you get a 1.0. If you consistently rank \#5, you get a 10.0. Ranks \#2 and \#4 are pushed towards the extremes.
-
-### How to Use
-
-1.  Download `index.html`.
-2.  Open it in any modern browser.
-3.  Enter your **Steam64 ID**.
-4.  Click "Check Now".
-
-> **Note:** Due to CORS policies on the game API, if running locally, you may need a browser extension like "Allow CORS" or host it on a live server (like GitHub Pages).
-
------
-
-\<a name="chinese"\>\</a\>
-
-## 🇨🇳 中文
+'人含量 1%，含量不如鸡尾酒'
 
 ### 项目介绍
 
