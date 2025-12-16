@@ -247,7 +247,7 @@
             const t = translations[currentLang];
             document.getElementById('loading').classList.remove('hidden'); document.getElementById('lbl_analyzing').innerText = t.searching; document.getElementById('resultPanel').classList.add('hidden'); document.getElementById('errorMsg').classList.add('hidden');
             try {
-                const url = `https://batrace.aoeiaol.top/api/v1/search/players?q=${encodeURIComponent(name)}&limit=8`;
+                const url = `https://batrace.aoeiaol.top/api/v1/search/players?q=${encodeURIComponent(name)}&limit=20`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(t.err_network);
                 const data = await response.json();

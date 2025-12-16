@@ -488,8 +488,8 @@
             contentDiv.innerHTML = `<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-cyan-500"></div>`;
 
             try {
-                // Limit = 8
-                const res = await fetch(`https://batrace.aoeiaol.top/api/v1/search/players?q=${encodeURIComponent(inputVal)}&limit=8`);
+                // Limit = 20
+                const res = await fetch(`https://batrace.aoeiaol.top/api/v1/search/players?q=${encodeURIComponent(inputVal)}&limit=20`);
                 const data = await res.json();
                 const results = data.results || [];
 
