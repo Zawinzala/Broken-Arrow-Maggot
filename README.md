@@ -1,2 +1,113 @@
-# Broken-Arrow-Maggot
-断箭蛆指数排名
+这是一个为你准备的 `README.md` 文件。不仅包含了项目介绍，还详细解释了你独特的“蛆指数”算法，显得既专业又硬核。
+
+你可以直接复制以下内容保存为 `README.md`。
+
+-----
+
+# Broken Arrow Maggot Index / 断箭蛆指数计算器
+
+  
+
+**[English](https://www.google.com/search?q=%23english) | [中文](https://www.google.com/search?q=%23chinese)**
+
+-----
+
+\<a name="english"\>\</a\>
+
+## 🇺🇸 English
+
+### Introduction
+
+**Broken Arrow Maggot Index** is a lightweight, single-file HTML/JS tool designed for the RTS game *Broken Arrow*. It analyzes a player's recent combat history via Steam64 ID to determine their contribution level.
+
+The tool calculates a **"Maggot Index"** (1.0 to 10.0).
+
+  - **1.0 (GOD):** You carry the team.
+  - **10.0 (MAGGOT):** You are a burden/leech.
+
+### Key Features
+
+  * **🛠️ Corrupted JSON Repair:** Automatically detects and fixes truncated JSON responses from the game API (recovers valid matches from broken strings).
+  * **📉 S-Curve Algorithm:** Uses a Cosine S-Curve mapping to polarize scores. It pushes ratings towards 1 or 10, minimizing "average" scores to highlight extreme performance.
+  * **🏷️ Playstyle Analysis:** Automatically tags players as **Terminator** (Kill focus) or **Objective Master** (Capture focus) based on team ranking comparison.
+  * **🌍 Multi-language:** Supports English, Chinese, and Russian (auto-saved via Cookies).
+  * **🎨 Modern UI:** Glassmorphism design with military aesthetic, built with Tailwind CSS.
+
+### The Algorithm
+
+The rating is **NOT** based on absolute K/D, but on your **relative ranking** within your team (usually 5 players).
+
+1.  **Contribution Score:**
+    $$Score = \frac{(DestructionScore - LossesScore)}{1000} + ObjectivesCaptured$$
+2.  **Team Ranking:** Calculates your rank (1-5) in every match based on the score above.
+3.  **Maggot Index (S-Curve):**
+    Maps the average rank to a 1-10 scale using a non-linear cosine function. If you consistently rank \#1, you get a 1.0. If you consistently rank \#5, you get a 10.0. Ranks \#2 and \#4 are pushed towards the extremes.
+
+### How to Use
+
+1.  Download `index.html`.
+2.  Open it in any modern browser.
+3.  Enter your **Steam64 ID**.
+4.  Click "Check Now".
+
+> **Note:** Due to CORS policies on the game API, if running locally, you may need a browser extension like "Allow CORS" or host it on a live server (like GitHub Pages).
+
+-----
+
+\<a name="chinese"\>\</a\>
+
+## 🇨🇳 中文
+
+### 项目介绍
+
+**断箭蛆指数计算器 (Broken Arrow Maggot Index)** 是一个轻量级的单文件网页工具，用于分析《断箭 (Broken Arrow)》玩家的近期战绩。
+
+它通过计算\*\*“蛆指数”\*\* (1.0 到 10.0) 来量化玩家是“大腿”还是“吸血鬼”：
+
+  - **1.0 (神):** 绝世大腿，把把CARRY。
+  - **10.0 (蛆):** 纯种蛆王，团队吸血鬼。
+
+### 核心功能
+
+  * **🛠️ 自动修复截断数据:** 针对 API 返回的 JSON 经常截断的问题，内置了字符流扫描修复算法，尽可能挽救每一局有效数据。
+  * **📉 U型/S型 评分曲线:** 拒绝平庸！采用余弦 S-Curve 算法，将评分向两极（神或蛆）挤压。只要你稍强就是神，稍弱就是蛆，减少无聊的中间分。
+  * **🏷️ 风格标签系统:** 自动比较“击杀分排名”与“占点分排名”，授予 **⚔️ 击杀达人** 或 **🚩 占点达人** 称号。
+  * **🌍 多语言支持:** 内置 中/英/俄 三语切换，并通过 Cookie 自动记忆。
+  * **🎨 硬核 UI:** 军事风深色界面，毛玻璃质感，适配 PC 与移动端。
+
+### 算法说明
+
+本工具不看绝对数值，只看你在**队伍内部的相对排名**。
+
+1.  **单局贡献分公式:**
+    $$贡献分 = \frac{(击杀分 - 损失分)}{1000} + 占点数$$
+2.  **队内排名:**
+    根据贡献分，计算你在该局队友中的排名（通常为第1-5名）。
+3.  **蛆指数映射:**
+    统计最近20局的平均排名，通过非线性函数映射到 1-10。
+      * 平均排名 1.0 $\rightarrow$ 指数 1.0 (神)
+      * 平均排名 5.0 $\rightarrow$ 指数 10.0 (蛆)
+      * 中间排名的分数会迅速向两头靠拢。
+
+### 使用方法
+
+#### 方法一：在线部署 (推荐)
+
+将本项目 Fork 并开启 **GitHub Pages**，即可直接访问。
+
+#### 方法二：本地运行
+
+1.  下载 `index.html`。
+2.  直接双击打开。
+3.  输入 Steam64 ID 进行查询。
+      * *注意：如果本地直接打开遇到网络错误，通常是因为浏览器的跨域 (CORS) 限制。请尝试安装 'Allow CORS' 插件或使用 VS Code 的 Live Server 运行。*
+
+### 数据来源
+
+Data provided by [batrace.aoeiaol.top](https://batrace.aoeiaol.top)
+
+-----
+
+### License
+
+MIT License
