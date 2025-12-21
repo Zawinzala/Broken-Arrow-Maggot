@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Broken Arrow Maggot Index v3.13 - By Zola</title>
+    <title>Broken Arrow Maggot Index v3.14 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
         body { background-color: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; overflow-x: hidden; }
         .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .bar-container { background: rgba(0,0,0,0.5); height: 6px; border-radius: 4px; overflow: hidden; flex: 1; } /* 稍微调细一点高度适配移动端 */
+        .bar-container { background: rgba(0,0,0,0.5); height: 6px; border-radius: 4px; overflow: hidden; flex: 1; } 
         @media (min-width: 768px) { .bar-container { height: 8px; } }
         
         .bar-kill { background: #22c55e; height: 100%; transition: width 0.6s ease-out; }
@@ -27,7 +27,7 @@
         .tag-sticker { padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-weight: 900; font-style: italic; font-size: 0.9rem; text-transform: uppercase; transform: rotate(8deg); box-shadow: 0 6px 15px rgba(0,0,0,0.4); border-width: 2px; animation: tagPop 0.5s ease-out forwards; opacity: 0; white-space: nowrap; }
         @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
         
-        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 70px; } /* 调小最小高度 */
+        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 70px; } 
         @media (min-width: 768px) { .teammate-row { min-height: 85px; } }
         
         .teammate-row:hover { background: rgba(255,255,255,0.05); }
@@ -67,7 +67,6 @@
             border-color: rgba(255,255,255,0.2);
         }
         
-        /* 自定义滚动条 */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
@@ -77,7 +76,7 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.13 Integrated Edition</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.14 Integrated Edition</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -127,10 +126,7 @@
 
         <div id="resultPanel" class="hidden result-fade">
             <div class="bg-slate-800/60 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-white/10 flex flex-col items-center mb-10 md:mb-16 relative overflow-hidden">
-                <div class="tag-sticker-container">
-                    <div id="styleTag" class="tag-sticker bg-cyan-900 border-cyan-400 text-cyan-50 text-xl"></div>
-                    <div id="trendTag" class="tag-sticker bg-slate-700 border-slate-400 text-slate-100"></div>
-                </div>
+                <div class="tag-sticker-container"></div>
 
                 <div class="text-center mb-4 mt-2 md:mt-0 w-full px-2">
                     <div id="userNameDisplay" class="text-xl md:text-3xl font-black text-white mb-1 truncate">Commander Name</div>
@@ -189,7 +185,7 @@
                 </svg>
             </button>
             
-            <h2 id="modal_title" class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-1 text-center">游戏内部 ID 查询</h2>
+            <h2 id="modal_title" class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-1 text-center">玩家内部 ID 查询</h2>
             <div class="text-[10px] text-slate-500 mb-6 text-center font-mono">
                 Data from: <a href="https://dash.aoeiaol.top/" target="_blank" class="hover:text-orange-400 border-b border-dotted border-slate-600 transition">https://dash.aoeiaol.top/</a>
             </div>
@@ -206,18 +202,14 @@
                 </button>
             </div>
             <div id="modalStatusMsg" class="text-xs text-slate-400 min-h-[1.5rem] mb-2 pl-1"></div>
-
             <div id="modalResultList" class="hidden rounded-xl overflow-hidden max-h-[300px] overflow-y-auto flex flex-col gap-1 pr-1 custom-scrollbar"></div>
-
             <div id="modalFinalResult" class="hidden mt-4 bg-orange-900/10 border border-orange-500/20 rounded-xl p-4 text-center">
                 <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-1" id="lbl_modal_pname">玩家名称</div>
                 <div id="modalSelectedName" class="text-xl font-bold text-white mb-2"></div>
-                
                 <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-1" id="lbl_modal_pid">内部 ID</div>
                 <div class="flex items-center justify-center gap-2 mb-3">
                     <code id="modalSelectedId" class="bg-black/30 px-3 py-1 rounded text-orange-300 font-mono text-xl font-bold select-all"></code>
                 </div>
-                
                 <button onclick="useFoundId()" id="btn_use_id" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-lg shadow-lg transition">
                     使用此 ID 检测
                 </button>
@@ -264,13 +256,13 @@
                 kill: "击杀", loss: "损失", obj: "占点",
                 levels: ["👑 神", "🦁 团队支柱", "😐 平平无奇", "🐛 有点蛆", "💩 蛆！"],
                 tag_killer: "⚔️ 击杀为主", tag_kd: "📈 KD 为主", tag_obj: "🚩 占点为主",
-                trend_up: "🚀 最近猛如虎", trend_down: "📉 最近变蛆了", trend_flat: "➡️ 稳如泰山",
+                trend_up: "🚀 最近变强", trend_down: "📉 最近变蛆", trend_flat: "➡️ 稳如泰山",
                 err_net: "网络拥塞，请稍后再试", err_insufficient: "有效对局不足 12 局",
                 lbl_ref_kdr: "平均 KD 排名", lbl_ref_kr: "平均击杀排名",
                 lbl_ref_dr: "爱兵如子排名", lbl_ref_or: "平均占点排名", lbl_ref_wr: "最近 12 局胜率",
                 res_vic: "胜利", res_def: "失败",
                 meta_map: "地图", meta_dur: "时长", meta_win: "获胜方",
-                reasons: { 1: "正常结束", 2: "正常结束", 3: "投降结束" },
+                reasons: { 1: "统治结束", 2: "正常结束", 3: "投降结束" },
                 medals: {
                     Destruction: "击杀王", Losses: "送死王", DamageDealt: "炸炸炸", DamageReceived: "最耐炸",
                     SupplyPointsConsumed: "大胃袋", SupplyPointsConsumedFromAllies: "小馋猫", SupplyPointsConsumedByAllies: "奶妈", 
@@ -298,7 +290,7 @@
                 lbl_ref_dr: "Troop Care Rank", lbl_ref_or: "Avg Obj Rank", lbl_ref_wr: "Win Rate (12G)",
                 res_vic: "VICTORY", res_def: "DEFEAT",
                 meta_map: "Map", meta_dur: "Dur", meta_win: "Winner",
-                reasons: { 1: "Normal", 2: "Normal", 3: "Surrender" },
+                reasons: { 1: "Domination", 2: "Normal", 3: "Surrender" },
                 medals: {
                     Destruction: "Kill King", Losses: "Loss King", DamageDealt: "Top DMG", DamageReceived: "Iron Wall",
                     SupplyPointsConsumed: "Hungry", SupplyPointsConsumedFromAllies: "Leech", SupplyPointsConsumedByAllies: "Medic", 
@@ -457,12 +449,14 @@
 
         function processFinalData(myUid, matches) {
             let kRankSum = 0, oRankSum = 0, kdRankSum = 0, lossRankSum = 0, wins = 0;
+            const medalCounts = {};
 
             const stats = matches.map(m => {
                 const data = m.data.Data;
                 const meta = m.data; 
                 const me = data[myUid];
-                const myTeamId = me.TeamId;
+                // 如果找不到me（可能掉线导致ID变了或者没了），尝试找个TeamId，找不到就默认一个
+                const myTeamId = me ? me.TeamId : (meta.WinnerTeam === 0 ? 1 : 0); 
                 const players = Object.values(data);
                 
                 const isWin = myTeamId === meta.WinnerTeam;
@@ -504,14 +498,31 @@
                 assignMedals(ally);
                 assignMedals(enemy);
 
-                kRankSum += ([...ally].sort((a,b)=>b.kScore - a.kScore).findIndex(p=>p.isMe) + 1);
-                oRankSum += ([...ally].sort((a,b)=>b.oScore - a.oScore).findIndex(p=>p.isMe) + 1);
-                kdRankSum += ([...ally].sort((a,b)=>b.kd - a.kd).findIndex(p=>p.isMe) + 1);
-                lossRankSum += ([...ally].sort((a,b)=>a.lScore - b.lScore).findIndex(p=>p.isMe) + 1);
+                const myP = ally.find(p => p.isMe);
+                if(myP && myP.medals) {
+                    myP.medals.forEach(m => {
+                        medalCounts[m.key] = (medalCounts[m.key] || 0) + 1;
+                    });
+                }
+
+                // --- 修改逻辑开始：掉线(Rank 0) 强制视为 Rank 5 参与统计 ---
+                const calcR = (list, fn) => { 
+                    const r = [...list].sort(fn).findIndex(p=>p.isMe) + 1; 
+                    return r === 0 ? 5 : r; // 如果找不到人(0)，按垫底(5)计算
+                };
+
+                kRankSum += calcR(ally, (a,b)=>b.kScore - a.kScore);
+                oRankSum += calcR(ally, (a,b)=>b.oScore - a.oScore);
+                kdRankSum += calcR(ally, (a,b)=>b.kd - a.kd);
+                lossRankSum += calcR(ally, (a,b)=>a.lScore - b.lScore);
+
+                let currentMatchRank = ally.findIndex(p => p.isMe) + 1;
+                if (currentMatchRank === 0) currentMatchRank = 5; // 显示为 Rank 5
+                // --- 修改逻辑结束 ---
 
                 return { 
                     id: m.id, 
-                    myRank: ally.findIndex(p => p.isMe) + 1, 
+                    myRank: currentMatchRank, 
                     ally, enemy,
                     isWin: isWin,
                     endReason: meta.EndMatchReason,
@@ -521,10 +532,17 @@
                     winnerTeam: meta.WinnerTeam
                 };
             });
-            renderResults(stats, kRankSum/12, kdRankSum/12, oRankSum/12, lossRankSum/12, wins);
+
+            // 找出最多的2个徽章
+            const topMedals = Object.entries(medalCounts)
+                .sort((a,b) => b[1] - a[1])
+                .slice(0, 2)
+                .map(x => x[0]);
+
+            renderResults(stats, kRankSum/12, kdRankSum/12, oRankSum/12, lossRankSum/12, wins, topMedals);
         }
 
-        function renderResults(stats, avgKR, avgKDR, avgOR, avgDR, wins) {
+        function renderResults(stats, avgKR, avgKDR, avgOR, avgDR, wins, topMedals) {
             const t = DICT[currentLang];
             document.getElementById('resultPanel').classList.remove('hidden');
             
@@ -545,15 +563,35 @@
             document.getElementById('ref_avgOR').innerText = `#${avgOR.toFixed(1)}`;
             document.getElementById('ref_WR').innerText = Math.round((wins / stats.length) * 100) + '%';
 
-            const minRank = Math.min(avgKR, avgKDR, avgOR);
-            const styleEl = document.getElementById('styleTag');
-            if (avgKR === minRank) styleEl.innerText = t.tag_killer;
-            else if (avgKDR === minRank) styleEl.innerText = t.tag_kd;
-            else styleEl.innerText = t.tag_obj;
+            // --- 渲染徽章贴纸 ---
+            const container = document.querySelector('.tag-sticker-container');
+            container.innerHTML = ''; 
 
+            topMedals.forEach(key => {
+                const conf = MEDAL_CONFIG.find(c => c.key === key);
+                if(!conf) return;
+                const name = DICT[currentLang].medals[key] || key;
+                // 将文本颜色类转换为背景色和边框色
+                const colorBase = conf.color.replace('text-', '').replace('-400', '');
+                // 简单的颜色映射
+                const bgClass = `bg-${colorBase}-900`;
+                const borderClass = `border-${colorBase}-400`;
+                
+                const el = document.createElement('div');
+                // 移除 hidden xl:inline 逻辑，因为贴纸总是显示
+                el.className = `tag-sticker ${bgClass} ${borderClass} text-${colorBase}-100 flex items-center gap-2`;
+                el.innerHTML = `<span class="text-lg">${conf.icon}</span><span>${name}</span>`;
+                container.appendChild(el);
+            });
+
+            // 渲染趋势标签 (Trend Tag)
             const recentAvg = stats.slice(0,3).reduce((a,b)=>a+b.myRank,0)/3;
             const oldAvg = stats.slice(3).reduce((a,b)=>a+b.myRank,0)/9;
-            document.getElementById('trendTag').innerText = recentAvg < oldAvg - 0.4 ? t.trend_up : (recentAvg > oldAvg + 0.4 ? t.trend_down : t.trend_flat);
+            const trendText = recentAvg < oldAvg - 0.4 ? t.trend_up : (recentAvg > oldAvg + 0.4 ? t.trend_down : t.trend_flat);
+            const trendEl = document.createElement('div');
+            trendEl.className = "tag-sticker bg-slate-800 border-slate-500 text-slate-200";
+            trendEl.innerText = trendText;
+            container.appendChild(trendEl);
 
             document.getElementById('matchesContainer').innerHTML = stats.map(m => {
                 const reasonText = t.reasons[m.endReason] || t.reasons[1];
