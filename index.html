@@ -482,7 +482,7 @@
                     if (!val.Id) val.Id = key;
                     
                     // 2. 如果没有名字，补全占位符
-                    if (!val.Name) val.Name = "Unknown (Ghost)";
+                    if (!val.Name) val.Name = "Unknown";
 
                     // 3. 智能推断阵营：针对没有 TeamId 但有 Elo 变化的数据
                     if (val.TeamId === undefined && val.NewRating !== undefined && val.OldRating !== undefined) {
@@ -651,7 +651,7 @@
                     // Violet 样式
                     // 方案：半透明背景，不刺眼，保留紫色调
                     eloEl.className = "tag-sticker bg-violet-600/20 border-violet-500/50 text-violet-300 font-mono";
-                    eloEl.innerHTML = `⚡ ELO ${currentMe.elo}`;
+                    eloEl.innerHTML = `ELO ${currentMe.elo}`;
                     container.appendChild(eloEl);
                 }
             }
