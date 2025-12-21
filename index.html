@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broken Arrow Maggot Index v3.11 - By Zola</title>
+    <title>Broken Arrow Maggot Index v3.13 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
@@ -30,6 +30,10 @@
         .result-fade { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
+        /* Modal Styles */
+        .modal-backdrop { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); }
+        .search-result-item:hover { background: rgba(249, 115, 22, 0.1); border-color: rgba(249, 115, 22, 0.5); }
+        
         .medal-badge { 
             display: inline-flex; 
             align-items: center; 
@@ -52,7 +56,7 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.11 Clean Edition</div>
+            <div class="text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.13 Integrated Edition</div>
         </div>
         <div class="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-4 py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -73,10 +77,17 @@
         </div>
 
         <div class="flex flex-col items-center mb-16">
-            <div class="flex flex-col md:flex-row gap-4 w-full max-w-2xl">
+            <div class="flex flex-col md:flex-row gap-4 w-full max-w-2xl relative">
                 <input type="text" id="steamInput" class="flex-1 bg-slate-900 border-2 border-slate-700 text-white p-5 rounded-2xl text-center text-lg focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none transition-all placeholder-slate-600 shadow-2xl font-medium">
                 <button onclick="handleCheck()" id="btn_check" class="bg-cyan-600 hover:bg-cyan-500 text-white font-black px-12 py-5 rounded-2xl shadow-xl transform active:scale-95 transition-all text-lg whitespace-nowrap">开始检测</button>
             </div>
+            <button onclick="openSearchModal()" class="mt-3 text-slate-400 text-sm hover:text-orange-400 transition flex items-center gap-2 group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span id="lbl_find_id_btn" class="border-b border-dotted border-slate-600 group-hover:border-orange-400">不知道 ID？通过用户名查找</span>
+            </button>
+            
             <div id="historyContainer" class="flex flex-wrap justify-center gap-3 mt-8"></div>
         </div>
 
@@ -149,6 +160,50 @@
         </div>
     </div>
 
+    <div id="idSearchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 relative shadow-2xl bg-slate-900/90 border border-slate-600">
+            <button onclick="closeSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <h2 id="modal_title" class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-1 text-center">玩家内部 ID 查询</h2>
+            <div class="text-[10px] text-slate-500 mb-6 text-center font-mono">
+                Data from: <a href="https://dash.aoeiaol.top/" target="_blank" class="hover:text-orange-400 border-b border-dotted border-slate-600 transition">https://dash.aoeiaol.top/</a>
+            </div>
+            
+            <div class="flex gap-2 mb-2">
+                <input type="text" id="modalSearchInput" 
+                    class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-3 placeholder-slate-500" 
+                    placeholder="输入游戏用户名..." 
+                    onkeydown="if(event.key === 'Enter') doNameSearch()">
+                
+                <button onclick="doNameSearch()" id="modal_btn_search"
+                    class="text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-800 font-medium rounded-lg text-sm px-6 py-3 transition whitespace-nowrap">
+                    查询
+                </button>
+            </div>
+            <div id="modalStatusMsg" class="text-xs text-slate-400 min-h-[1.5rem] mb-2 pl-1"></div>
+
+            <div id="modalResultList" class="hidden rounded-xl overflow-hidden max-h-[300px] overflow-y-auto flex flex-col gap-1 pr-1 custom-scrollbar"></div>
+
+            <div id="modalFinalResult" class="hidden mt-4 bg-orange-900/10 border border-orange-500/20 rounded-xl p-4 text-center">
+                <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-1" id="lbl_modal_pname">玩家名称</div>
+                <div id="modalSelectedName" class="text-xl font-bold text-white mb-2"></div>
+                
+                <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-1" id="lbl_modal_pid">内部 ID</div>
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <code id="modalSelectedId" class="bg-black/30 px-3 py-1 rounded text-orange-300 font-mono text-xl font-bold select-all"></code>
+                </div>
+                
+                <button onclick="useFoundId()" id="btn_use_id" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-lg shadow-lg transition">
+                    使用此 ID 检测
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const CONFIG = {
             MATCH_GOAL: 12,
@@ -174,10 +229,18 @@
 
         const DICT = {
             zh: {
-                title: "断箭蛆指数", subtitle: "Broken Arrow Maggot Index", placeholder: "Steam64 ID 或 游戏唯一数字 ID...",
+                title: "断箭蛆指数", subtitle: "Broken Arrow Maggot Index", 
+                placeholder: "Steam64 ID 或 游戏内部数字 ID...", // 修改 1
                 check: "开始检测", loading: "同步中...", maggot_index_title: "蛆指数",
                 god_range: "神", avg_range: "中庸", maggot_range: "蛆",
-                history_title: "最近 12 局有效对局", ally: "己方队伍", enemy: "敌方队伍",
+                history_title: "最近 12 局有效对局", 
+                find_id_btn: "不知道 ID？通过用户名查找",
+                // Modal
+                modal_title: "玩家内部 ID 查询", modal_input_ph: "输入游戏用户名...", modal_btn_search: "查询",
+                modal_pname: "玩家名称", modal_pid: "内部 ID", modal_use_btn: "使用此 ID 检测",
+                modal_status_search: "搜索中...", modal_status_err: "出错了: ", modal_status_none: "未找到该玩家",
+                modal_status_found: "找到 {n} 个结果",
+                
                 kill: "击杀", loss: "损失", obj: "占点",
                 levels: ["👑 神", "🦁 团队支柱", "😐 平平无奇", "🐛 有点蛆", "💩 蛆！"],
                 tag_killer: "⚔️ 击杀为主", tag_kd: "📈 KD 为主", tag_obj: "🚩 占点为主",
@@ -190,21 +253,29 @@
                 reasons: { 1: "统治结束", 2: "正常结束", 3: "投降结束" },
                 medals: {
                     Destruction: "击杀王",
-                    Losses: "送死王",
+                    Losses: "绞肉机",
                     DamageDealt: "炸炸炸",
                     DamageReceived: "最耐炸",
                     SupplyPointsConsumed: "大胃袋",
                     SupplyPointsConsumedFromAllies: "小馋猫",
-                    SupplyPointsConsumedByAllies: "奶妈", 
+                    SupplyPointsConsumedByAllies: "绍伊古", 
                     TotalSpawnedUnitScore: "采购官",
                     TotalRefundedUnitScore: "仅退款"
                 }
             },
             en: {
-                title: "Maggot Index", subtitle: "Broken Arrow Performance Index", placeholder: "Enter Steam64 ID or BA Game Numeric ID...",
+                title: "Maggot Index", subtitle: "Broken Arrow Performance Index", 
+                placeholder: "Steam64 ID or In-Game Numeric ID...", // 修改 1
                 check: "ANALYZE", loading: "Syncing...", maggot_index_title: "MAGGOT INDEX",
                 god_range: "GOD", avg_range: "AVG", maggot_range: "MAGGOT",
-                history_title: "Last 12 Valid Matches", ally: "Ally Team", enemy: "Enemy Team",
+                history_title: "Last 12 Valid Matches",
+                find_id_btn: "Don't know ID? Search by Name",
+                // Modal
+                modal_title: "Player Internal ID Search", modal_input_ph: "Enter Username...", modal_btn_search: "Search",
+                modal_pname: "Player Name", modal_pid: "Internal ID", modal_use_btn: "Use This ID",
+                modal_status_search: "Searching...", modal_status_err: "Error: ", modal_status_none: "No players found",
+                modal_status_found: "Found {n} results",
+
                 kill: "Kill", loss: "Loss", obj: "OBJ",
                 levels: ["👑 GOD", "🦁 Pillar", "😐 Average", "🐛 Bit Maggot", "💩 Maggot!"],
                 tag_killer: "⚔️ Kill Focus", tag_kd: "📈 KD Focus", tag_obj: "🚩 Obj Focus",
@@ -214,7 +285,7 @@
                 lbl_ref_dr: "Troop Care Rank", lbl_ref_or: "Avg Obj Rank", lbl_ref_wr: "Win Rate (12G)",
                 res_vic: "VICTORY", res_def: "DEFEAT",
                 meta_map: "Map", meta_dur: "Dur", meta_win: "Winner",
-                reasons: { 1: "Unknown", 2: "Normal", 3: "Surrender" },
+                reasons: { 1: "Domination", 2: "Normal", 3: "Surrender" },
                 medals: {
                     Destruction: "Kill King",
                     Losses: "Loss King",
@@ -238,6 +309,7 @@
 
         function updateUIStrings() {
             const t = DICT[currentLang];
+            // Main UI
             document.getElementById('lbl_title').innerText = t.title;
             document.getElementById('lbl_subtitle').innerText = t.subtitle;
             document.getElementById('steamInput').placeholder = t.placeholder;
@@ -247,15 +319,26 @@
             document.getElementById('lbl_avg_range').innerText = t.avg_range;
             document.getElementById('lbl_maggot_range').innerText = t.maggot_range;
             document.getElementById('lbl_history_title').innerText = t.history_title;
+            document.getElementById('lbl_find_id_btn').innerText = t.find_id_btn;
             document.getElementById('lbl_ref_kdr').innerText = t.lbl_ref_kdr;
             document.getElementById('lbl_ref_kr').innerText = t.lbl_ref_kr;
             document.getElementById('lbl_ref_dr').innerText = t.lbl_ref_dr;
             document.getElementById('lbl_ref_or').innerText = t.lbl_ref_or;
             document.getElementById('lbl_ref_wr').innerText = t.lbl_ref_wr;
+            
+            // Modal UI
+            document.getElementById('modal_title').innerText = t.modal_title;
+            document.getElementById('modalSearchInput').placeholder = t.modal_input_ph;
+            document.getElementById('modal_btn_search').innerText = t.modal_btn_search;
+            document.getElementById('lbl_modal_pname').innerText = t.modal_pname;
+            document.getElementById('lbl_modal_pid').innerText = t.modal_pid;
+            document.getElementById('btn_use_id').innerText = t.modal_use_btn;
+
             document.getElementById('btn_lang_zh').className = `px-5 py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='zh'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
             document.getElementById('btn_lang_en').className = `px-5 py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='en'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
         }
 
+        // --- Core Fetch Logic ---
         async function robustFetch(url, attempt = 0) {
             const proxy = CONFIG.PROXIES[attempt % CONFIG.PROXIES.length];
             try {
@@ -276,6 +359,7 @@
             if(urlId) { document.getElementById('steamInput').value=urlId; handleCheck(); }
         };
 
+        // --- History Logic ---
         function renderHistory() {
             const h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
             const container = document.getElementById('historyContainer');
@@ -300,6 +384,7 @@
             document.getElementById('loadDetail').innerText = detail;
         }
 
+        // --- Main Analysis Logic ---
         async function handleCheck() {
             const input = document.getElementById('steamInput').value.trim();
             if(!input) return;
@@ -313,6 +398,7 @@
             try {
                 let uid = input;
                 let userData = null;
+                // If Steam64 ID (17 digits) or input seems not like a simple integer ID
                 if (input.length > 10 || isNaN(input)) {
                     updateProgress(5, "Resolving...", "Checking Identity...");
                     userData = await robustFetch(`https://www.barmory.net/stb/commander/${input}/steam`);
@@ -475,7 +561,6 @@
                 const resultBadgeColor = m.isWin ? 'bg-cyan-600/20 text-cyan-400' : 'bg-red-600/20 text-red-400';
                 const resultText = m.isWin ? t.res_vic : t.res_def;
 
-                // --- 修改点：移除了获胜方显示，移除了己方/敌方大标题，调整了Padding ---
                 return `
                 <div class="glass-panel rounded-[3rem] overflow-hidden border-white/10 shadow-2xl">
                     <div class="bg-white/5 px-8 py-4 flex justify-between items-center text-xs font-bold font-mono text-slate-400">
@@ -507,7 +592,6 @@
         function renderTeam(players, t) {
             return players.map(p => {
                 const hoverDetail = `${t.kill}: ${p.kScore.toLocaleString()} | ${t.loss}: ${p.lScore.toLocaleString()} | ${t.obj}: ${p.oScore}`;
-                
                 const medalsHtml = p.medals.length > 0 ? 
                     `<div class="flex flex-wrap gap-1.5 mt-1.5">${p.medals.map(m => {
                         const mName = t.medals[m.key] || m.key;
@@ -551,9 +635,98 @@
             window.open(newUrl, '_blank'); 
         }
         function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+        // --- NEW MODAL LOGIC ---
+        function openSearchModal() {
+            document.getElementById('idSearchModal').classList.remove('hidden');
+            document.getElementById('modalSearchInput').focus();
+        }
+        function closeSearchModal() {
+            document.getElementById('idSearchModal').classList.add('hidden');
+        }
+        async function doNameSearch() {
+            const name = document.getElementById('modalSearchInput').value.trim();
+            const statusEl = document.getElementById('modalStatusMsg');
+            const listEl = document.getElementById('modalResultList');
+            const resultEl = document.getElementById('modalFinalResult');
+            const t = DICT[currentLang];
+
+            if (!name) return;
+
+            statusEl.innerText = t.modal_status_search;
+            statusEl.className = "text-xs text-orange-400 min-h-[1.5rem] mb-2 pl-1 animate-pulse";
+            listEl.classList.add('hidden');
+            resultEl.classList.add('hidden');
+            listEl.innerHTML = '';
+
+            try {
+                const url = `https://batrace.aoeiaol.top/api/v1/search/players?q=${encodeURIComponent(name)}&limit=20`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("API Request Failed");
+                const data = await response.json();
+                const results = data.results || [];
+
+                if (results.length === 0) {
+                    statusEl.innerText = t.modal_status_none;
+                    statusEl.className = "text-xs text-red-400 min-h-[1.5rem] mb-2 pl-1";
+                    return;
+                }
+
+                statusEl.innerText = t.modal_status_found.replace('{n}', results.length);
+                statusEl.className = "text-xs text-green-400 min-h-[1.5rem] mb-2 pl-1";
+                renderPlayerList(results);
+
+            } catch (err) {
+                statusEl.innerText = t.modal_status_err + err.message;
+                statusEl.className = "text-xs text-red-400 min-h-[1.5rem] mb-2 pl-1";
+            }
+        }
+
+        function renderPlayerList(players) {
+            const listEl = document.getElementById('modalResultList');
+            listEl.classList.remove('hidden');
+
+            players.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = "search-result-item w-full text-left p-3 rounded-lg bg-slate-800/50 border border-slate-700 transition flex justify-between items-center group";
+                const safeName = p.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                
+                // 修改 3: 增加 Steam ID 显示
+                btn.innerHTML = `
+                    <div class="overflow-hidden">
+                        <div class="font-bold text-slate-200 group-hover:text-orange-300 truncate text-sm">${safeName}</div>
+                        <div class="flex items-center text-xs text-slate-500 group-hover:text-orange-200/50 font-mono gap-2">
+                            <span>ID: ${p.id}</span>
+                            <span class="opacity-30">|</span>
+                            <span class="text-[10px] opacity-70">Steam: ${p.steam_id}</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="text-[10px] px-2 py-0.5 bg-yellow-900/30 text-yellow-500 rounded border border-yellow-900/50">Lv.${p.level}</span>
+                    </div>
+                `;
+                btn.onclick = () => selectPlayerFromSearch(p);
+                listEl.appendChild(btn);
+            });
+        }
+
+        function selectPlayerFromSearch(player) {
+            document.getElementById('modalResultList').classList.add('hidden');
+            const resultEl = document.getElementById('modalFinalResult');
+            resultEl.classList.remove('hidden');
+            document.getElementById('modalSelectedName').innerText = player.name;
+            document.getElementById('modalSelectedId').innerText = player.id; 
+            document.getElementById('modalStatusMsg').innerText = "";
+        }
+
+        function useFoundId() {
+            const id = document.getElementById('modalSelectedId').innerText;
+            if(id) {
+                document.getElementById('steamInput').value = id;
+                closeSearchModal();
+                handleCheck();
+            }
+        }
     </script>
 </body>
-
 </html>
-
-
