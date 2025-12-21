@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Broken Arrow Maggot Index v3.15 - By Zola</title>
+    <title>Broken Arrow Maggot Index v3.16 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -85,7 +85,7 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.15 新增elo标签</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.16 幽灵数据修复版</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -254,7 +254,7 @@
                 title: "断箭蛆指数", subtitle: "Broken Arrow Maggot Index", 
                 placeholder: "Steam64 ID 或 游戏内部数字 ID...", 
                 check: "开始检测", loading: "同步中...", maggot_index_title: "蛆指数",
-                god_range: "神", avg_range: " ", maggot_range: "蛆",
+                god_range: "神", avg_range: "中庸", maggot_range: "蛆",
                 history_title: "最近 12 局有效对局", 
                 find_id_btn: "不知道 ID？通过用户名查找",
                 modal_title: "玩家内部 ID 查询", modal_input_ph: "输入游戏用户名...", modal_btn_search: "查询",
@@ -282,7 +282,7 @@
                 title: "Maggot Index", subtitle: "Broken Arrow Performance Index", 
                 placeholder: "Steam64 ID or In-Game Numeric ID...", 
                 check: "ANALYZE", loading: "Syncing...", maggot_index_title: "MAGGOT INDEX",
-                god_range: "GOD", avg_range: " ", maggot_range: "MAGGOT",
+                god_range: "GOD", avg_range: "AVG", maggot_range: "MAGGOT",
                 history_title: "Last 12 Valid Matches",
                 find_id_btn: "Don't know ID? Search by Name",
                 modal_title: "Player Internal ID Search", modal_input_ph: "Enter Username...", modal_btn_search: "Search",
@@ -474,10 +474,37 @@
             const stats = matches.map(m => {
                 const data = m.data.Data;
                 const meta = m.data; 
-                const me = data[myUid];
-                // 如果找不到me（可能掉线导致ID变了或者没了），尝试找个TeamId，找不到就默认一个
-                const myTeamId = me ? me.TeamId : (meta.WinnerTeam === 0 ? 1 : 0); 
-                const players = Object.values(data);
+                
+                // --- v3.16 幽灵数据修复逻辑开始 ---
+                // 使用 Object.entries 保留 Key（玩家ID），针对幽灵数据补全信息
+                const players = Object.entries(data).map(([key, val]) => {
+                    // 1. 如果对象内部没有Id，用 Key 补全
+                    if (!val.Id) val.Id = key;
+                    
+                    // 2. 如果没有名字，补全占位符
+                    if (!val.Name) val.Name = "Unknown (Ghost)";
+
+                    // 3. 智能推断阵营：针对没有 TeamId 但有 Elo 变化的数据
+                    if (val.TeamId === undefined && val.NewRating !== undefined && val.OldRating !== undefined) {
+                        const delta = val.NewRating - val.OldRating;
+                        const winnerTeam = meta.WinnerTeam !== undefined ? meta.WinnerTeam : 0; // 默认0防错
+                        
+                        // 逻辑：涨分或持平(>=0)归入胜者组，扣分归入败者组
+                        if (delta >= 0) {
+                            val.TeamId = winnerTeam;
+                        } else {
+                            // 胜者是1则败者是0，胜者是0则败者是1
+                            val.TeamId = (winnerTeam === 1 ? 0 : 1);
+                        }
+                    }
+                    return val;
+                });
+                // --- v3.16 修复逻辑结束 ---
+
+                // --- 修改：直接在修复好的 players 里找自己，不再重新读取 data[myUid] ---
+                const myP = players.find(p => String(p.Id) === String(myUid));
+                // 只有当玩家 ID 彻底不存在于数据中时（不是幽灵数据，而是完全消失），才使用后备的胜负逻辑
+                const myTeamId = myP ? myP.TeamId : (meta.WinnerTeam === 0 ? 1 : 0); 
                 
                 const isWin = myTeamId === meta.WinnerTeam;
                 if(isWin) wins++;
@@ -489,8 +516,8 @@
                 const mapPlayer = (p) => {
                     const k = p.DestructionScore || 0, l = p.LossesScore || 0;
                     return {
-                        id: p.Id, name: p.Name || 'Unknown', elo: p.NewRating.toFixed(0),
-                        gain: (p.NewRating - p.OldRating).toFixed(1),
+                        id: p.Id, name: p.Name, elo: p.NewRating ? p.NewRating.toFixed(0) : "N/A",
+                        gain: p.NewRating && p.OldRating ? (p.NewRating - p.OldRating).toFixed(1) : "0.0",
                         kPct: (k / maxK) * 100, lPct: (l / maxL) * 100, oPct: ((p.ObjectivesCaptured || 0) / maxO) * 100,
                         isMe: String(p.Id) === String(myUid),
                         score: (k - l) / 1000 + (p.ObjectivesCaptured || 0),
@@ -518,9 +545,9 @@
                 assignMedals(ally);
                 assignMedals(enemy);
 
-                const myP = ally.find(p => p.isMe);
-                if(myP && myP.medals) {
-                    myP.medals.forEach(m => {
+                const myP_Mapped = ally.find(p => p.isMe);
+                if(myP_Mapped && myP_Mapped.medals) {
+                    myP_Mapped.medals.forEach(m => {
                         medalCounts[m.key] = (medalCounts[m.key] || 0) + 1;
                     });
                 }
@@ -624,7 +651,7 @@
                     // Violet 样式
                     // 方案：半透明背景，不刺眼，保留紫色调
                     eloEl.className = "tag-sticker bg-violet-600/20 border-violet-500/50 text-violet-300 font-mono";
-                    eloEl.innerHTML = `ELO ${currentMe.elo}`;
+                    eloEl.innerHTML = `⚡ ELO ${currentMe.elo}`;
                     container.appendChild(eloEl);
                 }
             }
@@ -806,5 +833,3 @@
     </script>
 </body>
 </html>
-
-
