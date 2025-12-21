@@ -2,13 +2,16 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Broken Arrow Maggot Index v3.13 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        /* 增加 overflow-x-hidden 防止移动端横向滚动 */
+        body { background-color: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; overflow-x: hidden; }
         .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .bar-container { background: rgba(0,0,0,0.5); height: 8px; border-radius: 4px; overflow: hidden; flex: 1; }
+        .bar-container { background: rgba(0,0,0,0.5); height: 6px; border-radius: 4px; overflow: hidden; flex: 1; } /* 稍微调细一点高度适配移动端 */
+        @media (min-width: 768px) { .bar-container { height: 8px; } }
+        
         .bar-kill { background: #22c55e; height: 100%; transition: width 0.6s ease-out; }
         .bar-loss { background: #ef4444; height: 100%; transition: width 0.6s ease-out; }
         .bar-obj { background: #3b82f6; height: 100%; transition: width 0.6s ease-out; }
@@ -16,14 +19,25 @@
         .load-progress-fill { width: 0%; height: 100%; background: #06b6d4; transition: width 0.4s ease; box-shadow: 0 0 15px rgba(6,182,212,0.6); }
         .maggot-meter-bg { background: linear-gradient(90deg, #22c55e 0%, #eab308 50%, #ef4444 100%); height: 18px; border-radius: 9px; position: relative; }
         .maggot-indicator { position: absolute; top: -4px; width: 6px; height: 26px; background: white; border: 2px solid #000; transform: translateX(-50%); transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .tag-sticker-container { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-end; z-index: 30; }
-        .tag-sticker { padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-weight: 900; font-style: italic; font-size: 0.9rem; text-transform: uppercase; transform: rotate(8deg); box-shadow: 0 6px 15px rgba(0,0,0,0.4); border-width: 2px; animation: tagPop 0.5s ease-out forwards; opacity: 0; }
+        
+        /* 优化标签容器，移动端缩小并调整位置 */
+        .tag-sticker-container { position: absolute; top: 1rem; right: 1rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; z-index: 30; transform-origin: top right; transform: scale(0.75); pointer-events: none; }
+        @media (min-width: 768px) { .tag-sticker-container { top: 1.5rem; right: 1.5rem; gap: 0.75rem; transform: scale(1); } }
+        
+        .tag-sticker { padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-weight: 900; font-style: italic; font-size: 0.9rem; text-transform: uppercase; transform: rotate(8deg); box-shadow: 0 6px 15px rgba(0,0,0,0.4); border-width: 2px; animation: tagPop 0.5s ease-out forwards; opacity: 0; white-space: nowrap; }
         @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
-        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 85px; }
+        
+        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 70px; } /* 调小最小高度 */
+        @media (min-width: 768px) { .teammate-row { min-height: 85px; } }
+        
         .teammate-row:hover { background: rgba(255,255,255,0.05); }
-        .is-me { background: rgba(6, 182, 212, 0.15) !important; border-left: 5px solid #06b6d4; }
-        .id-link { cursor: pointer; color: #94a3b8; font-family: ui-monospace, monospace; font-size: 0.75rem; border-bottom: 1px dotted #64748b; width: fit-content; opacity: 0.7; }
+        .is-me { background: rgba(6, 182, 212, 0.15) !important; border-left: 3px solid #06b6d4; }
+        @media (min-width: 768px) { .is-me { border-left-width: 5px; } }
+
+        .id-link { cursor: pointer; color: #94a3b8; font-family: ui-monospace, monospace; font-size: 0.7rem; border-bottom: 1px dotted #64748b; width: fit-content; opacity: 0.7; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+        @media (min-width: 768px) { .id-link { font-size: 0.75rem; } }
         .id-link:hover { color: #22d3ee; border-bottom-color: #22d3ee; opacity: 1; }
+        
         .history-chip { font-size: 0.85rem; padding: 6px 14px; background: #1e293b; border: 1px solid #475569; border-radius: 99px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
         .history-chip:hover { border-color: #06b6d4; color: #22d3ee; background: #0f172a; }
         .history-del { font-size: 1.1rem; line-height: 1; opacity: 0.5; }
@@ -37,58 +51,65 @@
         .medal-badge { 
             display: inline-flex; 
             align-items: center; 
-            gap: 4px;
-            padding: 2px 6px; 
-            border-radius: 6px; 
+            gap: 2px;
+            padding: 2px 4px; 
+            border-radius: 4px; 
             background: rgba(255,255,255,0.08); 
             border: 1px solid rgba(255,255,255,0.05);
             transition: all 0.2s;
             cursor: help;
         }
+        @media (min-width: 768px) { .medal-badge { gap: 4px; padding: 2px 6px; border-radius: 6px; } }
+
         .medal-badge:hover { 
             background: rgba(255,255,255,0.15); 
             transform: translateY(-1px);
             border-color: rgba(255,255,255,0.2);
         }
+        
+        /* 自定义滚动条 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
     </style>
 </head>
-<body class="min-h-screen pt-10 px-4 pb-24">
+<body class="min-h-screen pt-4 px-2 pb-24 md:pt-10 md:px-4">
 
-    <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-8 px-2">
+    <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.13 Integrated Edition</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.13 Integrated Edition</div>
         </div>
-        <div class="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
-            <button onclick="setLang('en')" id="btn_lang_en" class="px-4 py-1.5 text-xs rounded-lg transition font-bold">English</button>
-            <button onclick="setLang('zh')" id="btn_lang_zh" class="px-4 py-1.5 text-xs rounded-lg transition font-bold">中文</button>
+        <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
+            <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
+            <button onclick="setLang('zh')" id="btn_lang_zh" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">中文</button>
         </div>
     </div>
 
-    <div class="glass-panel w-full max-w-6xl mx-auto rounded-[2.5rem] p-10 shadow-2xl border-white/5">
-        <div class="text-center mb-12">
-            <h1 class="text-6xl font-black text-white tracking-tighter mb-4">
+    <div class="glass-panel w-full max-w-6xl mx-auto rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-10 shadow-2xl border-white/5">
+        <div class="text-center mb-8 md:mb-12">
+            <h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter mb-4 flex flex-col md:block items-center justify-center">
                 <span id="lbl_title">断箭蛆指数</span>
-                <span class="text-xl text-cyan-500 italic ml-4 opacity-80 font-serif">By Zola</span>
+                <span class="text-base md:text-xl text-cyan-500 italic mt-2 md:mt-0 md:ml-4 opacity-80 font-serif">By Zola</span>
             </h1>
             <div class="flex justify-center gap-6 mb-4">
                 <a href="https://barmory.net/" target="_blank" class="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-700 hover:text-white transition-all font-medium">Data Source: Barmory.net</a>
             </div>
-            <p class="text-cyan-400 font-mono text-sm uppercase tracking-[0.4em] font-bold" id="lbl_subtitle">Broken Arrow Maggot Index</p>
+            <p class="text-cyan-400 font-mono text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold" id="lbl_subtitle">Broken Arrow Maggot Index</p>
         </div>
 
-        <div class="flex flex-col items-center mb-16">
-            <div class="flex flex-col md:flex-row gap-4 w-full max-w-2xl relative">
-                <input type="text" id="steamInput" class="flex-1 bg-slate-900 border-2 border-slate-700 text-white p-5 rounded-2xl text-center text-lg focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none transition-all placeholder-slate-600 shadow-2xl font-medium">
-                <button onclick="handleCheck()" id="btn_check" class="bg-cyan-600 hover:bg-cyan-500 text-white font-black px-12 py-5 rounded-2xl shadow-xl transform active:scale-95 transition-all text-lg whitespace-nowrap">开始检测</button>
+        <div class="flex flex-col items-center mb-10 md:mb-16">
+            <div class="flex flex-col md:flex-row gap-3 md:gap-4 w-full max-w-2xl relative">
+                <input type="text" id="steamInput" class="flex-1 bg-slate-900 border-2 border-slate-700 text-white p-4 md:p-5 rounded-xl md:rounded-2xl text-center text-base md:text-lg focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none transition-all placeholder-slate-600 shadow-2xl font-medium">
+                <button onclick="handleCheck()" id="btn_check" class="bg-cyan-600 hover:bg-cyan-500 text-white font-black px-12 py-4 md:py-5 rounded-xl md:rounded-2xl shadow-xl transform active:scale-95 transition-all text-base md:text-lg whitespace-nowrap">开始检测</button>
             </div>
-            <button onclick="openSearchModal()" class="mt-3 text-slate-400 text-sm hover:text-orange-400 transition flex items-center gap-2 group">
+            <button onclick="openSearchModal()" class="mt-4 text-slate-400 text-xs md:text-sm hover:text-orange-400 transition flex items-center gap-2 group p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <span id="lbl_find_id_btn" class="border-b border-dotted border-slate-600 group-hover:border-orange-400">不知道 ID？通过用户名查找</span>
             </button>
             
-            <div id="historyContainer" class="flex flex-wrap justify-center gap-3 mt-8"></div>
+            <div id="historyContainer" class="flex flex-wrap justify-center gap-2 md:gap-3 mt-6 md:mt-8"></div>
         </div>
 
         <div id="loading" class="hidden text-center py-12 max-w-lg mx-auto">
@@ -105,58 +126,58 @@
         </div>
 
         <div id="resultPanel" class="hidden result-fade">
-            <div class="bg-slate-800/60 rounded-[3rem] p-12 border border-white/10 flex flex-col items-center mb-16 relative overflow-hidden">
+            <div class="bg-slate-800/60 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-white/10 flex flex-col items-center mb-10 md:mb-16 relative overflow-hidden">
                 <div class="tag-sticker-container">
                     <div id="styleTag" class="tag-sticker bg-cyan-900 border-cyan-400 text-cyan-50 text-xl"></div>
                     <div id="trendTag" class="tag-sticker bg-slate-700 border-slate-400 text-slate-100"></div>
                 </div>
 
-                <div class="text-center mb-4">
-                    <div id="userNameDisplay" class="text-3xl font-black text-white mb-1">Commander Name</div>
+                <div class="text-center mb-4 mt-2 md:mt-0 w-full px-2">
+                    <div id="userNameDisplay" class="text-xl md:text-3xl font-black text-white mb-1 truncate">Commander Name</div>
                     <div id="calcTimeDisplay" class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Calculated: 2024-01-01 00:00:00</div>
                 </div>
 
-                <h2 class="text-slate-400 text-sm font-black uppercase tracking-[0.2em] mb-2" id="lbl_maggot_index_title">蛆指数</h2>
-                <div class="text-[10rem] font-black text-white leading-none mb-6" id="maggotScoreDisplay" style="text-shadow: 0 10px 50px rgba(0,0,0,0.4);">1.0</div>
-                <div id="maggotLabel" class="text-3xl font-black px-10 py-3 rounded-full bg-slate-900 border-2 border-white/10 shadow-2xl mb-12">Unknown</div>
+                <h2 class="text-slate-400 text-xs md:text-sm font-black uppercase tracking-[0.2em] mb-2" id="lbl_maggot_index_title">蛆指数</h2>
+                <div class="text-[6rem] md:text-[10rem] font-black text-white leading-none mb-4 md:mb-6" id="maggotScoreDisplay" style="text-shadow: 0 5px 25px rgba(0,0,0,0.4);">1.0</div>
+                <div id="maggotLabel" class="text-xl md:text-3xl font-black px-8 py-2 md:px-10 md:py-3 rounded-full bg-slate-900 border-2 border-white/10 shadow-2xl mb-8 md:mb-12">Unknown</div>
                 
-                <div class="w-full max-w-3xl mb-12">
-                    <div class="flex justify-between text-xs text-slate-400 mb-4 uppercase font-black tracking-widest">
+                <div class="w-full max-w-3xl mb-8 md:mb-12">
+                    <div class="flex justify-between text-[10px] md:text-xs text-slate-400 mb-4 uppercase font-black tracking-widest">
                         <span id="lbl_god_range">神</span><span id="lbl_avg_range">中庸</span><span id="lbl_maggot_range">蛆</span>
                     </div>
                     <div class="maggot-meter-bg"><div id="meterIndicator" class="maggot-indicator" style="left: 0%;"></div></div>
                 </div>
 
-                <div class="w-full max-w-5xl grid grid-cols-2 md:grid-cols-5 gap-6 pt-10 border-t-2 border-white/5">
+                <div class="w-full max-w-5xl grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 pt-8 md:pt-10 border-t-2 border-white/5">
                     <div class="text-center">
-                        <div class="text-xs text-slate-500 uppercase font-black mb-2" id="lbl_ref_kdr">平均 KD 排名</div>
-                        <div class="text-2xl font-mono font-black text-cyan-400" id="ref_avgKDR">#0.0</div>
+                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_kdr">平均 KD 排名</div>
+                        <div class="text-xl md:text-2xl font-mono font-black text-cyan-400" id="ref_avgKDR">#0.0</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-xs text-slate-500 uppercase font-black mb-2" id="lbl_ref_kr">平均击杀排名</div>
-                        <div class="text-2xl font-mono font-black text-green-400" id="ref_avgKR">#0.0</div>
+                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_kr">平均击杀排名</div>
+                        <div class="text-xl md:text-2xl font-mono font-black text-green-400" id="ref_avgKR">#0.0</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-xs text-slate-500 uppercase font-black mb-2" id="lbl_ref_dr">爱兵如子排名</div>
-                        <div class="text-2xl font-mono font-black text-red-400" id="ref_avgDR">#0.0</div>
+                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_dr">爱兵如子排名</div>
+                        <div class="text-xl md:text-2xl font-mono font-black text-red-400" id="ref_avgDR">#0.0</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-xs text-slate-500 uppercase font-black mb-2" id="lbl_ref_or">平均占点排名</div>
-                        <div class="text-2xl font-mono font-black text-blue-400" id="ref_avgOR">#0.0</div>
+                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_or">平均占点排名</div>
+                        <div class="text-xl md:text-2xl font-mono font-black text-blue-400" id="ref_avgOR">#0.0</div>
                     </div>
                     <div class="text-center col-span-2 md:col-span-1">
-                        <div class="text-xs text-slate-500 uppercase font-black mb-2" id="lbl_ref_wr">最近 12 局胜率</div>
-                        <div class="text-2xl font-mono font-black text-yellow-400" id="ref_WR">0%</div>
+                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_wr">最近 12 局胜率</div>
+                        <div class="text-xl md:text-2xl font-mono font-black text-yellow-400" id="ref_WR">0%</div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-6 mb-12">
+            <div class="flex items-center gap-4 md:gap-6 mb-8 md:mb-12">
                 <div class="h-[2px] flex-1 bg-white/10"></div>
-                <h3 class="text-2xl font-black text-slate-200 uppercase tracking-widest" id="lbl_history_title">最近 12 局有效对局</h3>
+                <h3 class="text-lg md:text-2xl font-black text-slate-200 uppercase tracking-widest text-center" id="lbl_history_title">最近 12 局有效对局</h3>
                 <div class="h-[2px] flex-1 bg-white/10"></div>
             </div>
-            <div id="matchesContainer" class="space-y-16"></div>
+            <div id="matchesContainer" class="space-y-8 md:space-y-16"></div>
         </div>
     </div>
 
@@ -168,7 +189,7 @@
                 </svg>
             </button>
             
-            <h2 id="modal_title" class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-1 text-center">玩家内部 ID 查询</h2>
+            <h2 id="modal_title" class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-1 text-center">游戏内部 ID 查询</h2>
             <div class="text-[10px] text-slate-500 mb-6 text-center font-mono">
                 Data from: <a href="https://dash.aoeiaol.top/" target="_blank" class="hover:text-orange-400 border-b border-dotted border-slate-600 transition">https://dash.aoeiaol.top/</a>
             </div>
@@ -230,12 +251,11 @@
         const DICT = {
             zh: {
                 title: "断箭蛆指数", subtitle: "Broken Arrow Maggot Index", 
-                placeholder: "Steam64 ID 或 游戏内部数字 ID...", // 修改 1
+                placeholder: "Steam64 ID 或 游戏内部数字 ID...", 
                 check: "开始检测", loading: "同步中...", maggot_index_title: "蛆指数",
                 god_range: "神", avg_range: "中庸", maggot_range: "蛆",
                 history_title: "最近 12 局有效对局", 
                 find_id_btn: "不知道 ID？通过用户名查找",
-                // Modal
                 modal_title: "玩家内部 ID 查询", modal_input_ph: "输入游戏用户名...", modal_btn_search: "查询",
                 modal_pname: "玩家名称", modal_pid: "内部 ID", modal_use_btn: "使用此 ID 检测",
                 modal_status_search: "搜索中...", modal_status_err: "出错了: ", modal_status_none: "未找到该玩家",
@@ -250,27 +270,20 @@
                 lbl_ref_dr: "爱兵如子排名", lbl_ref_or: "平均占点排名", lbl_ref_wr: "最近 12 局胜率",
                 res_vic: "胜利", res_def: "失败",
                 meta_map: "地图", meta_dur: "时长", meta_win: "获胜方",
-                reasons: { 1: "统治结束", 2: "正常结束", 3: "投降结束" },
+                reasons: { 1: "正常结束", 2: "正常结束", 3: "投降结束" },
                 medals: {
-                    Destruction: "击杀王",
-                    Losses: "送死王",
-                    DamageDealt: "炸炸炸",
-                    DamageReceived: "最耐炸",
-                    SupplyPointsConsumed: "大胃袋",
-                    SupplyPointsConsumedFromAllies: "小馋猫",
-                    SupplyPointsConsumedByAllies: "奶妈", 
-                    TotalSpawnedUnitScore: "采购官",
-                    TotalRefundedUnitScore: "仅退款"
+                    Destruction: "击杀王", Losses: "送死王", DamageDealt: "炸炸炸", DamageReceived: "最耐炸",
+                    SupplyPointsConsumed: "大胃袋", SupplyPointsConsumedFromAllies: "小馋猫", SupplyPointsConsumedByAllies: "奶妈", 
+                    TotalSpawnedUnitScore: "采购官", TotalRefundedUnitScore: "仅退款"
                 }
             },
             en: {
                 title: "Maggot Index", subtitle: "Broken Arrow Performance Index", 
-                placeholder: "Steam64 ID or In-Game Numeric ID...", // 修改 1
+                placeholder: "Steam64 ID or In-Game Numeric ID...", 
                 check: "ANALYZE", loading: "Syncing...", maggot_index_title: "MAGGOT INDEX",
                 god_range: "GOD", avg_range: "AVG", maggot_range: "MAGGOT",
                 history_title: "Last 12 Valid Matches",
                 find_id_btn: "Don't know ID? Search by Name",
-                // Modal
                 modal_title: "Player Internal ID Search", modal_input_ph: "Enter Username...", modal_btn_search: "Search",
                 modal_pname: "Player Name", modal_pid: "Internal ID", modal_use_btn: "Use This ID",
                 modal_status_search: "Searching...", modal_status_err: "Error: ", modal_status_none: "No players found",
@@ -285,17 +298,11 @@
                 lbl_ref_dr: "Troop Care Rank", lbl_ref_or: "Avg Obj Rank", lbl_ref_wr: "Win Rate (12G)",
                 res_vic: "VICTORY", res_def: "DEFEAT",
                 meta_map: "Map", meta_dur: "Dur", meta_win: "Winner",
-                reasons: { 1: "Domination", 2: "Normal", 3: "Surrender" },
+                reasons: { 1: "Normal", 2: "Normal", 3: "Surrender" },
                 medals: {
-                    Destruction: "Kill King",
-                    Losses: "Loss King",
-                    DamageDealt: "Top DMG",
-                    DamageReceived: "Iron Wall",
-                    SupplyPointsConsumed: "Hungry",
-                    SupplyPointsConsumedFromAllies: "Leech",
-                    SupplyPointsConsumedByAllies: "Medic", 
-                    TotalSpawnedUnitScore: "Spender",
-                    TotalRefundedUnitScore: "Refunder"
+                    Destruction: "Kill King", Losses: "Loss King", DamageDealt: "Top DMG", DamageReceived: "Iron Wall",
+                    SupplyPointsConsumed: "Hungry", SupplyPointsConsumedFromAllies: "Leech", SupplyPointsConsumedByAllies: "Medic", 
+                    TotalSpawnedUnitScore: "Spender", TotalRefundedUnitScore: "Refunder"
                 }
             }
         };
@@ -309,7 +316,6 @@
 
         function updateUIStrings() {
             const t = DICT[currentLang];
-            // Main UI
             document.getElementById('lbl_title').innerText = t.title;
             document.getElementById('lbl_subtitle').innerText = t.subtitle;
             document.getElementById('steamInput').placeholder = t.placeholder;
@@ -326,7 +332,6 @@
             document.getElementById('lbl_ref_or').innerText = t.lbl_ref_or;
             document.getElementById('lbl_ref_wr').innerText = t.lbl_ref_wr;
             
-            // Modal UI
             document.getElementById('modal_title').innerText = t.modal_title;
             document.getElementById('modalSearchInput').placeholder = t.modal_input_ph;
             document.getElementById('modal_btn_search').innerText = t.modal_btn_search;
@@ -334,11 +339,10 @@
             document.getElementById('lbl_modal_pid').innerText = t.modal_pid;
             document.getElementById('btn_use_id').innerText = t.modal_use_btn;
 
-            document.getElementById('btn_lang_zh').className = `px-5 py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='zh'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
-            document.getElementById('btn_lang_en').className = `px-5 py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='en'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
+            document.getElementById('btn_lang_zh').className = `px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='zh'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
+            document.getElementById('btn_lang_en').className = `px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='en'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
         }
 
-        // --- Core Fetch Logic ---
         async function robustFetch(url, attempt = 0) {
             const proxy = CONFIG.PROXIES[attempt % CONFIG.PROXIES.length];
             try {
@@ -359,7 +363,6 @@
             if(urlId) { document.getElementById('steamInput').value=urlId; handleCheck(); }
         };
 
-        // --- History Logic ---
         function renderHistory() {
             const h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
             const container = document.getElementById('historyContainer');
@@ -384,7 +387,6 @@
             document.getElementById('loadDetail').innerText = detail;
         }
 
-        // --- Main Analysis Logic ---
         async function handleCheck() {
             const input = document.getElementById('steamInput').value.trim();
             if(!input) return;
@@ -398,7 +400,6 @@
             try {
                 let uid = input;
                 let userData = null;
-                // If Steam64 ID (17 digits) or input seems not like a simple integer ID
                 if (input.length > 10 || isNaN(input)) {
                     updateProgress(5, "Resolving...", "Checking Identity...");
                     userData = await robustFetch(`https://www.barmory.net/stb/commander/${input}/steam`);
@@ -562,28 +563,28 @@
                 const resultText = m.isWin ? t.res_vic : t.res_def;
 
                 return `
-                <div class="glass-panel rounded-[3rem] overflow-hidden border-white/10 shadow-2xl">
-                    <div class="bg-white/5 px-8 py-4 flex justify-between items-center text-xs font-bold font-mono text-slate-400">
-                        <div class="flex items-center gap-4">
-                            <span>MATCH ID: ${m.id}</span>
-                            <span class="w-px h-3 bg-white/10"></span>
+                <div class="glass-panel rounded-[2rem] md:rounded-[3rem] overflow-hidden border-white/10 shadow-2xl">
+                    <div class="bg-white/5 px-4 py-3 md:px-8 md:py-4 flex flex-col md:flex-row justify-between items-start md:items-center text-[10px] md:text-xs font-bold font-mono text-slate-400 gap-2 md:gap-0">
+                        <div class="flex flex-wrap items-center gap-2 md:gap-4 leading-relaxed">
+                            <span class="whitespace-nowrap">ID: ${m.id}</span>
+                            <span class="w-px h-3 bg-white/10 hidden md:block"></span>
                             <span>${timeText}</span>
-                            <span class="w-px h-3 bg-white/10"></span>
+                            <span class="w-px h-3 bg-white/10 hidden md:block"></span>
                             <span>${t.meta_map} ${m.mapId}</span>
-                            <span class="w-px h-3 bg-white/10"></span>
+                            <span class="w-px h-3 bg-white/10 hidden md:block"></span>
                             <span>${durText}</span>
-                            <span class="w-px h-3 bg-white/10"></span>
-                            <span>${reasonText}</span>
+                            <span class="w-px h-3 bg-white/10 hidden md:block"></span>
+                            <span class="whitespace-nowrap">${reasonText}</span>
                         </div>
-                        <span class="px-4 py-1 ${resultBadgeColor} rounded-lg font-black uppercase tracking-widest flex items-center gap-2">
+                        <span class="px-3 py-1 md:px-4 md:py-1 ${resultBadgeColor} rounded-lg font-black uppercase tracking-widest flex items-center gap-2 self-end md:self-auto">
                             <span>Rank #${m.myRank}</span>
                             <span class="opacity-50">/</span>
                             <span>${resultText}</span>
                         </span>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-white/10">
-                        <div class="bg-[#0f172a] p-4">${renderTeam(m.ally, t)}</div>
-                        <div class="bg-[#0f172a] p-4">${renderTeam(m.enemy, t)}</div>
+                        <div class="bg-[#0f172a] p-2 md:p-4">${renderTeam(m.ally, t)}</div>
+                        <div class="bg-[#0f172a] p-2 md:p-4">${renderTeam(m.enemy, t)}</div>
                     </div>
                 </div>
             `}).join('');
@@ -593,31 +594,33 @@
             return players.map(p => {
                 const hoverDetail = `${t.kill}: ${p.kScore.toLocaleString()} | ${t.loss}: ${p.lScore.toLocaleString()} | ${t.obj}: ${p.oScore}`;
                 const medalsHtml = p.medals.length > 0 ? 
-                    `<div class="flex flex-wrap gap-1.5 mt-1.5">${p.medals.map(m => {
+                    `<div class="flex flex-wrap gap-1 mt-1">${p.medals.map(m => {
                         const mName = t.medals[m.key] || m.key;
                         return `<div class="medal-badge group" title="${mName}: ${Math.round(m.val).toLocaleString()}">
-                                <span class="text-[12px] filter drop-shadow-md select-none leading-none">${m.icon}</span>
-                                <span class="hidden xl:inline text-[10px] font-bold ${m.color} opacity-90 leading-none whitespace-nowrap">${mName}</span>
+                                <span class="text-[10px] md:text-[12px] filter drop-shadow-md select-none leading-none">${m.icon}</span>
+                                <span class="text-[10px] font-bold ${m.color} opacity-90 leading-none whitespace-nowrap">${mName}</span>
                             </div>`;
                     }).join('')}</div>` : '';
 
                 return `
-                <div class="teammate-row flex items-center p-3 rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}">
-                    <div class="flex-1 min-w-0 pr-4 flex flex-col justify-center">
+                <div class="teammate-row flex items-center p-2 md:p-3 rounded-xl md:rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}">
+                    <div class="flex-1 min-w-0 pr-2 md:pr-4 flex flex-col justify-center">
                         <div class="flex flex-col">
-                            <div class="text-sm font-black text-slate-100 truncate leading-tight tracking-tight">${escapeHtml(p.name)}</div>
+                            <div class="text-xs md:text-sm font-black text-slate-100 truncate leading-tight tracking-tight">${escapeHtml(p.name)}</div>
                             ${medalsHtml}
                         </div>
-                        <div class="id-link mt-1.5" onclick="inspect('${p.id}')">${p.id}</div>
+                        <div class="id-link mt-1" onclick="inspect('${p.id}')">${p.id}</div>
                     </div>
-                    <div class="w-20 text-right mr-4 font-mono">
-                        <div class="text-xs font-bold text-slate-400">${p.elo}</div>
-                        <div class="text-[11px] font-black ${parseFloat(p.gain)>=0?'text-green-500':'text-red-500'}">${parseFloat(p.gain)>=0?'+':''}${p.gain}</div>
+                    
+                    <div class="w-14 md:w-20 text-right mr-2 md:mr-4 font-mono flex-shrink-0">
+                        <div class="text-[10px] md:text-xs font-bold text-slate-400">${p.elo}</div>
+                        <div class="text-[10px] md:text-[11px] font-black ${parseFloat(p.gain)>=0?'text-green-500':'text-red-500'}">${parseFloat(p.gain)>=0?'+':''}${p.gain}</div>
                     </div>
-                    <div class="w-28 space-y-1.5">
-                        <div class="flex items-center gap-2"><div class="bar-container"><div class="bar-kill" style="width:${p.kPct}%"></div></div></div>
-                        <div class="flex items-center gap-2"><div class="bar-container"><div class="bar-loss" style="width:${p.lPct}%"></div></div></div>
-                        <div class="flex items-center gap-2"><div class="bar-container"><div class="bar-obj" style="width:${p.oPct}%"></div></div></div>
+                    
+                    <div class="w-16 md:w-28 space-y-1 flex-shrink-0">
+                        <div class="flex items-center gap-1"><div class="bar-container"><div class="bar-kill" style="width:${p.kPct}%"></div></div></div>
+                        <div class="flex items-center gap-1"><div class="bar-container"><div class="bar-loss" style="width:${p.lPct}%"></div></div></div>
+                        <div class="flex items-center gap-1"><div class="bar-container"><div class="bar-obj" style="width:${p.oPct}%"></div></div></div>
                     </div>
                 </div>
             `}).join('');
@@ -636,7 +639,6 @@
         }
         function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-        // --- NEW MODAL LOGIC ---
         function openSearchModal() {
             document.getElementById('idSearchModal').classList.remove('hidden');
             document.getElementById('modalSearchInput').focus();
@@ -691,7 +693,6 @@
                 btn.className = "search-result-item w-full text-left p-3 rounded-lg bg-slate-800/50 border border-slate-700 transition flex justify-between items-center group";
                 const safeName = p.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 
-                // 修改 3: 增加 Steam ID 显示
                 btn.innerHTML = `
                     <div class="overflow-hidden">
                         <div class="font-bold text-slate-200 group-hover:text-orange-300 truncate text-sm">${safeName}</div>
