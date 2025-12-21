@@ -622,7 +622,8 @@
                 if (currentMe) {
                     const eloEl = document.createElement('div');
                     // Violet 样式
-                    eloEl.className = "tag-sticker bg-violet-900 border-violet-400 text-violet-100 font-mono";
+                    // 方案：半透明背景，不刺眼，保留紫色调
+                    eloEl.className = "tag-sticker bg-violet-600/20 border-violet-500/50 text-violet-300 font-mono";
                     eloEl.innerHTML = `⚡ ELO ${currentMe.elo}`;
                     container.appendChild(eloEl);
                 }
