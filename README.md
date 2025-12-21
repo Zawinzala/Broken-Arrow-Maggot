@@ -1,14 +1,6 @@
-# Broken Arrow Maggot Index / 断箭蛆指数计算器
-
 '人含量 1%，含量不如鸡尾酒'
 
 [点击访问](https://zawinzala.github.io/Broken-Arrow-Maggot/)
-
-这是一个为你准备的 GitHub `README.md` 文件。它包含项目的基本介绍、功能特性，以及专门针对 `old.html` (v2.4) 到 `index.html` (v3.14) 的详细更新对比说明。
-
-您可以直接复制以下 Markdown 内容到您的 GitHub 仓库中。
-
----
 
 # 🎯 Broken Arrow Maggot Index (断箭蛆指数)
 
