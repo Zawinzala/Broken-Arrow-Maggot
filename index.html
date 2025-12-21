@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broken Arrow Maggot Index v3.7 - By Zola</title>
+    <title>Broken Arrow Maggot Index v3.11 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
@@ -19,23 +19,40 @@
         .tag-sticker-container { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-end; z-index: 30; }
         .tag-sticker { padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-weight: 900; font-style: italic; font-size: 0.9rem; text-transform: uppercase; transform: rotate(8deg); box-shadow: 0 6px 15px rgba(0,0,0,0.4); border-width: 2px; animation: tagPop 0.5s ease-out forwards; opacity: 0; }
         @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
-        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); height: 72px; }
+        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 85px; }
         .teammate-row:hover { background: rgba(255,255,255,0.05); }
         .is-me { background: rgba(6, 182, 212, 0.15) !important; border-left: 5px solid #06b6d4; }
-        .id-link { cursor: pointer; color: #94a3b8; font-family: ui-monospace, monospace; font-size: 0.8rem; border-bottom: 1px dotted #64748b; }
-        .id-link:hover { color: #22d3ee; border-bottom-color: #22d3ee; }
+        .id-link { cursor: pointer; color: #94a3b8; font-family: ui-monospace, monospace; font-size: 0.75rem; border-bottom: 1px dotted #64748b; width: fit-content; opacity: 0.7; }
+        .id-link:hover { color: #22d3ee; border-bottom-color: #22d3ee; opacity: 1; }
         .history-chip { font-size: 0.85rem; padding: 6px 14px; background: #1e293b; border: 1px solid #475569; border-radius: 99px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
         .history-chip:hover { border-color: #06b6d4; color: #22d3ee; background: #0f172a; }
         .history-del { font-size: 1.1rem; line-height: 1; opacity: 0.5; }
         .result-fade { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .medal-badge { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 4px;
+            padding: 2px 6px; 
+            border-radius: 6px; 
+            background: rgba(255,255,255,0.08); 
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s;
+            cursor: help;
+        }
+        .medal-badge:hover { 
+            background: rgba(255,255,255,0.15); 
+            transform: translateY(-1px);
+            border-color: rgba(255,255,255,0.2);
+        }
     </style>
 </head>
 <body class="min-h-screen pt-10 px-4 pb-24">
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.7 Cosine Edition</div>
+            <div class="text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.11 Clean Edition</div>
         </div>
         <div class="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-4 py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -143,6 +160,18 @@
             ]
         };
 
+        const MEDAL_CONFIG = [
+            { key: 'Destruction', icon: '⚔️', color: 'text-red-400' },
+            { key: 'Losses', icon: '☠️', color: 'text-gray-400' }, 
+            { key: 'DamageDealt', icon: '💥', color: 'text-orange-400' }, 
+            { key: 'DamageReceived', icon: '🛡️', color: 'text-slate-400' }, 
+            { key: 'SupplyPointsConsumed', icon: '🍔', color: 'text-yellow-400' }, 
+            { key: 'SupplyPointsConsumedFromAllies', icon: '🐱', color: 'text-pink-400' }, 
+            { key: 'SupplyPointsConsumedByAllies', icon: '🚑', color: 'text-green-400' }, 
+            { key: 'TotalSpawnedUnitScore', icon: '🛒', color: 'text-blue-400' }, 
+            { key: 'TotalRefundedUnitScore', icon: '💸', color: 'text-emerald-400' }
+        ];
+
         const DICT = {
             zh: {
                 title: "断箭蛆指数", subtitle: "Broken Arrow Maggot Index", placeholder: "Steam64 ID 或 数字 ID...",
@@ -155,7 +184,21 @@
                 trend_up: "🚀 最近猛如虎", trend_down: "📉 最近变蛆了", trend_flat: "➡️ 稳如泰山",
                 err_net: "网络拥塞，请稍后再试", err_insufficient: "有效对局不足 12 局",
                 lbl_ref_kdr: "平均 KD 排名", lbl_ref_kr: "平均击杀排名",
-                lbl_ref_dr: "爱兵如子排名", lbl_ref_or: "平均占点排名", lbl_ref_wr: "最近 12 局胜率"
+                lbl_ref_dr: "爱兵如子排名", lbl_ref_or: "平均占点排名", lbl_ref_wr: "最近 12 局胜率",
+                res_vic: "胜利", res_def: "失败",
+                meta_map: "地图", meta_dur: "时长", meta_win: "获胜方",
+                reasons: { 1: "统治结束", 2: "正常结束", 3: "投降结束" },
+                medals: {
+                    Destruction: "击杀王",
+                    Losses: "绞肉机",
+                    DamageDealt: "炸炸炸",
+                    DamageReceived: "最耐炸",
+                    SupplyPointsConsumed: "大胃袋",
+                    SupplyPointsConsumedFromAllies: "小馋猫",
+                    SupplyPointsConsumedByAllies: "绍伊古", 
+                    TotalSpawnedUnitScore: "采购官",
+                    TotalRefundedUnitScore: "仅退款"
+                }
             },
             en: {
                 title: "Maggot Index", subtitle: "Broken Arrow Performance Index", placeholder: "Enter Steam64 ID or Numeric ID...",
@@ -168,7 +211,21 @@
                 trend_up: "🚀 Improving", trend_down: "📉 Getting Worse", trend_flat: "➡️ Stable",
                 err_net: "Network error, please retry", err_insufficient: "Insufficient valid matches",
                 lbl_ref_kdr: "Avg KD Rank", lbl_ref_kr: "Avg Kill Rank",
-                lbl_ref_dr: "Troop Care Rank", lbl_ref_or: "Avg Obj Rank", lbl_ref_wr: "Win Rate (12G)"
+                lbl_ref_dr: "Troop Care Rank", lbl_ref_or: "Avg Obj Rank", lbl_ref_wr: "Win Rate (12G)",
+                res_vic: "VICTORY", res_def: "DEFEAT",
+                meta_map: "Map", meta_dur: "Dur", meta_win: "Winner",
+                reasons: { 1: "Unknown", 2: "Normal", 3: "Surrender" },
+                medals: {
+                    Destruction: "Kill King",
+                    Losses: "Loss King",
+                    DamageDealt: "Top DMG",
+                    DamageReceived: "Iron Wall",
+                    SupplyPointsConsumed: "Hungry",
+                    SupplyPointsConsumedFromAllies: "Leech",
+                    SupplyPointsConsumedByAllies: "Medic", 
+                    TotalSpawnedUnitScore: "Spender",
+                    TotalRefundedUnitScore: "Refunder"
+                }
             }
         };
 
@@ -287,7 +344,6 @@
                 const finalMe = validMatches[0].data.Data[uid];
                 saveHistory(uid, finalMe?.Name);
                 
-                // 设置 UI 上的用户信息
                 document.getElementById('userNameDisplay').innerText = `${finalMe?.Name || 'Unknown'} ${finalMe?.Level ? '(Lv.' + finalMe.Level + ')' : ''}`;
                 document.getElementById('calcTimeDisplay').innerText = `Calculated: ${new Date().toLocaleString()}`;
 
@@ -301,16 +357,29 @@
             }
         }
 
+        function formatDuration(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${m}m ${s}s`;
+        }
+
+        function formatMatchTime(ts) {
+            const d = new Date(ts * 1000);
+            return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        }
+
         function processFinalData(myUid, matches) {
             let kRankSum = 0, oRankSum = 0, kdRankSum = 0, lossRankSum = 0, wins = 0;
 
             const stats = matches.map(m => {
                 const data = m.data.Data;
+                const meta = m.data; 
                 const me = data[myUid];
                 const myTeamId = me.TeamId;
                 const players = Object.values(data);
-                const isTeamWin = players.filter(p => p.TeamId === myTeamId).some(p => (p.NewRating - p.OldRating) > 0.01);
-                if(isTeamWin) wins++;
+                
+                const isWin = myTeamId === meta.WinnerTeam;
+                if(isWin) wins++;
 
                 const maxK = Math.max(...players.map(p => p.DestructionScore || 0), 1);
                 const maxL = Math.max(...players.map(p => p.LossesScore || 0), 1);
@@ -324,20 +393,46 @@
                         kPct: (k / maxK) * 100, lPct: (l / maxL) * 100, oPct: ((p.ObjectivesCaptured || 0) / maxO) * 100,
                         isMe: String(p.Id) === String(myUid),
                         score: (k - l) / 1000 + (p.ObjectivesCaptured || 0),
-                        kScore: k, lScore: l, oScore: p.ObjectivesCaptured || 0, kd: k / (l || 1)
+                        kScore: k, lScore: l, oScore: p.ObjectivesCaptured || 0, kd: k / (l || 1),
+                        rawData: p,
+                        medals: [] 
                     };
                 };
 
                 const ally = players.filter(p => p.TeamId === myTeamId).map(mapPlayer).sort((a,b)=>b.score - a.score);
                 const enemy = players.filter(p => p.TeamId !== myTeamId).map(mapPlayer).sort((a,b)=>b.score - a.score);
 
+                const assignMedals = (teamPlayers) => {
+                    MEDAL_CONFIG.forEach(def => {
+                        const maxVal = Math.max(...teamPlayers.map(p => p.rawData[def.key] || 0));
+                        if (maxVal > 0) { 
+                            teamPlayers.forEach(p => {
+                                if ((p.rawData[def.key] || 0) === maxVal) {
+                                    p.medals.push({ ...def, val: maxVal });
+                                }
+                            });
+                        }
+                    });
+                };
+                assignMedals(ally);
+                assignMedals(enemy);
+
                 kRankSum += ([...ally].sort((a,b)=>b.kScore - a.kScore).findIndex(p=>p.isMe) + 1);
                 oRankSum += ([...ally].sort((a,b)=>b.oScore - a.oScore).findIndex(p=>p.isMe) + 1);
                 kdRankSum += ([...ally].sort((a,b)=>b.kd - a.kd).findIndex(p=>p.isMe) + 1);
-                // 爱兵如子排名：损失越小(a.lScore - b.lScore)越靠前
                 lossRankSum += ([...ally].sort((a,b)=>a.lScore - b.lScore).findIndex(p=>p.isMe) + 1);
 
-                return { id: m.id, myRank: ally.findIndex(p => p.isMe) + 1, ally, enemy };
+                return { 
+                    id: m.id, 
+                    myRank: ally.findIndex(p => p.isMe) + 1, 
+                    ally, enemy,
+                    isWin: isWin,
+                    endReason: meta.EndMatchReason,
+                    endTime: meta.EndTime,
+                    mapId: meta.MapId,
+                    duration: meta.TotalPlayTimeInSec,
+                    winnerTeam: meta.WinnerTeam
+                };
             });
             renderResults(stats, kRankSum/12, kdRankSum/12, oRankSum/12, lossRankSum/12, wins);
         }
@@ -346,12 +441,10 @@
             const t = DICT[currentLang];
             document.getElementById('resultPanel').classList.remove('hidden');
             
-            // --- 核心算法更新：余弦插值映射 -------------
-            const avgRank = stats.reduce((a,b) => a + b.myRank, 0) / stats.length; // 1-5 范围
-            const normalizedRank = (avgRank - 1) / 4; // 线性归一化到 0-1
-            const sCurveValue = (1 - Math.cos(normalizedRank * Math.PI)) / 2; // S型曲线平滑变换
-            const maggotIndex = (1 + (sCurveValue * 9)).toFixed(1); // 映射到 1-10 指数
-            // ----------------------------------------------------
+            const avgRank = stats.reduce((a,b) => a + b.myRank, 0) / stats.length; 
+            const normalizedRank = (avgRank - 1) / 4; 
+            const sCurveValue = (1 - Math.cos(normalizedRank * Math.PI)) / 2; 
+            const maggotIndex = (1 + (sCurveValue * 9)).toFixed(1); 
 
             const display = document.getElementById('maggotScoreDisplay');
             display.innerText = maggotIndex;
@@ -375,37 +468,72 @@
             const oldAvg = stats.slice(3).reduce((a,b)=>a+b.myRank,0)/9;
             document.getElementById('trendTag').innerText = recentAvg < oldAvg - 0.4 ? t.trend_up : (recentAvg > oldAvg + 0.4 ? t.trend_down : t.trend_flat);
 
-            document.getElementById('matchesContainer').innerHTML = stats.map(m => `
+            document.getElementById('matchesContainer').innerHTML = stats.map(m => {
+                const reasonText = t.reasons[m.endReason] || t.reasons[1];
+                const timeText = formatMatchTime(m.endTime);
+                const durText = formatDuration(m.duration);
+                const resultBadgeColor = m.isWin ? 'bg-cyan-600/20 text-cyan-400' : 'bg-red-600/20 text-red-400';
+                const resultText = m.isWin ? t.res_vic : t.res_def;
+
+                // --- 修改点：移除了获胜方显示，移除了己方/敌方大标题，调整了Padding ---
+                return `
                 <div class="glass-panel rounded-[3rem] overflow-hidden border-white/10 shadow-2xl">
                     <div class="bg-white/5 px-8 py-4 flex justify-between items-center text-xs font-bold font-mono text-slate-400">
-                        <span>MATCH ID: ${m.id}</span>
-                        <span class="px-4 py-1 bg-cyan-600/20 text-cyan-400 rounded-lg font-black uppercase tracking-widest">Rank #${m.myRank} / Ally</span>
+                        <div class="flex items-center gap-4">
+                            <span>MATCH ID: ${m.id}</span>
+                            <span class="w-px h-3 bg-white/10"></span>
+                            <span>${timeText}</span>
+                            <span class="w-px h-3 bg-white/10"></span>
+                            <span>${t.meta_map} ${m.mapId}</span>
+                            <span class="w-px h-3 bg-white/10"></span>
+                            <span>${durText}</span>
+                            <span class="w-px h-3 bg-white/10"></span>
+                            <span>${reasonText}</span>
+                        </div>
+                        <span class="px-4 py-1 ${resultBadgeColor} rounded-lg font-black uppercase tracking-widest flex items-center gap-2">
+                            <span>Rank #${m.myRank}</span>
+                            <span class="opacity-50">/</span>
+                            <span>${resultText}</span>
+                        </span>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-white/10">
-                        <div class="bg-[#0f172a] p-6"><h4 class="text-xs font-black text-cyan-500 mb-6 uppercase tracking-[0.2em]">${t.ally}</h4>${renderTeam(m.ally, t)}</div>
-                        <div class="bg-[#0f172a] p-6"><h4 class="text-xs font-black text-red-500 mb-6 uppercase tracking-[0.2em]">${t.enemy}</h4>${renderTeam(m.enemy, t)}</div>
+                        <div class="bg-[#0f172a] p-4">${renderTeam(m.ally, t)}</div>
+                        <div class="bg-[#0f172a] p-4">${renderTeam(m.enemy, t)}</div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderTeam(players, t) {
             return players.map(p => {
                 const hoverDetail = `${t.kill}: ${p.kScore.toLocaleString()} | ${t.loss}: ${p.lScore.toLocaleString()} | ${t.obj}: ${p.oScore}`;
+                
+                const medalsHtml = p.medals.length > 0 ? 
+                    `<div class="flex flex-wrap gap-1.5 mt-1.5">${p.medals.map(m => {
+                        const mName = t.medals[m.key] || m.key;
+                        return `<div class="medal-badge group" title="${mName}: ${Math.round(m.val).toLocaleString()}">
+                                <span class="text-[12px] filter drop-shadow-md select-none leading-none">${m.icon}</span>
+                                <span class="hidden xl:inline text-[10px] font-bold ${m.color} opacity-90 leading-none whitespace-nowrap">${mName}</span>
+                            </div>`;
+                    }).join('')}</div>` : '';
+
                 return `
                 <div class="teammate-row flex items-center p-3 rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}">
-                    <div class="flex-1 min-w-0 pr-6">
-                        <div class="text-sm font-black text-slate-100 truncate mb-0.5">${escapeHtml(p.name)}</div>
-                        <div class="id-link" onclick="inspect('${p.id}')">${p.id}</div>
+                    <div class="flex-1 min-w-0 pr-4 flex flex-col justify-center">
+                        <div class="flex flex-col">
+                            <div class="text-sm font-black text-slate-100 truncate leading-tight tracking-tight">${escapeHtml(p.name)}</div>
+                            ${medalsHtml}
+                        </div>
+                        <div class="id-link mt-1.5" onclick="inspect('${p.id}')">${p.id}</div>
                     </div>
-                    <div class="w-20 text-right mr-6 font-mono">
+                    <div class="w-20 text-right mr-4 font-mono">
                         <div class="text-xs font-bold text-slate-400">${p.elo}</div>
                         <div class="text-[11px] font-black ${parseFloat(p.gain)>=0?'text-green-500':'text-red-500'}">${parseFloat(p.gain)>=0?'+':''}${p.gain}</div>
                     </div>
-                    <div class="w-32 space-y-1.5">
-                        <div class="flex items-center gap-3"><span class="text-[10px] font-black text-slate-500 w-6 uppercase">${t.kill}</span><div class="bar-container"><div class="bar-kill" style="width:${p.kPct}%"></div></div></div>
-                        <div class="flex items-center gap-3"><span class="text-[10px] font-black text-slate-500 w-6 uppercase">${t.loss}</span><div class="bar-container"><div class="bar-loss" style="width:${p.lPct}%"></div></div></div>
-                        <div class="flex items-center gap-3"><span class="text-[10px] font-black text-slate-500 w-6 uppercase">${t.obj}</span><div class="bar-container"><div class="bar-obj" style="width:${p.oPct}%"></div></div></div>
+                    <div class="w-28 space-y-1.5">
+                        <div class="flex items-center gap-2"><div class="bar-container"><div class="bar-kill" style="width:${p.kPct}%"></div></div></div>
+                        <div class="flex items-center gap-2"><div class="bar-container"><div class="bar-loss" style="width:${p.lPct}%"></div></div></div>
+                        <div class="flex items-center gap-2"><div class="bar-container"><div class="bar-obj" style="width:${p.oPct}%"></div></div></div>
                     </div>
                 </div>
             `}).join('');
