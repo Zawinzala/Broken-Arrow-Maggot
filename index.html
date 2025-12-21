@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Broken Arrow Maggot Index v3.16 - By Zola</title>
+    <title>Broken Arrow Maggot Index v3.17 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -85,7 +85,7 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.16 幽灵数据修复版</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.17 胜负判定修复版</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -474,6 +474,35 @@
             const stats = matches.map(m => {
                 const data = m.data.Data;
                 const meta = m.data; 
+
+                // ============================================================
+                // [修复补丁 v3.17] 自动推断缺失的 WinnerTeam
+                // 如果 API 没返回谁赢了，根据玩家 Elo 变化倒推
+                // ============================================================
+                if (meta.WinnerTeam === undefined) {
+                    // 1. 尝试找一个有 TeamId 且有 Elo 变化的玩家作为参照
+                    const pValues = Object.values(data);
+                    const refPlayer = pValues.find(p => p.TeamId !== undefined && p.NewRating !== undefined && p.OldRating !== undefined);
+                    
+                    if (refPlayer) {
+                        // 如果这个参照玩家加分(>=0)，那他所在的队伍就是赢家
+                        if ((refPlayer.NewRating - refPlayer.OldRating) >= 0) {
+                            meta.WinnerTeam = refPlayer.TeamId;
+                        } else {
+                            // 如果扣分了，那对面就是赢家
+                            meta.WinnerTeam = refPlayer.TeamId === 0 ? 1 : 0;
+                        }
+                    } else {
+                        // 2. 如果连参照玩家都找不到（极罕见的全幽灵数据），
+                        // 找任何一个加分的玩家，默认他所在的虚拟队伍(默认归为0)获胜
+                        const winnerP = pValues.find(p => (p.NewRating || 0) - (p.OldRating || 0) >= 0);
+                        if (winnerP && winnerP.TeamId !== undefined) {
+                             meta.WinnerTeam = winnerP.TeamId;
+                        } else {
+                             meta.WinnerTeam = 0; // 实在没招了的默认值
+                        }
+                    }
+                }
                 
                 // --- v3.16 幽灵数据修复逻辑开始 ---
                 // 使用 Object.entries 保留 Key（玩家ID），针对幽灵数据补全信息
@@ -487,7 +516,7 @@
                     // 3. 智能推断阵营：针对没有 TeamId 但有 Elo 变化的数据
                     if (val.TeamId === undefined && val.NewRating !== undefined && val.OldRating !== undefined) {
                         const delta = val.NewRating - val.OldRating;
-                        const winnerTeam = meta.WinnerTeam !== undefined ? meta.WinnerTeam : 0; // 默认0防错
+                        const winnerTeam = meta.WinnerTeam !== undefined ? meta.WinnerTeam : 0; 
                         
                         // 逻辑：涨分或持平(>=0)归入胜者组，扣分归入败者组
                         if (delta >= 0) {
