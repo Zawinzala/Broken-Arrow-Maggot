@@ -613,6 +613,22 @@
             trendEl.innerText = trendText;
             container.appendChild(trendEl);
 
+            // ============================================
+            // >>> 新增：渲染当前 Elo 标签 <<<
+            // ============================================
+            if (stats.length > 0) {
+                // 取最近的一场比赛（stats[0]），在盟友列表中找到自己
+                const currentMe = stats[0].ally.find(p => p.isMe);
+                if (currentMe) {
+                    const eloEl = document.createElement('div');
+                    // Violet 样式
+                    eloEl.className = "tag-sticker bg-violet-900 border-violet-400 text-violet-100 font-mono";
+                    eloEl.innerHTML = `⚡ ELO ${currentMe.elo}`;
+                    container.appendChild(eloEl);
+                }
+            }
+            // ============================================
+
             document.getElementById('matchesContainer').innerHTML = stats.map(m => {
                 const reasonText = t.reasons[m.endReason] || t.reasons[1];
                 const timeText = formatMatchTime(m.endTime);
