@@ -2,6 +2,15 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TNMKLQ79MK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-TNMKLQ79MK');
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Broken Arrow Maggot Index v3.14 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -382,6 +391,17 @@
         async function handleCheck() {
             const input = document.getElementById('steamInput').value.trim();
             if(!input) return;
+
+            // ============================================
+            // Google Analytics Event Tracking
+            // ============================================
+            if (typeof gtag === 'function') {
+                gtag('event', 'search_player', {
+                    'search_term': input
+                });
+            }
+            // ============================================
+
             const t = DICT[currentLang];
             
             document.getElementById('errorArea').classList.add('hidden');
