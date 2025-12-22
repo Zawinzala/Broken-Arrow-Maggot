@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Broken Arrow Maggot Index v3.19 - By Zola</title>
+    <title>Broken Arrow Maggot Index v3.23 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -37,7 +37,24 @@
         .tag-sticker-container { position: absolute; top: 1rem; right: 1rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; z-index: 30; transform-origin: top right; transform: scale(0.75); pointer-events: none; }
         @media (min-width: 768px) { .tag-sticker-container { top: 1.5rem; right: 1.5rem; gap: 0.75rem; transform: scale(1); } }
         
-        .tag-sticker { padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-weight: 900; font-style: italic; font-size: 0.9rem; text-transform: uppercase; transform: rotate(8deg); box-shadow: 0 6px 15px rgba(0,0,0,0.4); border-width: 2px; animation: tagPop 0.5s ease-out forwards; opacity: 0; white-space: nowrap; }
+        .tag-sticker { 
+            /* 新增这一行，强制开启鼠标交互 */
+            pointer-events: auto; 
+            
+            /* 原有样式保持不变 */
+            padding: 0.5rem 1.25rem; 
+            border-radius: 0.75rem; 
+            font-weight: 900; 
+            font-style: italic; 
+            font-size: 0.9rem; 
+            text-transform: uppercase; 
+            transform: rotate(8deg); 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4); 
+            border-width: 2px; 
+            animation: tagPop 0.5s ease-out forwards; 
+            opacity: 0; 
+            white-space: nowrap; 
+        }
         @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
         
         .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 70px; } 
@@ -89,7 +106,7 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.19 布局优化与进度修复版</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.23 平局支持</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -152,7 +169,7 @@
                 <div class="tag-sticker-container"></div>
 
                 <div class="text-center mb-4 mt-2 md:mt-0 w-full px-2">
-                    <div id="userNameDisplay" class="text-xl md:text-3xl font-black text-white mb-1 truncate">Commander Name</div>
+                    <div id="userNameDisplay" class="text-xl md:text-3xl font-black text-white mb-2 truncate">Commander Name</div>
                     <div id="calcTimeDisplay" class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Calculated: 2024-01-01 00:00:00</div>
                 </div>
 
@@ -323,49 +340,125 @@
                 err_net: "网络拥塞，请稍后再试", err_insufficient: "有效对局不足 12 局",
                 lbl_ref_kdr: "平均 KD 排名", lbl_ref_kr: "平均击杀排名",
                 lbl_ref_dr: "爱兵如子排名", lbl_ref_or: "平均占点排名", lbl_ref_wr: "最近 12 局胜率",
-                res_vic: "胜利", res_def: "失败",
+                res_vic: "胜利", res_def: "失败", res_draw: "平局",
                 meta_map: "地图", meta_dur: "时长", meta_win: "获胜方",
                 reasons: { 1: "统治结束", 2: "正常结束", 3: "投降结束" },
                 medals: {
                     Destruction: "击杀王", Losses: "送死王", DamageDealt: "炸炸炸", DamageReceived: "耐炸王",
                     SupplyPointsConsumed: "大胃袋", SupplyPointsConsumedFromAllies: "小馋猫", SupplyPointsConsumedByAllies: "奶妈", 
                     TotalSpawnedUnitScore: "采购官", TotalRefundedUnitScore: "仅退款"
-                }
+                },
+                // ▼▼▼▼▼▼▼▼▼▼▼▼▼ 新增以下内容 ▼▼▼▼▼▼▼▼▼▼▼▼▼
+                medal_descs: {
+                    Destruction: "击杀得分全队最高", 
+                    Losses: "损失得分全队最高 (送分最多)", 
+                    DamageDealt: "对敌造成伤害总量全队最高", 
+                    DamageReceived: "承受伤害总量全队最高",
+                    SupplyPointsConsumed: "消耗补给总分全队最高", 
+                    SupplyPointsConsumedFromAllies: "消耗盟友补给分数全队最高", 
+                    SupplyPointsConsumedByAllies: "提供给盟友补给分数全队最高", 
+                    TotalSpawnedUnitScore: "招募单位总分全队最高", 
+                    TotalRefundedUnitScore: "退款单位总分全队最高"
+                },
+                trend_desc: "最近 3 局排名与历史平均排名的对比趋势",
+                elo_desc: "最新的 ELO 评分 (基于最新一局数据)",
+                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
             },
             en: {
-                title: "Maggot Index", subtitle: "Broken Arrow Performance Index", 
+                title: "Maggot Index", 
+                subtitle: "Broken Arrow Performance Index", 
                 placeholder: "Steam64 ID or In-Game Numeric ID...", 
-                check: "ANALYZE", loading: "Syncing...", maggot_index_title: "MAGGOT INDEX",
-                god_range: "GOD", avg_range: " ", maggot_range: "MAGGOT",
+                check: "ANALYZE", 
+                loading: "Syncing...", 
+                maggot_index_title: "MAGGOT INDEX",
+                god_range: "GOD", 
+                avg_range: " ", 
+                maggot_range: "MAGGOT",
                 history_title: "Last 12 Valid Matches",
-                find_id_btn: "Don't know ID? Search by Name",
-                find_match_btn: "Search Player by Match ID",
-                modal_title: "Player Internal ID Search", modal_input_ph: "Enter Username...", modal_btn_search: "Search",
-                modal_pname: "Player Name", modal_pid: "Internal ID", modal_use_btn: "Use This ID",
-                modal_status_search: "Searching...", modal_status_err: "Error: ", modal_status_none: "No players found",
+                
+                find_id_btn: "Forgot ID? Search by Name",
+                find_match_btn: "Have Match ID? Search Players",
+                
+                modal_title: "Player Internal ID Lookup", 
+                modal_input_ph: "Enter Username...", 
+                modal_btn_search: "Search",
+                modal_pname: "Player Name", 
+                modal_pid: "Internal ID", 
+                modal_use_btn: "Analyze This ID",
+                modal_status_search: "Searching...", 
+                modal_status_err: "Error: ", 
+                modal_status_none: "No players found",
                 modal_status_found: "Found {n} results",
 
                 modal_match_title: "Search Player by Match ID",
-                modal_match_input_ph: "Enter Match ID...",
-                modal_match_btn_search: "Get Result",
-                modal_match_loading: "Fetching details...",
+                modal_match_input_ph: "Enter Match ID (e.g. 184523)...",
+                modal_match_btn_search: "Fetch Stats",
+                modal_match_loading: "Retrieving match data...",
                 modal_match_err: "Failed to fetch match info",
 
-                kill: "Kill", loss: "Loss", obj: "OBJ",
-                levels: ["👑 GOD", "🦁 Pillar", "😐 Average", "🐛 Bit Maggot", "💩 Maggot!"],
-                tag_killer: "⚔️ Kill Focus", tag_kd: "📈 KD Focus", tag_obj: "🚩 Obj Focus",
-                trend_up: "🚀 Improving", trend_down: "📉 Getting Worse", trend_flat: "➡️ Stable",
-                err_net: "Network error, please retry", err_insufficient: "Insufficient valid matches",
-                lbl_ref_kdr: "Avg KD Rank", lbl_ref_kr: "Avg Kill Rank",
-                lbl_ref_dr: "Troop Care Rank", lbl_ref_or: "Avg Obj Rank", lbl_ref_wr: "Win Rate (12G)",
-                res_vic: "VICTORY", res_def: "DEFEAT",
-                meta_map: "Map", meta_dur: "Dur", meta_win: "Winner",
-                reasons: { 1: "Domination", 2: "Normal", 3: "Surrender" },
+                kill: "Kills", loss: "Losses", obj: "Caps",
+                levels: ["👑 GODLIKE", "🦁 CARRY", "😐 AVERAGE", "🐛 NOOB", "💩 MAGGOT!"],
+                
+                // 标签说明：PTFO = Play The Objective (只赢不刷)
+                tag_killer: "⚔️ Fragger", 
+                tag_kd: "📈 KD Player", 
+                tag_obj: "🚩 PTFO", 
+                
+                trend_up: "🚀 On the Rise", 
+                trend_down: "📉 Slumping", 
+                trend_flat: "➡️ Consistent", 
+                
+                err_net: "Network congestion, please retry", 
+                err_insufficient: "Insufficient data (Need 12+ matches)",
+                
+                lbl_ref_kdr: "KD Rating Rank", 
+                lbl_ref_kr: "Kill Rating Rank",
+                lbl_ref_dr: "Unit Preservation Rank", 
+                lbl_ref_or: "Objective Rank", 
+                lbl_ref_wr: "Win Rate (Last 12)",
+                
+                res_vic: "VICTORY", res_def: "DEFEAT", res_draw: "DRAW",
+                meta_map: "Map", meta_dur: "Time", meta_win: "Winner",
+                reasons: { 1: "Domination", 2: "Time/Score", 3: "Surrender" },
+                
+                // --- 徽章贴纸 (短语) ---
                 medals: {
-                    Destruction: "Kill King", Losses: "Loss King", DamageDealt: "Top DMG", DamageReceived: "Iron Wall",
-                    SupplyPointsConsumed: "Hungry", SupplyPointsConsumedFromAllies: "Leech", SupplyPointsConsumedByAllies: "Medic", 
-                    TotalSpawnedUnitScore: "Spender", TotalRefundedUnitScore: "Refunder"
-                }
+                    // Destruction: 击杀总分最高 -> Top Fragger (榜一/人头王)
+                    Destruction: "Top Fragger", 
+                    // Losses: 损失总分最高 -> Cannon Fodder (炮灰)
+                    Losses: "Cannon Fodder",           
+                    // DamageDealt: 物理伤害最高 -> Heavy Hitter (重拳/输出机器)
+                    DamageDealt: "Heavy Hitter",       
+                    // DamageReceived: 承伤最高 -> Sponge (肉盾/吸火海绵) 或者 Tank
+                    DamageReceived: "Bullet Sponge",      
+                    // SupplyPointsConsumed: 消耗补给多 -> Big Spender (大手大脚)
+                    SupplyPointsConsumed: "Big Spender",   
+                    // FromAllies: 吃队友补给 -> Freeloader (白嫖/蹭吃蹭喝)
+                    SupplyPointsConsumedFromAllies: "Freeloader", 
+                    // ByAllies: 给队友补给 -> Medic (这在游戏圈通用于辅助)
+                    SupplyPointsConsumedByAllies: "Medic",
+                    // TotalSpawned: 招募总分 -> War Machine (战争机器/暴兵)
+                    TotalSpawnedUnitScore: "War Machine",
+                    // TotalRefunded: 退款 -> Tactician (战术家/重新部署) 或 Refund King
+                    TotalRefundedUnitScore: "Refund King" 
+                },
+                
+                // --- 详细说明 (鼠标悬停显示) ---
+                // 这里的翻译力求直白，解释清楚数据来源
+                medal_descs: {
+                    Destruction: "Highest total value of enemy units destroyed (Raw Kill Score)", 
+                    Losses: "Highest total value of own units lost (Feeder)", 
+                    DamageDealt: "Highest total physical damage dealt to enemies", 
+                    DamageReceived: "Highest total physical damage received",
+                    SupplyPointsConsumed: "Most supply points spent on units/ammo", 
+                    SupplyPointsConsumedFromAllies: "Most supply taken from teammates' stashes", 
+                    SupplyPointsConsumedByAllies: "Most supply provided to teammates", 
+                    TotalSpawnedUnitScore: "Highest total point value of units deployed", 
+                    TotalRefundedUnitScore: "Highest total point value of units sold back"
+                },
+                
+                trend_desc: "Performance trend over recent matches vs history",
+                elo_desc: "Current ELO Rating (Live update)",
             }
         };
 
@@ -541,68 +634,79 @@
                 const data = m.data.Data;
                 const meta = m.data; 
 
-                // ============================================================
-                // [修复补丁 v3.17] 自动推断缺失的 WinnerTeam
-                // 如果 API 没返回谁赢了，根据玩家 Elo 变化倒推
-                // ============================================================
-                if (meta.WinnerTeam === undefined) {
-                    // 1. 尝试找一个有 TeamId 且有 Elo 变化的玩家作为参照
-                    const pValues = Object.values(data);
-                    const refPlayer = pValues.find(p => p.TeamId !== undefined && p.NewRating !== undefined && p.OldRating !== undefined);
-                    
-                    if (refPlayer) {
-                        // 如果这个参照玩家加分(>=0)，那他所在的队伍就是赢家
-                        if ((refPlayer.NewRating - refPlayer.OldRating) >= 0) {
-                            meta.WinnerTeam = refPlayer.TeamId;
-                        } else {
-                            // 如果扣分了，那对面就是赢家
-                            meta.WinnerTeam = refPlayer.TeamId === 0 ? 1 : 0;
-                        }
-                    } else {
-                        // 2. 如果连参照玩家都找不到（极罕见的全幽灵数据），
-                        // 找任何一个加分的玩家，默认他所在的虚拟队伍(默认归为0)获胜
-                        const winnerP = pValues.find(p => (p.NewRating || 0) - (p.OldRating || 0) >= 0);
-                        if (winnerP && winnerP.TeamId !== undefined) {
-                             meta.WinnerTeam = winnerP.TeamId;
-                        } else {
-                             meta.WinnerTeam = 0; // 实在没招了的默认值
+                // --- v3.23 混合分队逻辑 (适配平局) ---
+                // 1. 预扫描：计算“有名有姓”玩家的 Team 1 和 Team 0 的平均分变化
+                let t1DeltaSum = 0, t1Count = 0;
+                let t0DeltaSum = 0, t0Count = 0;
+
+                Object.values(data).forEach(p => {
+                    if (p.Name) { 
+                        const d = (p.NewRating || 0) - (p.OldRating || 0);
+                        // 严格判定：只有 TeamId 明确为 1 才是 1队，其他（包括 undefined, 0 等）统统算 0 队
+                        if (p.TeamId === 1) { 
+                            t1DeltaSum += d; t1Count++; 
+                        } else { 
+                            t0DeltaSum += d; t0Count++; 
                         }
                     }
-                }
+                });
                 
-                // --- v3.16 幽灵数据修复逻辑开始 ---
-                // 使用 Object.entries 保留 Key（玩家ID），针对幽灵数据补全信息
-                const players = Object.entries(data).map(([key, val]) => {
-                    // 1. 如果对象内部没有Id，用 Key 补全
-                    if (!val.Id) val.Id = key;
-                    
-                    // 2. 如果没有名字，补全占位符
-                    if (!val.Name) val.Name = "Unknown";
+                // 计算基准线 (如果某队没探测到人，默认基准为 0)
+                const avgT1 = t1Count > 0 ? t1DeltaSum / t1Count : 0;
+                const avgT0 = t0Count > 0 ? t0DeltaSum / t0Count : 0;
 
-                    // 3. 智能推断阵营：针对没有 TeamId 但有 Elo 变化的数据
-                    if (val.TeamId === undefined && val.NewRating !== undefined && val.OldRating !== undefined) {
-                        const delta = val.NewRating - val.OldRating;
-                        const winnerTeam = meta.WinnerTeam !== undefined ? meta.WinnerTeam : 0; 
+                // 2. 正式构建玩家列表 (同时修复 TeamId)
+                const players = Object.entries(data).map(([key, val]) => {
+                    if (!val.Id) val.Id = key;
+
+                    if (val.Name) {
+                        // [逻辑A] 有名字的玩家：严格按照 TeamId 分队
+                        val.TeamId = (val.TeamId === 1) ? 1 : 0;
+                    } else {
+                        // [逻辑B] 没名字的幽灵数据：根据 Elo 变化找“靠山”
+                        val.Name = "Unknown";
+                        const myDelta = (val.NewRating || 0) - (val.OldRating || 0);
                         
-                        // 逻辑：涨分或持平(>=0)归入胜者组，扣分归入败者组
-                        if (delta >= 0) {
-                            val.TeamId = winnerTeam;
+                        const distT1 = Math.abs(myDelta - avgT1);
+                        const distT0 = Math.abs(myDelta - avgT0);
+                        
+                        if (t1Count === 0 && t0Count === 0) {
+                             val.TeamId = myDelta >= 0 ? 1 : 0;
                         } else {
-                            // 胜者是1则败者是0，胜者是0则败者是1
-                            val.TeamId = (winnerTeam === 1 ? 0 : 1);
+                             val.TeamId = distT1 < distT0 ? 1 : 0;
                         }
                     }
                     return val;
                 });
-                // --- v3.16 修复逻辑结束 ---
 
-                // --- 修改：直接在修复好的 players 里找自己，不再重新读取 data[myUid] ---
+                // ============================================================
+                // [v3.23 平局适配] 
+                // 只有当 WinnerTeam 完全丢失(undefined)时，才尝试通过 Elo 推断胜负。
+                // 如果是 101，则保留原样，作为平局处理。
+                // ============================================================
+                if (meta.WinnerTeam === undefined) {
+                    let team0EloDelta = 0;
+                    let team1EloDelta = 0;
+                    players.forEach(p => {
+                        if (p.NewRating !== undefined && p.OldRating !== undefined) {
+                            const delta = p.NewRating - p.OldRating;
+                            if (p.TeamId === 0) team0EloDelta += delta;
+                            if (p.TeamId === 1) team1EloDelta += delta;
+                        }
+                    });
+                    // 推断胜负
+                    meta.WinnerTeam = team0EloDelta > team1EloDelta ? 0 : 1;
+                }
+
                 const myP = players.find(p => String(p.Id) === String(myUid));
-                // 只有当玩家 ID 彻底不存在于数据中时（不是幽灵数据，而是完全消失），才使用后备的胜负逻辑
+                // 如果找不到自己，且是平局，暂定 Team 0；否则按胜负逻辑分配
                 const myTeamId = myP ? myP.TeamId : (meta.WinnerTeam === 0 ? 1 : 0); 
                 
-                const isWin = myTeamId === meta.WinnerTeam;
-                if(isWin) wins++;
+                // --- 判定平局与胜负 ---
+                const isDraw = meta.WinnerTeam === 101;
+                const isWin = !isDraw && (myTeamId === meta.WinnerTeam);
+                
+                if(isWin) wins++; // 平局不计入胜场
 
                 const maxK = Math.max(...players.map(p => p.DestructionScore || 0), 1);
                 const maxL = Math.max(...players.map(p => p.LossesScore || 0), 1);
@@ -647,10 +751,9 @@
                     });
                 }
 
-                // --- 修改逻辑开始：掉线(Rank 0) 强制视为 Rank 5 参与统计 ---
                 const calcR = (list, fn) => { 
                     const r = [...list].sort(fn).findIndex(p=>p.isMe) + 1; 
-                    return r === 0 ? 5 : r; // 如果找不到人(0)，按垫底(5)计算
+                    return r === 0 ? 5 : r; 
                 };
 
                 kRankSum += calcR(ally, (a,b)=>b.kScore - a.kScore);
@@ -659,14 +762,14 @@
                 lossRankSum += calcR(ally, (a,b)=>a.lScore - b.lScore);
 
                 let currentMatchRank = ally.findIndex(p => p.isMe) + 1;
-                if (currentMatchRank === 0) currentMatchRank = 5; // 显示为 Rank 5
-                // --- 修改逻辑结束 ---
+                if (currentMatchRank === 0) currentMatchRank = 5;
 
                 return { 
                     id: m.id, 
                     myRank: currentMatchRank, 
                     ally, enemy,
                     isWin: isWin,
+                    isDraw: isDraw, // 传递平局状态
                     endReason: meta.EndMatchReason,
                     endTime: meta.EndTime,
                     mapId: meta.MapId,
@@ -712,16 +815,22 @@
             topMedals.forEach(key => {
                 const conf = MEDAL_CONFIG.find(c => c.key === key);
                 if(!conf) return;
-                const name = DICT[currentLang].medals[key] || key;
-                // 将文本颜色类转换为背景色和边框色
+                
+                const dict = DICT[currentLang];
+                const name = dict.medals[key] || key;
+                // [新增] 获取描述文本
+                const desc = dict.medal_descs[key] || name;
+
+                // 提取颜色并设置半透明样式
                 const colorBase = conf.color.replace('text-', '').replace('-400', '');
-                // 简单的颜色映射
-                const bgClass = `bg-${colorBase}-900`;
-                const borderClass = `border-${colorBase}-400`;
+                const bgClass = `bg-${colorBase}-600/20`;
+                const borderClass = `border-${colorBase}-500/50`;
+                const textClass = `text-${colorBase}-300`;
                 
                 const el = document.createElement('div');
-                // 移除 hidden xl:inline 逻辑，因为贴纸总是显示
-                el.className = `tag-sticker ${bgClass} ${borderClass} text-${colorBase}-100 flex items-center gap-2`;
+                // [新增] title 属性实现鼠标悬停显示说明
+                el.title = desc; 
+                el.className = `tag-sticker ${bgClass} ${borderClass} ${textClass} flex items-center gap-2 cursor-help`; // 增加 cursor-help 鼠标样式
                 el.innerHTML = `<span class="text-lg">${conf.icon}</span><span>${name}</span>`;
                 container.appendChild(el);
             });
@@ -730,8 +839,11 @@
             const recentAvg = stats.slice(0,3).reduce((a,b)=>a+b.myRank,0)/3;
             const oldAvg = stats.slice(3).reduce((a,b)=>a+b.myRank,0)/9;
             const trendText = recentAvg < oldAvg - 0.4 ? t.trend_up : (recentAvg > oldAvg + 0.4 ? t.trend_down : t.trend_flat);
+            
             const trendEl = document.createElement('div');
-            trendEl.className = "tag-sticker bg-slate-800 border-slate-500 text-slate-200";
+            // [新增] title 属性
+            trendEl.title = t.trend_desc;
+            trendEl.className = "tag-sticker bg-slate-600/20 border-slate-500/50 text-slate-300 cursor-help";
             trendEl.innerText = trendText;
             container.appendChild(trendEl);
 
@@ -739,13 +851,12 @@
             // >>> 新增：渲染当前 Elo 标签 <<<
             // ============================================
             if (stats.length > 0) {
-                // 取最近的一场比赛（stats[0]），在盟友列表中找到自己
                 const currentMe = stats[0].ally.find(p => p.isMe);
                 if (currentMe) {
                     const eloEl = document.createElement('div');
-                    // Violet 样式
-                    // 方案：半透明背景，不刺眼，保留紫色调
-                    eloEl.className = "tag-sticker bg-violet-600/20 border-violet-500/50 text-violet-300 font-mono";
+                    // [新增] title 属性
+                    eloEl.title = t.elo_desc;
+                    eloEl.className = "tag-sticker bg-violet-600/20 border-violet-500/50 text-violet-300 font-mono cursor-help";
                     eloEl.innerHTML = `ELO ${currentMe.elo}`;
                     container.appendChild(eloEl);
                 }
@@ -756,8 +867,20 @@
                 const reasonText = t.reasons[m.endReason] || t.reasons[1];
                 const timeText = formatMatchTime(m.endTime);
                 const durText = formatDuration(m.duration);
-                const resultBadgeColor = m.isWin ? 'bg-cyan-600/20 text-cyan-400' : 'bg-red-600/20 text-red-400';
-                const resultText = m.isWin ? t.res_vic : t.res_def;
+                
+                // --- v3.23 UI适配：平局样式 ---
+                let resultBadgeColor, resultText;
+                
+                if (m.isDraw) {
+                    // 平局：使用灰色/Slate色
+                    resultBadgeColor = 'bg-slate-600/30 text-slate-300 border border-slate-500/30';
+                    resultText = t.res_draw;
+                } else {
+                    // 胜负：保持原有逻辑
+                    resultBadgeColor = m.isWin ? 'bg-cyan-600/20 text-cyan-400' : 'bg-red-600/20 text-red-400';
+                    resultText = m.isWin ? t.res_vic : t.res_def;
+                }
+                // ---------------------------
 
                 return `
                 <div class="glass-panel rounded-[2rem] md:rounded-[3rem] overflow-hidden border-white/10 shadow-2xl">
@@ -791,7 +914,7 @@
             return players.map(p => {
                 const hoverDetail = `${t.kill}: ${p.kScore.toLocaleString()} | ${t.loss}: ${p.lScore.toLocaleString()} | ${t.obj}: ${p.oScore}`;
                 const medalsHtml = p.medals.length > 0 ? 
-                    `<div class="flex flex-wrap gap-1 mt-1">${p.medals.map(m => {
+                    `<div class="flex flex-wrap gap-1 mt-1.5">${p.medals.map(m => {
                         const mName = t.medals[m.key] || m.key;
                         return `<div class="medal-badge group" title="${mName}: ${Math.round(m.val).toLocaleString()}">
                                 <span class="text-[10px] md:text-[12px] filter drop-shadow-md select-none leading-none">${m.icon}</span>
@@ -803,7 +926,7 @@
                 <div class="teammate-row flex items-center p-2 md:p-3 rounded-xl md:rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}">
                     <div class="flex-1 min-w-0 pr-2 md:pr-4 flex flex-col justify-center">
                         <div class="flex flex-col">
-                            <div class="text-xs md:text-sm font-black text-slate-100 truncate leading-tight tracking-tight">${escapeHtml(p.name)}</div>
+                            <div class="text-xs md:text-sm font-black text-slate-100 truncate mb-0.5">${escapeHtml(p.name)}</div>
                             ${medalsHtml}
                         </div>
                         <div class="id-link mt-1" onclick="inspect('${p.id}')">${p.id}</div>
@@ -1010,3 +1133,4 @@
     </script>
 </body>
 </html>
+
