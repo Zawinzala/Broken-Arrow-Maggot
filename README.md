@@ -1,4 +1,4 @@
-'人含量 1%，含量不如鸡尾酒'
+'人含量 2%，含量不如鸡尾酒'
 
 [点击访问](https://zawinzala.github.io/Broken-Arrow-Maggot/)
 
