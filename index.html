@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Broken Arrow Maggot Index v3.17 - By Zola</title>
+    <title>Broken Arrow Maggot Index v3.19 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -24,8 +24,12 @@
         .bar-kill { background: #22c55e; height: 100%; transition: width 0.6s ease-out; }
         .bar-loss { background: #ef4444; height: 100%; transition: width 0.6s ease-out; }
         .bar-obj { background: #3b82f6; height: 100%; transition: width 0.6s ease-out; }
+        
+        /* --- 修复：重新补齐进度条背景样式 --- */
         .load-progress-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; margin: 12px 0; }
         .load-progress-fill { width: 0%; height: 100%; background: #06b6d4; transition: width 0.4s ease; box-shadow: 0 0 15px rgba(6,182,212,0.6); }
+        /* ---------------------------------- */
+
         .maggot-meter-bg { background: linear-gradient(90deg, #22c55e 0%, #eab308 50%, #ef4444 100%); height: 18px; border-radius: 9px; position: relative; }
         .maggot-indicator { position: absolute; top: -4px; width: 6px; height: 26px; background: white; border: 2px solid #000; transform: translateX(-50%); transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
         
@@ -85,7 +89,7 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.17 胜负判定修复版</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.19 布局优化与进度修复版</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -110,12 +114,22 @@
                 <input type="text" id="steamInput" class="flex-1 bg-slate-900 border-2 border-slate-700 text-white p-4 md:p-5 rounded-xl md:rounded-2xl text-center text-base md:text-lg focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none transition-all placeholder-slate-600 shadow-2xl font-medium">
                 <button onclick="handleCheck()" id="btn_check" class="bg-cyan-600 hover:bg-cyan-500 text-white font-black px-12 py-4 md:py-5 rounded-xl md:rounded-2xl shadow-xl transform active:scale-95 transition-all text-base md:text-lg whitespace-nowrap">开始检测</button>
             </div>
-            <button onclick="openSearchModal()" class="mt-4 text-slate-400 text-xs md:text-sm hover:text-orange-400 transition flex items-center gap-2 group p-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <span id="lbl_find_id_btn" class="border-b border-dotted border-slate-600 group-hover:border-orange-400">不知道 ID？通过用户名查找</span>
-            </button>
+            
+            <div class="flex flex-row flex-wrap justify-center gap-2 md:gap-6 mt-4">
+                <button onclick="openSearchModal()" class="text-slate-400 text-xs md:text-sm hover:text-orange-400 transition flex items-center gap-2 group p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span id="lbl_find_id_btn" class="border-b border-dotted border-slate-600 group-hover:border-orange-400">不知道 ID？通过用户名查找</span>
+                </button>
+
+                <button onclick="openMatchSearchModal()" class="text-slate-400 text-xs md:text-sm hover:text-cyan-400 transition flex items-center gap-2 group p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span id="lbl_find_match_btn" class="border-b border-dotted border-slate-600 group-hover:border-cyan-400">只知道对局 ID？通过对局查玩家</span>
+                </button>
+            </div>
             
             <div id="historyContainer" class="flex flex-wrap justify-center gap-2 md:gap-3 mt-6 md:mt-8"></div>
         </div>
@@ -226,6 +240,39 @@
         </div>
     </div>
 
+    <div id="matchSearchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
+        <div class="glass-panel w-full max-w-4xl rounded-2xl p-6 relative shadow-2xl bg-slate-900/95 border border-slate-600 flex flex-col max-h-[90vh]">
+            <button onclick="closeMatchSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <h2 id="modal_match_title" class="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6 text-center">通过对局 ID 查找玩家</h2>
+            
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="matchIdInput" 
+                    class="bg-slate-800 border border-slate-600 text-white text-sm rounded-xl focus:ring-cyan-500 focus:border-cyan-500 block w-full p-4 placeholder-slate-500 font-mono" 
+                    placeholder="输入对局 ID..." 
+                    onkeydown="if(event.key === 'Enter') doMatchSearch()">
+                
+                <button onclick="doMatchSearch()" id="modal_match_btn_search"
+                    class="text-white bg-cyan-600 hover:bg-cyan-500 focus:ring-4 focus:outline-none focus:ring-cyan-800 font-bold rounded-xl text-sm px-6 py-4 transition whitespace-nowrap">
+                    获取战绩
+                </button>
+            </div>
+
+            <div id="matchModalStatus" class="text-xs mb-4 pl-1 text-center min-h-[1rem]"></div>
+
+            <div id="matchModalResultArea" class="hidden flex-1 overflow-y-auto custom-scrollbar pr-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="matchModalTeam0" class="space-y-1"></div>
+                    <div id="matchModalTeam1" class="space-y-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const CONFIG = {
             MATCH_GOAL: 12,
@@ -257,11 +304,18 @@
                 god_range: "神", avg_range: " ", maggot_range: "蛆",
                 history_title: "最近 12 局有效对局", 
                 find_id_btn: "不知道 ID？通过用户名查找",
+                find_match_btn: "只知道对局 ID？通过对局查玩家",
                 modal_title: "玩家内部 ID 查询", modal_input_ph: "输入游戏用户名...", modal_btn_search: "查询",
                 modal_pname: "玩家名称", modal_pid: "内部 ID", modal_use_btn: "使用此 ID 检测",
                 modal_status_search: "搜索中...", modal_status_err: "出错了: ", modal_status_none: "未找到该玩家",
                 modal_status_found: "找到 {n} 个结果",
                 
+                modal_match_title: "通过对局 ID 查找玩家",
+                modal_match_input_ph: "输入对局 ID (如 184523)...",
+                modal_match_btn_search: "获取战绩",
+                modal_match_loading: "正在获取对局信息...",
+                modal_match_err: "获取失败，请检查 ID 是否正确",
+
                 kill: "击杀", loss: "损失", obj: "占点",
                 levels: ["👑 神", "🦁 团队支柱", "😐 平平无奇", "🐛 有点蛆", "💩 蛆！"],
                 tag_killer: "⚔️ 击杀为主", tag_kd: "📈 KD 为主", tag_obj: "🚩 占点为主",
@@ -285,10 +339,17 @@
                 god_range: "GOD", avg_range: " ", maggot_range: "MAGGOT",
                 history_title: "Last 12 Valid Matches",
                 find_id_btn: "Don't know ID? Search by Name",
+                find_match_btn: "Search Player by Match ID",
                 modal_title: "Player Internal ID Search", modal_input_ph: "Enter Username...", modal_btn_search: "Search",
                 modal_pname: "Player Name", modal_pid: "Internal ID", modal_use_btn: "Use This ID",
                 modal_status_search: "Searching...", modal_status_err: "Error: ", modal_status_none: "No players found",
                 modal_status_found: "Found {n} results",
+
+                modal_match_title: "Search Player by Match ID",
+                modal_match_input_ph: "Enter Match ID...",
+                modal_match_btn_search: "Get Result",
+                modal_match_loading: "Fetching details...",
+                modal_match_err: "Failed to fetch match info",
 
                 kill: "Kill", loss: "Loss", obj: "OBJ",
                 levels: ["👑 GOD", "🦁 Pillar", "😐 Average", "🐛 Bit Maggot", "💩 Maggot!"],
@@ -327,6 +388,7 @@
             document.getElementById('lbl_maggot_range').innerText = t.maggot_range;
             document.getElementById('lbl_history_title').innerText = t.history_title;
             document.getElementById('lbl_find_id_btn').innerText = t.find_id_btn;
+            document.getElementById('lbl_find_match_btn').innerText = t.find_match_btn;
             document.getElementById('lbl_ref_kdr').innerText = t.lbl_ref_kdr;
             document.getElementById('lbl_ref_kr').innerText = t.lbl_ref_kr;
             document.getElementById('lbl_ref_dr').innerText = t.lbl_ref_dr;
@@ -339,6 +401,10 @@
             document.getElementById('lbl_modal_pname').innerText = t.modal_pname;
             document.getElementById('lbl_modal_pid').innerText = t.modal_pid;
             document.getElementById('btn_use_id').innerText = t.modal_use_btn;
+
+            document.getElementById('modal_match_title').innerText = t.modal_match_title;
+            document.getElementById('matchIdInput').placeholder = t.modal_match_input_ph;
+            document.getElementById('modal_match_btn_search').innerText = t.modal_match_btn_search;
 
             document.getElementById('btn_lang_zh').className = `px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='zh'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
             document.getElementById('btn_lang_en').className = `px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='en'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
@@ -777,6 +843,88 @@
         function closeSearchModal() {
             document.getElementById('idSearchModal').classList.add('hidden');
         }
+
+        // ============================================
+        // [NEW] 对局 ID 查找功能逻辑区
+        // ============================================
+        function openMatchSearchModal() {
+            document.getElementById('matchSearchModal').classList.remove('hidden');
+            document.getElementById('matchIdInput').focus();
+        }
+
+        function closeMatchSearchModal() {
+            document.getElementById('matchSearchModal').classList.add('hidden');
+            document.getElementById('matchModalResultArea').classList.add('hidden');
+            document.getElementById('matchIdInput').value = '';
+            document.getElementById('matchModalStatus').innerText = '';
+        }
+
+        async function doMatchSearch() {
+            const mid = document.getElementById('matchIdInput').value.trim();
+            const status = document.getElementById('matchModalStatus');
+            const resultArea = document.getElementById('matchModalResultArea');
+            const t = DICT[currentLang];
+
+            if(!mid) return;
+
+            status.innerText = t.modal_match_loading;
+            status.className = "text-xs mb-4 pl-1 text-cyan-400 animate-pulse";
+            resultArea.classList.add('hidden');
+
+            try {
+                const detail = await robustFetch(`https://www.barmory.net/stb/match/${mid}`);
+                const data = detail.Data;
+                
+                // 同样进行胜负逻辑推断 (参考之前的修复逻辑)
+                if (detail.WinnerTeam === undefined) {
+                    const pValues = Object.values(data);
+                    const ref = pValues.find(p => p.NewRating !== undefined && p.OldRating !== undefined);
+                    if (ref) {
+                        const win = (ref.NewRating - ref.OldRating) >= 0;
+                        detail.WinnerTeam = win ? ref.TeamId : (ref.TeamId === 1 ? 0 : 1);
+                    }
+                }
+
+                const players = Object.entries(data).map(([id, val]) => ({...val, Id: id}));
+                const team0Players = players.filter(p => p.TeamId === 0 || p.TeamId === undefined);
+                const team1Players = players.filter(p => p.TeamId === 1);
+
+                const renderMiniCard = (p) => {
+                    const isWin = p.TeamId === detail.WinnerTeam;
+                    return `
+                        <div onclick="useFromMatch('${p.Id}')" class="flex items-center justify-between p-3 bg-slate-800/50 hover:bg-cyan-900/30 border border-slate-700 hover:border-cyan-500 rounded-xl cursor-pointer transition group">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-slate-100 group-hover:text-white truncate">${escapeHtml(p.Name || 'Unknown')}</div>
+                                <div class="text-[10px] font-mono text-slate-500 group-hover:text-cyan-400/70">ID: ${p.Id}</div>
+                            </div>
+                            <div class="text-right ml-4">
+                                <div class="text-[10px] font-black ${isWin?'text-cyan-400':'text-red-400'}">${isWin ? t.res_vic : t.res_def}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">ELO ${p.NewRating?.toFixed(0) || '---'}</div>
+                            </div>
+                        </div>
+                    `;
+                };
+
+                document.getElementById('matchModalTeam0').innerHTML = `<div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Team Alpha</div>` + team0Players.map(renderMiniCard).join('');
+                document.getElementById('matchModalTeam1').innerHTML = `<div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Team Bravo</div>` + team1Players.map(renderMiniCard).join('');
+
+                status.innerText = "";
+                resultArea.classList.remove('hidden');
+
+            } catch (e) {
+                status.innerText = t.modal_match_err;
+                status.className = "text-xs mb-4 pl-1 text-red-400";
+            }
+        }
+
+        // 从对局列表选中玩家并触发主检测
+        function useFromMatch(uid) {
+            document.getElementById('steamInput').value = uid;
+            closeMatchSearchModal();
+            handleCheck();
+        }
+        // ============================================
+
         async function doNameSearch() {
             const name = document.getElementById('modalSearchInput').value.trim();
             const statusEl = document.getElementById('modalStatusMsg');
