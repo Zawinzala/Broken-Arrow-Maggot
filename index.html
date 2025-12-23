@@ -106,11 +106,12 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.23 平局支持</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.23 RUS Support</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
             <button onclick="setLang('zh')" id="btn_lang_zh" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">中文</button>
+            <button onclick="setLang('ru')" id="btn_lang_ru" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">Русский</button>
         </div>
     </div>
 
@@ -334,7 +335,7 @@
                 modal_match_err: "获取失败，请检查 ID 是否正确",
 
                 kill: "击杀", loss: "损失", obj: "占点",
-                levels: ["👑 神", "🦁 团队支柱", "😐 平平无奇", "🐛 有点蛆", "💩 蛆！"],
+                levels: ["👑 神", "🦁 团队支柱", "😐 平平淡淡", "🐛 有点蛆", "💩 蛆！"],
                 tag_killer: "⚔️ 击杀为主", tag_kd: "📈 KD 为主", tag_obj: "🚩 占点为主",
                 trend_up: "🚀 最近变强", trend_down: "📉 最近变蛆", trend_flat: "➡️ 稳如泰山",
                 err_net: "网络拥塞，请稍后再试", err_insufficient: "有效对局不足 12 局",
@@ -348,7 +349,6 @@
                     SupplyPointsConsumed: "大胃袋", SupplyPointsConsumedFromAllies: "小馋猫", SupplyPointsConsumedByAllies: "奶妈", 
                     TotalSpawnedUnitScore: "采购官", TotalRefundedUnitScore: "仅退款"
                 },
-                // ▼▼▼▼▼▼▼▼▼▼▼▼▼ 新增以下内容 ▼▼▼▼▼▼▼▼▼▼▼▼▼
                 medal_descs: {
                     Destruction: "击杀得分全队最高", 
                     Losses: "损失得分全队最高 (送分最多)", 
@@ -362,7 +362,6 @@
                 },
                 trend_desc: "最近 3 局排名与历史平均排名的对比趋势",
                 elo_desc: "最新的 ELO 评分 (基于最新一局数据)",
-                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
             },
             en: {
                 title: "Maggot Index", 
@@ -399,7 +398,6 @@
                 kill: "Kills", loss: "Losses", obj: "Caps",
                 levels: ["👑 GODLIKE", "🦁 CARRY", "😐 AVERAGE", "🐛 BitMaggot", "💩 MAGGOT!"],
                 
-                // 标签说明：PTFO = Play The Objective (只赢不刷)
                 tag_killer: "⚔️ Fragger", 
                 tag_kd: "📈 KD Player", 
                 tag_obj: "🚩 PTFO", 
@@ -421,30 +419,18 @@
                 meta_map: "Map", meta_dur: "Time", meta_win: "Winner",
                 reasons: { 1: "Domination", 2: "Time/Score", 3: "Surrender" },
                 
-                // --- 徽章贴纸 (短语) ---
                 medals: {
-                    // Destruction: 击杀总分最高 -> Top Fragger (榜一/人头王)
                     Destruction: "Top Fragger", 
-                    // Losses: 损失总分最高 -> Cannon Fodder (炮灰)
                     Losses: "Cannon Fodder",           
-                    // DamageDealt: 物理伤害最高 -> Heavy Hitter (重拳/输出机器)
                     DamageDealt: "Heavy Hitter",       
-                    // DamageReceived: 承伤最高 -> Sponge (肉盾/吸火海绵) 或者 Tank
                     DamageReceived: "Bullet Sponge",      
-                    // SupplyPointsConsumed: 消耗补给多 -> Big Spender (大手大脚)
                     SupplyPointsConsumed: "Big Spender",   
-                    // FromAllies: 吃队友补给 -> Freeloader (白嫖/蹭吃蹭喝)
                     SupplyPointsConsumedFromAllies: "Freeloader", 
-                    // ByAllies: 给队友补给 -> Medic (这在游戏圈通用于辅助)
                     SupplyPointsConsumedByAllies: "Medic",
-                    // TotalSpawned: 招募总分 -> War Machine (战争机器/暴兵)
                     TotalSpawnedUnitScore: "War Machine",
-                    // TotalRefunded: 退款 -> Tactician (战术家/重新部署) 或 Refund King
                     TotalRefundedUnitScore: "Refund King" 
                 },
                 
-                // --- 详细说明 (鼠标悬停显示) ---
-                // 这里的翻译力求直白，解释清楚数据来源
                 medal_descs: {
                     Destruction: "Highest total value of enemy units destroyed (Raw Kill Score)", 
                     Losses: "Highest total value of own units lost (Feeder)", 
@@ -459,6 +445,89 @@
                 
                 trend_desc: "Performance trend over recent matches vs history",
                 elo_desc: "Current ELO Rating (Live update)",
+            },
+            ru: {
+                title: "Индекс Личинки",
+                subtitle: "Индекс Эффективности Broken Arrow",
+                placeholder: "Steam64 ID или Внутренний ID...",
+                check: "ПРОВЕРИТЬ",
+                loading: "Синхронизация...",
+                maggot_index_title: "ИНДЕКС ЛИЧИНКИ",
+                god_range: "БОГ",
+                avg_range: " ",
+                maggot_range: "ЛИЧИНКА",
+                history_title: "Последние 12 матчей",
+
+                find_id_btn: "Забыли ID? Поиск по имени",
+                find_match_btn: "Есть ID матча? Найти игроков",
+
+                modal_title: "Поиск ID игрока",
+                modal_input_ph: "Введите имя пользователя...",
+                modal_btn_search: "Поиск",
+                modal_pname: "Имя игрока",
+                modal_pid: "Внутренний ID",
+                modal_use_btn: "Анализировать этот ID",
+                modal_status_search: "Поиск...",
+                modal_status_err: "Ошибка: ",
+                modal_status_none: "Игроки не найдены",
+                modal_status_found: "Найдено {n} результатов",
+
+                modal_match_title: "Поиск игрока по ID матча",
+                modal_match_input_ph: "Введите ID матча (например, 184523)...",
+                modal_match_btn_search: "Получить статистику",
+                modal_match_loading: "Получение данных матча...",
+                modal_match_err: "Не удалось получить информацию о матче",
+
+                kill: "Убийства", loss: "Потери", obj: "Точки",
+                levels: ["👑 БОГ", "🦁 ТАЩЕР", "😐 СРЕДНЕ", "🐛 НЕМНОГО ЛИЧИНКА", "💩 ЛИЧИНКА!"],
+
+                tag_killer: "⚔️ Фрагер",
+                tag_kd: "📈 КД Игрок",
+                tag_obj: "🚩 Объектив",
+
+                trend_up: "🚀 На подъеме",
+                trend_down: "📉 Спад",
+                trend_flat: "➡️ Стабильно",
+
+                err_net: "Ошибка сети, попробуйте позже",
+                err_insufficient: "Недостаточно данных (нужно 12+ матчей)",
+
+                lbl_ref_kdr: "Ранг KD",
+                lbl_ref_kr: "Ранг убийств",
+                lbl_ref_dr: "Ранг сохранности",
+                lbl_ref_or: "Ранг захвата",
+                lbl_ref_wr: "Винрейт (Посл. 12)",
+
+                res_vic: "ПОБЕДА", res_def: "ПОРАЖЕНИЕ", res_draw: "НИЧЬЯ",
+                meta_map: "Карта", meta_dur: "Время", meta_win: "Победитель",
+                reasons: { 1: "Доминирование", 2: "Время/Счет", 3: "Сдача" },
+
+                medals: {
+                    Destruction: "Главный убийца",
+                    Losses: "Пушечное мясо",
+                    DamageDealt: "Тяжелая артиллерия",
+                    DamageReceived: "Губка для пуль",
+                    SupplyPointsConsumed: "Транжира",
+                    SupplyPointsConsumedFromAllies: "Халявщик",
+                    SupplyPointsConsumedByAllies: "Медик",
+                    TotalSpawnedUnitScore: "Военная машина",
+                    TotalRefundedUnitScore: "Король возвратов"
+                },
+
+                medal_descs: {
+                    Destruction: "Наибольшая ценность уничтоженных врагов",
+                    Losses: "Наибольшая ценность потерянных собственных юнитов",
+                    DamageDealt: "Наибольший нанесенный физический урон",
+                    DamageReceived: "Наибольший полученный физический урон",
+                    SupplyPointsConsumed: "Больше всего потрачено припасов",
+                    SupplyPointsConsumedFromAllies: "Больше всего взято припасов у союзников",
+                    SupplyPointsConsumedByAllies: "Больше всего передано припасов союзникам",
+                    TotalSpawnedUnitScore: "Наибольшая стоимость вызванных юнитов",
+                    TotalRefundedUnitScore: "Наибольшая стоимость возвращенных юнитов"
+                },
+
+                trend_desc: "Тренд эффективности за последние матчи",
+                elo_desc: "Текущий рейтинг ELO (Обновление в реальном времени)",
             }
         };
 
@@ -499,8 +568,13 @@
             document.getElementById('matchIdInput').placeholder = t.modal_match_input_ph;
             document.getElementById('modal_match_btn_search').innerText = t.modal_match_btn_search;
 
-            document.getElementById('btn_lang_zh').className = `px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='zh'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
-            document.getElementById('btn_lang_en').className = `px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold ${currentLang==='en'?'bg-cyan-600 text-white shadow-lg shadow-cyan-900/40':'text-slate-400 hover:text-white'}`;
+            const btnBase = "px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold";
+            const btnActive = "bg-cyan-600 text-white shadow-lg shadow-cyan-900/40";
+            const btnInactive = "text-slate-400 hover:text-white";
+
+            document.getElementById('btn_lang_zh').className = `${btnBase} ${currentLang==='zh'?btnActive:btnInactive}`;
+            document.getElementById('btn_lang_en').className = `${btnBase} ${currentLang==='en'?btnActive:btnInactive}`;
+            document.getElementById('btn_lang_ru').className = `${btnBase} ${currentLang==='ru'?btnActive:btnInactive}`;
         }
 
         async function robustFetch(url, attempt = 0) {
@@ -1155,4 +1229,3 @@
     </script>
 </body>
 </html>
-
