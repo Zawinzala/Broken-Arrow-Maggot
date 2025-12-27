@@ -94,6 +94,7 @@
             border: 1px solid rgba(255,255,255,0.05);
             transition: all 0.2s;
             cursor: help;
+            flex-shrink: 0; /* 防止挤压，强制换行 */
         }
         @media (min-width: 768px) { .medal-badge { gap: 4px; padding: 2px 6px; border-radius: 6px; } }
 
@@ -128,6 +129,10 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
+            <a href="https://github.com/Zawinzala/Broken-Arrow-Maggot" target="_blank" class="flex items-center gap-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 hover:text-white transition group">
+                <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                <span class="text-[10px] md:text-xs font-mono font-bold">GitHub</span>
+            </a>
             <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.32 Error Fix</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
@@ -305,7 +310,7 @@
             { key: 'Destruction', icon: '⚔️', color: 'text-red-400' },
             { key: 'Losses', icon: '☠️', color: 'text-gray-400' }, 
             { key: 'DamageDealt', icon: '💥', color: 'text-orange-400' }, 
-            { key: 'DamageReceived', icon: '🛡️', color: 'text-slate-400' }, 
+            { key: 'DamageReceived', icon: '🧱', color: 'text-slate-400' }, 
             { key: 'SupplyPointsConsumed', icon: '🍔', color: 'text-yellow-400' }, 
             { key: 'SupplyPointsConsumedFromAllies', icon: '🐱', color: 'text-pink-400' }, 
             { key: 'SupplyPointsConsumedByAllies', icon: '🚑', color: 'text-green-400' }, 
@@ -951,8 +956,8 @@
 
             const items = [
                 { type: 'dmg', unit: favUnits.topDmg, icon: '⚡', labelPrefix: { zh: '输出', en: 'Dmg', ja: '火力', ru: 'Dmg' } },
-                { type: 'kill', unit: favUnits.topKill, icon: '🪦', labelPrefix: { zh: '击杀', en: 'Kill', ja: '撃破', ru: 'Kill' } },
-                { type: 'tank', unit: favUnits.topTank, icon: '🧱', labelPrefix: { zh: '抗伤', en: 'Tank', ja: '耐久', ru: 'Tank' } }
+                { type: 'kill', unit: favUnits.topKill, icon: '🔫', labelPrefix: { zh: '击杀', en: 'Kill', ja: '撃破', ru: 'Kill' } },
+                { type: 'tank', unit: favUnits.topTank, icon: '🛡️', labelPrefix: { zh: '抗伤', en: 'Tank', ja: '耐久', ru: 'Tank' } }
             ];
 
             for (const item of items) {
@@ -1304,8 +1309,8 @@
                     };
 
                     const tagD = renderTag('⚡', uD, Math.round(p.favUnits.d.v).toLocaleString(), 'border-orange-500/30 bg-orange-900/20', 'text-orange-200');
-                    const tagK = renderTag('🪦', uK, p.favUnits.k.v, 'border-red-500/30 bg-red-900/20', 'text-red-200');
-                    const tagT = renderTag('🧱', uT, Math.round(p.favUnits.t.v).toLocaleString(), 'border-blue-500/30 bg-blue-900/20', 'text-blue-200');
+                    const tagK = renderTag('🔫', uK, p.favUnits.k.v, 'border-red-500/30 bg-red-900/20', 'text-red-200');
+                    const tagT = renderTag('🛡️', uT, Math.round(p.favUnits.t.v).toLocaleString(), 'border-blue-500/30 bg-blue-900/20', 'text-blue-200');
                     
                     if (tagD || tagK || tagT) {
                         favHtml = `<div class="flex flex-col gap-0.5 ml-2 w-24 md:w-32 flex-shrink-0 border-l border-white/10 pl-1 justify-center h-full">
@@ -1316,17 +1321,16 @@
 
                 return `
                 <div class="teammate-row flex items-center p-2 md:p-3 rounded-xl md:rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}">
-                    <div class="flex-1 min-w-0 pr-2 md:pr-4 flex flex-col justify-center">
-                        <div class="flex flex-col">
-                            <div class="text-xs md:text-sm font-black text-slate-100 truncate mb-0.5">${escapeHtml(p.name)}</div>
-                            ${medalsHtml}
+                    <div class="flex-1 min-w-0 pr-2 md:pr-4 flex flex-col justify-center relative">
+                        <div class="flex justify-between items-start w-full">
+                            <div class="text-xs md:text-sm font-black text-slate-100 truncate mb-0.5 mr-1">${escapeHtml(p.name)}</div>
+                            <div class="text-right font-mono flex-shrink-0 flex flex-col items-end leading-none">
+                                <div class="text-[10px] md:text-[11px] font-black ${parseFloat(p.gain)>=0?'text-green-500':'text-red-500'}">${parseFloat(p.gain)>=0?'+':''}${p.gain}</div>
+                                <div class="text-[9px] md:text-[10px] font-bold text-slate-500">ELO ${p.elo}</div>
+                            </div>
                         </div>
+                        ${medalsHtml}
                         <div class="id-link mt-1" onclick="inspect('${p.id}')">${p.id}</div>
-                    </div>
-                    
-                    <div class="w-14 md:w-20 text-right mr-2 md:mr-4 font-mono flex-shrink-0">
-                        <div class="text-[10px] md:text-xs font-bold text-slate-400">${p.elo}</div>
-                        <div class="text-[10px] md:text-[11px] font-black ${parseFloat(p.gain)>=0?'text-green-500':'text-red-500'}">${parseFloat(p.gain)>=0?'+':''}${p.gain}</div>
                     </div>
                     
                     <div class="w-16 md:w-28 space-y-1 flex-shrink-0">
