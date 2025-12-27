@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>玩家行为分析 v3.32 - By Zola</title>
+    <title>玩家行为分析 v3.34 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -36,8 +36,29 @@
         @media (min-width: 768px) { .tag-sticker-container { top: 1.5rem; right: 1.5rem; gap: 0.75rem; transform: scale(1); } }
         
         /* --- 贴纸容器 (左侧 - 累计爱用单位) --- */
-        .tag-sticker-container-left { position: absolute; top: 1rem; left: 1rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; z-index: 30; transform-origin: top left; transform: scale(0.75); pointer-events: none; }
-        @media (min-width: 768px) { .tag-sticker-container-left { top: 1.5rem; left: 1.5rem; gap: 0.75rem; transform: scale(1); } }
+        .tag-sticker-container-left { 
+            position: absolute; 
+            top: 1rem; 
+            left: 1rem; 
+            display: flex; 
+            flex-direction: row; 
+            flex-wrap: wrap;     
+            gap: 0.5rem; 
+            align-items: flex-start; 
+            z-index: 30; 
+            transform-origin: top left; 
+            transform: scale(0.75); 
+            pointer-events: none; 
+            max-width: 65%; 
+        }
+        @media (min-width: 768px) { 
+            .tag-sticker-container-left { 
+                top: 1.5rem; 
+                left: 1.5rem; 
+                gap: 0.75rem; 
+                transform: scale(1); 
+            } 
+        }
 
         .tag-sticker { 
             pointer-events: auto; 
@@ -56,12 +77,12 @@
         }
         
         .tag-sticker-left {
-            transform: rotate(-5deg);
+            transform: rotate(-3deg);
             animation: tagPopLeft 0.5s ease-out forwards;
         }
 
         @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
-        @keyframes tagPopLeft { from { opacity: 0; transform: scale(0.5) rotate(-15deg); } to { opacity: 1; transform: scale(1) rotate(-5deg); } }
+        @keyframes tagPopLeft { from { opacity: 0; transform: scale(0.5) rotate(-10deg); } to { opacity: 1; transform: scale(1) rotate(-3deg); } }
         
         .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 80px; } 
         @media (min-width: 768px) { .teammate-row { min-height: 85px; } }
@@ -116,7 +137,6 @@
             border-radius: 3px;
             font-size: 10px; /* 小字体 */
             line-height: 1.2;
-            width: 100%;
             overflow: hidden;
             background: rgba(0,0,0,0.2);
             border: 1px solid rgba(255,255,255,0.05);
@@ -128,7 +148,7 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.32 Error Fix</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.34 Horizontal Tags</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -244,7 +264,7 @@
         </div>
     </div>
 
-    <!-- Modals (unchanged structure, just content) -->
+    <!-- Modals -->
     <div id="idSearchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 relative shadow-2xl bg-slate-900/90 border border-slate-600">
             <button onclick="closeSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
@@ -663,7 +683,7 @@
         function setLang(l) {
             currentLang = l; 
             localStorage.setItem('ba_lang', l); 
-            document.title = DICT[currentLang].title + " v3.32 - By Zola";
+            document.title = DICT[currentLang].title + " v3.34 - By Zola";
             updateUIStrings();
         }
 
@@ -951,7 +971,7 @@
 
             const items = [
                 { type: 'dmg', unit: favUnits.topDmg, icon: '⚡', labelPrefix: { zh: '输出', en: 'Dmg', ja: '火力', ru: 'Dmg' } },
-                { type: 'kill', unit: favUnits.topKill, icon: '🪦', labelPrefix: { zh: '击杀', en: 'Kill', ja: '撃破', ru: 'Kill' } },
+                { type: 'kill', unit: favUnits.topKill, icon: '🔫', labelPrefix: { zh: '击杀', en: 'Kill', ja: '撃破', ru: 'Kill' } },
                 { type: 'tank', unit: favUnits.topTank, icon: '🧱', labelPrefix: { zh: '抗伤', en: 'Tank', ja: '耐久', ru: 'Tank' } }
             ];
 
@@ -1286,7 +1306,7 @@
                             </div>`;
                     }).join('')}</div>` : '';
 
-                // --- 渲染爱用单位图标 (重构为直显三排) ---
+                // --- 渲染爱用单位图标 (重构为直显三排 - 横向) ---
                 let favHtml = '';
                 if (p.favUnits) {
                     const uD = p.favUnits.d.id > 0 ? getUnitDisplayName(p.favUnits.d.id) : '';
@@ -1296,19 +1316,20 @@
                     const renderTag = (icon, name, val, colorClass, textClass) => {
                         if (!name) return '';
                         // 手机电脑统一显示: 图标+名字+数值
-                        return `<div class="match-unit-tag ${textClass} ${colorClass}">
-                            <span class="flex-shrink-0">${icon}</span>
+                        return `<div class="match-unit-tag ${textClass} ${colorClass} flex-1">
+                            <span class="flex-shrink-0 mr-1">${icon}</span>
                             <span class="truncate opacity-90 flex-1">${name}</span>
-                            <span class="ml-1 opacity-70">${val}</span>
+                            <span class="ml-1 opacity-70 font-mono text-[9px]">${val}</span>
                         </div>`;
                     };
 
                     const tagD = renderTag('⚡', uD, Math.round(p.favUnits.d.v).toLocaleString(), 'border-orange-500/30 bg-orange-900/20', 'text-orange-200');
-                    const tagK = renderTag('🪦', uK, p.favUnits.k.v, 'border-red-500/30 bg-red-900/20', 'text-red-200');
+                    const tagK = renderTag('🔫', uK, p.favUnits.k.v, 'border-red-500/30 bg-red-900/20', 'text-red-200');
                     const tagT = renderTag('🧱', uT, Math.round(p.favUnits.t.v).toLocaleString(), 'border-blue-500/30 bg-blue-900/20', 'text-blue-200');
                     
                     if (tagD || tagK || tagT) {
-                        favHtml = `<div class="flex flex-col gap-0.5 ml-2 w-24 md:w-32 flex-shrink-0 border-l border-white/10 pl-1 justify-center h-full">
+                        // 在大屏上使用 flex-row，小屏保持 flex-col，并移除固定宽度限制让其自适应
+                        favHtml = `<div class="flex flex-col md:flex-row gap-1 ml-2 flex-shrink-0 border-l border-white/10 pl-2 justify-center h-full min-w-[80px] md:min-w-[300px] max-w-[400px]">
                             ${tagD}${tagK}${tagT}
                         </div>`;
                     }
@@ -1340,6 +1361,7 @@
             `}).join('');
         }
 
+        // ... rest of the helper functions (saveHistory, inspect, escapeHtml, modals) ...
         function saveHistory(id, name) {
             let h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
             h = h.filter(x => x.id !== id);
