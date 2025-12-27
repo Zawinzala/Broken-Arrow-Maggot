@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>玩家行为分析 v3.23 - By Zola</title>
+    <title>玩家行为分析 v3.32 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -25,23 +25,22 @@
         .bar-loss { background: #ef4444; height: 100%; transition: width 0.6s ease-out; }
         .bar-obj { background: #3b82f6; height: 100%; transition: width 0.6s ease-out; }
         
-        /* --- 修复：重新补齐进度条背景样式 --- */
         .load-progress-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; margin: 12px 0; }
         .load-progress-fill { width: 0%; height: 100%; background: #06b6d4; transition: width 0.4s ease; box-shadow: 0 0 15px rgba(6,182,212,0.6); }
-        /* ---------------------------------- */
 
         .maggot-meter-bg { background: linear-gradient(90deg, #22c55e 0%, #eab308 50%, #ef4444 100%); height: 18px; border-radius: 9px; position: relative; }
         .maggot-indicator { position: absolute; top: -4px; width: 6px; height: 26px; background: white; border: 2px solid #000; transform: translateX(-50%); transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
         
-        /* 优化标签容器，移动端缩小并调整位置 */
+        /* --- 贴纸容器 (右侧 - 评价) --- */
         .tag-sticker-container { position: absolute; top: 1rem; right: 1rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; z-index: 30; transform-origin: top right; transform: scale(0.75); pointer-events: none; }
         @media (min-width: 768px) { .tag-sticker-container { top: 1.5rem; right: 1.5rem; gap: 0.75rem; transform: scale(1); } }
         
+        /* --- 贴纸容器 (左侧 - 累计爱用单位) --- */
+        .tag-sticker-container-left { position: absolute; top: 1rem; left: 1rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; z-index: 30; transform-origin: top left; transform: scale(0.75); pointer-events: none; }
+        @media (min-width: 768px) { .tag-sticker-container-left { top: 1.5rem; left: 1.5rem; gap: 0.75rem; transform: scale(1); } }
+
         .tag-sticker { 
-            /* 新增这一行，强制开启鼠标交互 */
             pointer-events: auto; 
-            
-            /* 原有样式保持不变 */
             padding: 0.5rem 1.25rem; 
             border-radius: 0.75rem; 
             font-weight: 900; 
@@ -55,9 +54,16 @@
             opacity: 0; 
             white-space: nowrap; 
         }
-        @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
         
-        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 70px; } 
+        .tag-sticker-left {
+            transform: rotate(-5deg);
+            animation: tagPopLeft 0.5s ease-out forwards;
+        }
+
+        @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
+        @keyframes tagPopLeft { from { opacity: 0; transform: scale(0.5) rotate(-15deg); } to { opacity: 1; transform: scale(1) rotate(-5deg); } }
+        
+        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 80px; } 
         @media (min-width: 768px) { .teammate-row { min-height: 85px; } }
         
         .teammate-row:hover { background: rgba(255,255,255,0.05); }
@@ -100,13 +106,29 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        
+        /* 单局单位标签样式 - 紧凑型 */
+        .match-unit-tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 10px; /* 小字体 */
+            line-height: 1.2;
+            width: 100%;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="min-h-screen pt-4 px-2 pb-24 md:pt-10 md:px-4">
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.23.2 JA Support</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.32 Error Fix</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -168,7 +190,10 @@
 
         <div id="resultPanel" class="hidden result-fade">
             <div class="bg-slate-800/60 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-white/10 flex flex-col items-center mb-10 md:mb-16 relative overflow-hidden">
+                <!-- 右侧评价贴纸 -->
                 <div class="tag-sticker-container"></div>
+                <!-- 左侧累计爱用单位贴纸 -->
+                <div class="tag-sticker-container-left" id="unitStickerContainer"></div>
 
                 <div class="text-center mb-4 mt-2 md:mt-0 w-full px-2">
                     <div id="userNameDisplay" class="text-xl md:text-3xl font-black text-white mb-2 truncate">Commander Name</div>
@@ -219,29 +244,17 @@
         </div>
     </div>
 
+    <!-- Modals (unchanged structure, just content) -->
     <div id="idSearchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 relative shadow-2xl bg-slate-900/90 border border-slate-600">
             <button onclick="closeSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            
             <h2 id="modal_title" class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-1 text-center">玩家内部 ID 查询</h2>
-            <div class="text-[10px] text-slate-500 mb-6 text-center font-mono">
-                Data from: <a href="https://dash.aoeiaol.top/" target="_blank" class="hover:text-orange-400 border-b border-dotted border-slate-600 transition">https://dash.aoeiaol.top/</a>
-            </div>
-            
+            <div class="text-[10px] text-slate-500 mb-6 text-center font-mono">Data from: <a href="https://dash.aoeiaol.top/" target="_blank" class="hover:text-orange-400 border-b border-dotted border-slate-600 transition">https://dash.aoeiaol.top/</a></div>
             <div class="flex gap-2 mb-2">
-                <input type="text" id="modalSearchInput" 
-                    class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-3 placeholder-slate-500" 
-                    placeholder="输入游戏用户名..." 
-                    onkeydown="if(event.key === 'Enter') doNameSearch()">
-                
-                <button onclick="doNameSearch()" id="modal_btn_search"
-                    class="text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-800 font-medium rounded-lg text-sm px-6 py-3 transition whitespace-nowrap">
-                    查询
-                </button>
+                <input type="text" id="modalSearchInput" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-3 placeholder-slate-500" placeholder="输入游戏用户名..." onkeydown="if(event.key === 'Enter') doNameSearch()">
+                <button onclick="doNameSearch()" id="modal_btn_search" class="text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-800 font-medium rounded-lg text-sm px-6 py-3 transition whitespace-nowrap">查询</button>
             </div>
             <div id="modalStatusMsg" class="text-xs text-slate-400 min-h-[1.5rem] mb-2 pl-1"></div>
             <div id="modalResultList" class="hidden rounded-xl overflow-hidden max-h-[300px] overflow-y-auto flex flex-col gap-1 pr-1 custom-scrollbar"></div>
@@ -252,9 +265,7 @@
                 <div class="flex items-center justify-center gap-2 mb-3">
                     <code id="modalSelectedId" class="bg-black/30 px-3 py-1 rounded text-orange-300 font-mono text-xl font-bold select-all"></code>
                 </div>
-                <button onclick="useFoundId()" id="btn_use_id" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-lg shadow-lg transition">
-                    使用此 ID 检测
-                </button>
+                <button onclick="useFoundId()" id="btn_use_id" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-lg shadow-lg transition">使用此 ID 检测</button>
             </div>
         </div>
     </div>
@@ -262,27 +273,14 @@
     <div id="matchSearchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
         <div class="glass-panel w-full max-w-4xl rounded-2xl p-6 relative shadow-2xl bg-slate-900/95 border border-slate-600 flex flex-col max-h-[90vh]">
             <button onclick="closeMatchSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            
             <h2 id="modal_match_title" class="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6 text-center">通过对局 ID 查找玩家</h2>
-            
             <div class="flex gap-2 mb-4">
-                <input type="text" id="matchIdInput" 
-                    class="bg-slate-800 border border-slate-600 text-white text-sm rounded-xl focus:ring-cyan-500 focus:border-cyan-500 block w-full p-4 placeholder-slate-500 font-mono" 
-                    placeholder="输入对局 ID..." 
-                    onkeydown="if(event.key === 'Enter') doMatchSearch()">
-                
-                <button onclick="doMatchSearch()" id="modal_match_btn_search"
-                    class="text-white bg-cyan-600 hover:bg-cyan-500 focus:ring-4 focus:outline-none focus:ring-cyan-800 font-bold rounded-xl text-sm px-6 py-4 transition whitespace-nowrap">
-                    获取战绩
-                </button>
+                <input type="text" id="matchIdInput" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-xl focus:ring-cyan-500 focus:border-cyan-500 block w-full p-4 placeholder-slate-500 font-mono" placeholder="输入对局 ID..." onkeydown="if(event.key === 'Enter') doMatchSearch()">
+                <button onclick="doMatchSearch()" id="modal_match_btn_search" class="text-white bg-cyan-600 hover:bg-cyan-500 focus:ring-4 focus:outline-none focus:ring-cyan-800 font-bold rounded-xl text-sm px-6 py-4 transition whitespace-nowrap">获取战绩</button>
             </div>
-
             <div id="matchModalStatus" class="text-xs mb-4 pl-1 text-center min-h-[1rem]"></div>
-
             <div id="matchModalResultArea" class="hidden flex-1 overflow-y-auto custom-scrollbar pr-2">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div id="matchModalTeam0" class="space-y-1"></div>
@@ -315,12 +313,17 @@
             { key: 'TotalRefundedUnitScore', icon: '💸', color: 'text-emerald-400' }
         ];
 
+        let UNIT_NAME_CACHE = {};
+        let IS_UNIT_CACHE_LOADED = false;
+        const UNIT_CACHE_KEY = 'ba_unit_dict';
+        const UNIT_CACHE_TS_KEY = 'ba_unit_dict_ts';
+
         const DICT = {
             zh: {
                 title: "玩家行为分析", subtitle: "Broken Arrow Behavior Analysis", 
                 placeholder: "Steam64 ID 或 游戏内部数字 ID...", 
                 check: "开始检测", loading: "同步中...", maggot_index_title: "综合评价",
-                god_range: "神", maggot_range: "蛆",
+                god_range: "神", avg_range: " ", maggot_range: "蛆",
                 history_title: "最近 12 局有效对局", 
                 find_id_btn: "不知道 ID？通过用户名查找",
                 find_match_btn: "只知道对局 ID？通过对局查玩家",
@@ -363,6 +366,16 @@
                 },
                 trend_desc: "最近 6 局排名与历史平均排名的对比趋势",
                 elo_desc: "最新的 ELO 评分 (基于最新一局数据)",
+                
+                // New
+                lbl_fav_units_title: "玩家最爱单位 (最近 12 局累计)",
+                lbl_fav_dmg: "输出机器 (Total Dmg)",
+                lbl_fav_kill: "击杀机器 (Total Kills)",
+                lbl_fav_tank: "抗压机器 (Total Taken)",
+                
+                unit_dmg_title: "最高伤害",
+                unit_kill_title: "最高击杀",
+                unit_tank_title: "最高承伤",
             },
             en: {
                 title: "Player Behavior Analysis", 
@@ -372,6 +385,7 @@
                 loading: "Syncing...", 
                 maggot_index_title: "PERFORMANCE RATING",
                 god_range: "GOD", 
+                avg_range: " ", 
                 maggot_range: "MAGGOT",
                 history_title: "Last 12 Valid Matches",
                 
@@ -445,6 +459,16 @@
                 
                 trend_desc: "Performance trend over recent 6 matches vs history",
                 elo_desc: "Current ELO Rating (Live update)",
+
+                // New
+                lbl_fav_units_title: "Favorite Units (Last 12 Matches)",
+                lbl_fav_dmg: "Heavy Hitter (Total Dmg)",
+                lbl_fav_kill: "Terminator (Total Kills)",
+                lbl_fav_tank: "Damage Soaked (Total Taken)",
+
+                unit_dmg_title: "Max Damage",
+                unit_kill_title: "Max Kills",
+                unit_tank_title: "Max Taken",
             },
             ru: {
                 title: "Анализ поведения игроков",
@@ -454,6 +478,7 @@
                 loading: "Синхронизация...",
                 maggot_index_title: "ОБЩИЙ РЕЙТИНГ",
                 god_range: "БОГ",
+                avg_range: " ",
                 maggot_range: "ЛИЧИНКА",
                 history_title: "Последние 12 матчей",
 
@@ -527,6 +552,16 @@
 
                 trend_desc: "Тренд эффективности за последние матчи",
                 elo_desc: "Текущий рейтинг ELO (Обновление в реальном времени)",
+
+                // New
+                lbl_fav_units_title: "Любимые юниты (12 матчей)",
+                lbl_fav_dmg: "Макс. урон",
+                lbl_fav_kill: "Убийца",
+                lbl_fav_tank: "Танк",
+
+                unit_dmg_title: "Макс. урон",
+                unit_kill_title: "Убийца",
+                unit_tank_title: "Танк",
             },
             ja: {
                 title: "プレイヤー行動分析", 
@@ -609,6 +644,16 @@
                 
                 trend_desc: "直近6試合とそれ以前のパフォーマンス比較",
                 elo_desc: "現在のELOレート (リアルタイム更新)",
+
+                // New
+                lbl_fav_units_title: "愛用ユニット (直近12戦累計)",
+                lbl_fav_dmg: "火力担当 (総スコア)",
+                lbl_fav_kill: "撃破担当 (総キル)",
+                lbl_fav_tank: "タンク担当 (総被弾)",
+
+                unit_dmg_title: "最大ダメージ",
+                unit_kill_title: "最多キル",
+                unit_tank_title: "最大被弾",
             }
         };
 
@@ -618,10 +663,7 @@
         function setLang(l) {
             currentLang = l; 
             localStorage.setItem('ba_lang', l); 
-            
-            // 动态修改 Tab 标题
-            document.title = DICT[currentLang].title + " v3.23 - By Zola";
-
+            document.title = DICT[currentLang].title + " v3.32 - By Zola";
             updateUIStrings();
         }
 
@@ -667,10 +709,16 @@
         async function robustFetch(url, attempt = 0) {
             const proxy = CONFIG.PROXIES[attempt % CONFIG.PROXIES.length];
             try {
-                const r = await fetch(proxy.url(url));
+                const fetchUrl = proxy.url(url);
+                const r = await fetch(fetchUrl);
                 if(!r.ok) throw new Error(`HTTP_${r.status}`);
                 const d = await r.json();
-                return d.contents ? JSON.parse(d.contents) : d;
+                
+                // AllOrigins / Codetabs formatting
+                if (d.contents) {
+                    return typeof d.contents === 'string' ? JSON.parse(d.contents) : d.contents;
+                }
+                return d;
             } catch (e) {
                 if (attempt < 4) return robustFetch(url, attempt + 1);
                 throw e;
@@ -709,26 +757,92 @@
             document.getElementById('loadDetail').innerText = detail;
         }
 
+        // --- Load Global Unit Library with Caching (24 Hours) ---
+        async function ensureGlobalUnitList() {
+            if (IS_UNIT_CACHE_LOADED) return;
+            
+            const now = Date.now();
+            const cachedData = localStorage.getItem(UNIT_CACHE_KEY);
+            const cachedTime = localStorage.getItem(UNIT_CACHE_TS_KEY);
+            const oneDay = 24 * 60 * 60 * 1000;
+
+            // 1. 尝试从缓存读取
+            if (cachedData && cachedTime && (now - parseInt(cachedTime) < oneDay)) {
+                try {
+                    const list = JSON.parse(cachedData);
+                    processUnitList(list);
+                    console.log('Unit Library loaded from Cache');
+                    return;
+                } catch (e) {
+                    console.warn('Cache corrupted, fetching fresh data');
+                }
+            }
+
+            // 2. 缓存失效或不存在，网络请求
+            try {
+                // Direct fetch (CORS enabled)
+                const resp = await fetch('https://batrace.aoeiaol.top/api/v1/Units');
+                if (!resp.ok) throw new Error('Unit API Failed');
+                const list = await resp.json();
+                
+                // 更新缓存
+                localStorage.setItem(UNIT_CACHE_KEY, JSON.stringify(list));
+                localStorage.setItem(UNIT_CACHE_TS_KEY, now.toString());
+                
+                processUnitList(list);
+                console.log('Unit Library loaded from API');
+            } catch (e) {
+                console.warn('Failed to load unit library:', e);
+                // 3. 网络请求失败，尝试使用旧缓存（即使过期）
+                if (cachedData) {
+                    try {
+                        const list = JSON.parse(cachedData);
+                        processUnitList(list);
+                        console.log('Unit Library loaded from STALE Cache');
+                    } catch(ex) {}
+                }
+            }
+        }
+
+        function processUnitList(list) {
+            if (Array.isArray(list)) {
+                list.forEach(u => {
+                    const id = u.Id || u.id;
+                    const name = u.Name || u.name;
+                    if (id && name) {
+                        UNIT_NAME_CACHE[id] = name;
+                    }
+                });
+                IS_UNIT_CACHE_LOADED = true;
+            }
+        }
+
+        function getUnitDisplayName(id) {
+            return UNIT_NAME_CACHE[id] || `Unit ${id}`;
+        }
+
         async function handleCheck() {
             const input = document.getElementById('steamInput').value.trim();
             if(!input) return;
 
-            // ============================================
-            // Google Analytics Event Tracking
-            // ============================================
             if (typeof gtag === 'function') {
                 gtag('event', 'search_player', {
                     'search_term': input
                 });
             }
-            // ============================================
 
             const t = DICT[currentLang];
             
             document.getElementById('errorArea').classList.add('hidden');
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('resultPanel').classList.add('hidden');
+            
+            document.getElementById('unitStickerContainer').innerHTML = '';
+
             updateProgress(0, t.loading, "Initializing...");
+
+            // 提前尝试加载单位库，但不阻塞主流程太久
+            ensureGlobalUnitList();
 
             try {
                 let uid = input;
@@ -767,6 +881,7 @@
                 document.getElementById('userNameDisplay').innerText = `${finalMe?.Name || 'Unknown'} ${finalMe?.Level ? '(Lv.' + finalMe.Level + ')' : ''}`;
                 document.getElementById('calcTimeDisplay').innerText = `Calculated: ${new Date().toLocaleString()}`;
 
+                // 渲染主界面
                 processFinalData(uid, validMatches);
 
             } catch (e) {
@@ -788,6 +903,87 @@
             return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
 
+        // ============================================
+        // [New] 累计爱用单位 - 异步贴纸逻辑
+        // ============================================
+        function calculateFavoriteUnits(matches, myUid) {
+            const unitStats = {};
+
+            matches.forEach(m => {
+                const myData = m.data.Data[myUid];
+                if (!myData || !myData.UnitData) return;
+
+                Object.values(myData.UnitData).forEach(unit => {
+                    const typeId = unit.Id; 
+                    if (!typeId) return;
+
+                    if (!unitStats[typeId]) {
+                        unitStats[typeId] = {
+                            id: typeId,
+                            damageDealt: 0,
+                            kills: 0,
+                            damageReceived: 0
+                        };
+                    }
+
+                    unitStats[typeId].damageDealt += (unit.TotalDamageDealt || 0);
+                    unitStats[typeId].kills += (unit.KilledCount || 0);
+                    unitStats[typeId].damageReceived += (unit.TotalDamageReceived || 0);
+                });
+            });
+
+            const unitsArr = Object.values(unitStats);
+            if (unitsArr.length === 0) return null;
+
+            const topDmg = [...unitsArr].sort((a,b) => b.damageDealt - a.damageDealt)[0];
+            const topKill = [...unitsArr].sort((a,b) => b.kills - a.kills)[0];
+            const topTank = [...unitsArr].sort((a,b) => b.damageReceived - a.damageReceived)[0];
+
+            return { topDmg, topKill, topTank };
+        }
+
+        async function fetchAndShowUnitStickers(favUnits) {
+            // 确保字典加载（如果还没加载完的话）
+            await ensureGlobalUnitList();
+
+            const container = document.getElementById('unitStickerContainer');
+            if(!container) return;
+
+            const items = [
+                { type: 'dmg', unit: favUnits.topDmg, icon: '⚡', labelPrefix: { zh: '输出', en: 'Dmg', ja: '火力', ru: 'Dmg' } },
+                { type: 'kill', unit: favUnits.topKill, icon: '🪦', labelPrefix: { zh: '击杀', en: 'Kill', ja: '撃破', ru: 'Kill' } },
+                { type: 'tank', unit: favUnits.topTank, icon: '🧱', labelPrefix: { zh: '抗伤', en: 'Tank', ja: '耐久', ru: 'Tank' } }
+            ];
+
+            for (const item of items) {
+                if (!item.unit || item.unit.id <= 0) continue;
+
+                let name = getUnitDisplayName(item.unit.id);
+                
+                // 只有当有单位名时才显示
+                if (name) {
+                    const el = document.createElement('div');
+                    let colorClass = "bg-slate-600/20 border-slate-500/50 text-slate-300";
+                    if(item.type === 'dmg') colorClass = "bg-orange-600/20 border-orange-500/50 text-orange-300";
+                    if(item.type === 'kill') colorClass = "bg-red-600/20 border-red-500/50 text-red-300";
+                    if(item.type === 'tank') colorClass = "bg-blue-600/20 border-blue-500/50 text-blue-300";
+
+                    el.className = `tag-sticker tag-sticker-left ${colorClass} flex items-center gap-2 cursor-help`;
+                    
+                    let valStr = '';
+                    if(item.type === 'dmg') valStr = Math.round(item.unit.damageDealt).toLocaleString();
+                    if(item.type === 'kill') valStr = item.unit.kills;
+                    if(item.type === 'tank') valStr = Math.round(item.unit.damageReceived).toLocaleString();
+                    el.title = `${item.labelPrefix[currentLang] || item.labelPrefix.en}: ${valStr}`;
+
+                    el.innerHTML = `<span class="text-lg">${item.icon}</span><span>${name}</span>`;
+                    container.appendChild(el);
+                    
+                    await new Promise(r => setTimeout(r, 100));
+                }
+            }
+        }
+
         function processFinalData(myUid, matches) {
             let kRankSum = 0, oRankSum = 0, kdRankSum = 0, lossRankSum = 0, wins = 0;
             const medalCounts = {};
@@ -796,15 +992,12 @@
                 const data = m.data.Data;
                 const meta = m.data; 
 
-                // --- v3.23 混合分队逻辑 (适配平局) ---
-                // 1. 预扫描：计算“有名有姓”玩家的 Team 1 和 Team 0 的平均分变化
                 let t1DeltaSum = 0, t1Count = 0;
                 let t0DeltaSum = 0, t0Count = 0;
 
                 Object.values(data).forEach(p => {
                     if (p.Name) { 
                         const d = (p.NewRating || 0) - (p.OldRating || 0);
-                        // 严格判定：只有 TeamId 明确为 1 才是 1队，其他（包括 undefined, 0 等）统统算 0 队
                         if (p.TeamId === 1) { 
                             t1DeltaSum += d; t1Count++; 
                         } else { 
@@ -813,25 +1006,19 @@
                     }
                 });
                 
-                // 计算基准线 (如果某队没探测到人，默认基准为 0)
                 const avgT1 = t1Count > 0 ? t1DeltaSum / t1Count : 0;
                 const avgT0 = t0Count > 0 ? t0DeltaSum / t0Count : 0;
 
-                // 2. 正式构建玩家列表 (同时修复 TeamId)
                 const players = Object.entries(data).map(([key, val]) => {
                     if (!val.Id) val.Id = key;
 
                     if (val.Name) {
-                        // [逻辑A] 有名字的玩家：严格按照 TeamId 分队
                         val.TeamId = (val.TeamId === 1) ? 1 : 0;
                     } else {
-                        // [逻辑B] 没名字的幽灵数据：根据 Elo 变化找“靠山”
                         val.Name = "Unknown";
                         const myDelta = (val.NewRating || 0) - (val.OldRating || 0);
-                        
                         const distT1 = Math.abs(myDelta - avgT1);
                         const distT0 = Math.abs(myDelta - avgT0);
-                        
                         if (t1Count === 0 && t0Count === 0) {
                              val.TeamId = myDelta >= 0 ? 1 : 0;
                         } else {
@@ -841,11 +1028,6 @@
                     return val;
                 });
 
-                // ============================================================
-                // [v3.23 平局适配] 
-                // 只有当 WinnerTeam 完全丢失(undefined)时，才尝试通过 Elo 推断胜负。
-                // 如果是 101，则保留原样，作为平局处理。
-                // ============================================================
                 if (meta.WinnerTeam === undefined) {
                     let team0EloDelta = 0;
                     let team1EloDelta = 0;
@@ -856,19 +1038,16 @@
                             if (p.TeamId === 1) team1EloDelta += delta;
                         }
                     });
-                    // 推断胜负
                     meta.WinnerTeam = team0EloDelta > team1EloDelta ? 0 : 1;
                 }
 
                 const myP = players.find(p => String(p.Id) === String(myUid));
-                // 如果找不到自己，且是平局，暂定 Team 0；否则按胜负逻辑分配
                 const myTeamId = myP ? myP.TeamId : (meta.WinnerTeam === 0 ? 1 : 0); 
                 
-                // --- 判定平局与胜负 ---
                 const isDraw = meta.WinnerTeam === 101;
                 const isWin = !isDraw && (myTeamId === meta.WinnerTeam);
                 
-                if(isWin) wins++; // 平局不计入胜场
+                if(isWin) wins++; 
 
                 const maxK = Math.max(...players.map(p => p.DestructionScore || 0), 1);
                 const maxL = Math.max(...players.map(p => p.LossesScore || 0), 1);
@@ -876,6 +1055,17 @@
                 
                 const mapPlayer = (p) => {
                     const k = p.DestructionScore || 0, l = p.LossesScore || 0;
+                    
+                    // --- 单局内单位统计 ---
+                    let topD = {id:0, v:-1}, topK = {id:0, v:-1}, topT = {id:0, v:-1};
+                    if (p.UnitData) {
+                        Object.values(p.UnitData).forEach(u => {
+                           if (u.TotalDamageDealt > topD.v) topD = {id: u.Id, v: u.TotalDamageDealt};
+                           if (u.KilledCount > topK.v) topK = {id: u.Id, v: u.KilledCount};
+                           if (u.TotalDamageReceived > topT.v) topT = {id: u.Id, v: u.TotalDamageReceived};
+                        });
+                    }
+
                     return {
                         id: p.Id, name: p.Name, elo: p.NewRating ? p.NewRating.toFixed(0) : "N/A",
                         gain: p.NewRating && p.OldRating ? (p.NewRating - p.OldRating).toFixed(1) : "0.0",
@@ -884,7 +1074,8 @@
                         score: (k - l) / 1000 + (p.ObjectivesCaptured || 0),
                         kScore: k, lScore: l, oScore: p.ObjectivesCaptured || 0, kd: k / (l || 1),
                         rawData: p,
-                        medals: [] 
+                        medals: [],
+                        favUnits: { d: topD, k: topK, t: topT } // Store fav units
                     };
                 };
 
@@ -931,7 +1122,7 @@
                     myRank: currentMatchRank, 
                     ally, enemy,
                     isWin: isWin,
-                    isDraw: isDraw, // 传递平局状态
+                    isDraw: isDraw, 
                     endReason: meta.EndMatchReason,
                     endTime: meta.EndTime,
                     mapId: meta.MapId,
@@ -940,13 +1131,17 @@
                 };
             });
 
-            // 找出最多的2个徽章
             const topMedals = Object.entries(medalCounts)
                 .sort((a,b) => b[1] - a[1])
                 .slice(0, 2)
                 .map(x => x[0]);
 
             renderResults(stats, kRankSum/12, kdRankSum/12, oRankSum/12, lossRankSum/12, wins, topMedals);
+
+            const favUnits = calculateFavoriteUnits(matches, myUid);
+            if (favUnits) {
+                fetchAndShowUnitStickers(favUnits);
+            }
         }
 
         function renderResults(stats, avgKR, avgKDR, avgOR, avgDR, wins, topMedals) {
@@ -956,10 +1151,10 @@
             const avgRank = stats.reduce((a,b) => a + b.myRank, 0) / stats.length; 
             const normalizedRank = (avgRank - 1) / 4; 
             const sCurveValue = (1 - Math.cos(normalizedRank * Math.PI)) / 2; 
-            const maggotIndex = (1 + (sCurveValue * 9)).toFixed(1); 
+            const maggotIndex = 1 + (sCurveValue * 9); 
 
             const display = document.getElementById('maggotScoreDisplay');
-            display.innerText = maggotIndex;
+            display.innerText = maggotIndex.toFixed(1);
             display.style.color = maggotIndex <= 3.5 ? '#4ade80' : (maggotIndex <= 7 ? '#facc15' : '#f87171');
             document.getElementById('maggotLabel').innerText = t.levels[maggotIndex <= 2 ? 0 : (maggotIndex <= 4 ? 1 : (maggotIndex <= 6 ? 2 : (maggotIndex <= 8 ? 3 : 4)))];
             document.getElementById('meterIndicator').style.left = `${((maggotIndex-1)/9)*100}%`;
@@ -970,12 +1165,10 @@
             document.getElementById('ref_avgOR').innerText = `#${avgOR.toFixed(1)}`;
             document.getElementById('ref_WR').innerText = Math.round((wins / stats.length) * 100) + '%';
 
-            // --- 渲染徽章贴纸 ---
+            // --- 渲染徽章贴纸 (右侧) ---
             const container = document.querySelector('.tag-sticker-container');
             container.innerHTML = ''; 
 
-            // [关键修复] Tailwind 不支持动态拼接类名，必须显式定义映射表
-            // 这里列出了所有常用颜色，确保你的配置能对应上
             const colorStyles = {
                 red:    "bg-red-600/20 border-red-500/50 text-red-300",
                 orange: "bg-orange-600/20 border-orange-500/50 text-orange-300",
@@ -1008,69 +1201,50 @@
                 const name = dict.medals[key] || key;
                 const desc = dict.medal_descs[key] || name;
 
-                // 提取颜色基础名 (例如 text-red-400 -> red)
-                // 并从上面的映射表中获取样式，如果没有匹配到，默认使用 gray
                 const colorBase = conf.color.replace('text-', '').replace('-400', '');
                 const styleClass = colorStyles[colorBase] || colorStyles['gray'];
                 
                 const el = document.createElement('div');
                 el.title = desc; 
-                // 组合样式：基础样式 + 颜色样式 + 鼠标交互
                 el.className = `tag-sticker ${styleClass} flex items-center gap-2 cursor-help`; 
                 el.innerHTML = `<span class="text-lg">${conf.icon}</span><span>${name}</span>`;
                 container.appendChild(el);
             });
 
-            // 渲染趋势标签 (Trend Tag) - Updated to 6 games
-            // 前 6 局 (stats[0]...stats[5]) vs 后 6 局 (stats[6]...stats[11])
-            const recentStats = stats.slice(0, 6);
-            const oldStats = stats.slice(6);
-            
-            // 防止除以零
-            const recentAvg = recentStats.length > 0 ? recentStats.reduce((a,b)=>a+b.myRank,0)/recentStats.length : 0;
-            const oldAvg = oldStats.length > 0 ? oldStats.reduce((a,b)=>a+b.myRank,0)/oldStats.length : recentAvg;
-
+            // Trend
+            const recentAvg = stats.slice(0,3).reduce((a,b)=>a+b.myRank,0)/3;
+            const oldAvg = stats.slice(3).reduce((a,b)=>a+b.myRank,0)/9;
             const trendText = recentAvg < oldAvg - 0.4 ? t.trend_up : (recentAvg > oldAvg + 0.4 ? t.trend_down : t.trend_flat);
-            
             const trendEl = document.createElement('div');
             trendEl.title = t.trend_desc;
             trendEl.className = "tag-sticker bg-slate-600/20 border-slate-500/50 text-slate-300 cursor-help";
             trendEl.innerText = trendText;
             container.appendChild(trendEl);
-            // ============================================
-            // >>> 新增：渲染当前 Elo 标签 <<<
-            // ============================================
+
+            // Elo
             if (stats.length > 0) {
                 const currentMe = stats[0].ally.find(p => p.isMe);
                 if (currentMe) {
                     const eloEl = document.createElement('div');
-                    // [新增] title 属性
                     eloEl.title = t.elo_desc;
                     eloEl.className = "tag-sticker bg-violet-600/20 border-violet-500/50 text-violet-300 font-mono cursor-help";
                     eloEl.innerHTML = `ELO ${currentMe.elo}`;
                     container.appendChild(eloEl);
                 }
             }
-            // ============================================
 
             document.getElementById('matchesContainer').innerHTML = stats.map(m => {
                 const reasonText = t.reasons[m.endReason] || t.reasons[1];
                 const timeText = formatMatchTime(m.endTime);
                 const durText = formatDuration(m.duration);
-                
-                // --- v3.23 UI适配：平局样式 ---
                 let resultBadgeColor, resultText;
-                
                 if (m.isDraw) {
-                    // 平局：使用灰色/Slate色
                     resultBadgeColor = 'bg-slate-600/30 text-slate-300 border border-slate-500/30';
                     resultText = t.res_draw;
                 } else {
-                    // 胜负：保持原有逻辑
                     resultBadgeColor = m.isWin ? 'bg-cyan-600/20 text-cyan-400' : 'bg-red-600/20 text-red-400';
                     resultText = m.isWin ? t.res_vic : t.res_def;
                 }
-                // ---------------------------
 
                 return `
                 <div class="glass-panel rounded-[2rem] md:rounded-[3rem] overflow-hidden border-white/10 shadow-2xl">
@@ -1112,6 +1286,34 @@
                             </div>`;
                     }).join('')}</div>` : '';
 
+                // --- 渲染爱用单位图标 (重构为直显三排) ---
+                let favHtml = '';
+                if (p.favUnits) {
+                    const uD = p.favUnits.d.id > 0 ? getUnitDisplayName(p.favUnits.d.id) : '';
+                    const uK = p.favUnits.k.id > 0 ? getUnitDisplayName(p.favUnits.k.id) : '';
+                    const uT = p.favUnits.t.id > 0 ? getUnitDisplayName(p.favUnits.t.id) : '';
+                    
+                    const renderTag = (icon, name, val, colorClass, textClass) => {
+                        if (!name) return '';
+                        // 手机电脑统一显示: 图标+名字+数值
+                        return `<div class="match-unit-tag ${textClass} ${colorClass}">
+                            <span class="flex-shrink-0">${icon}</span>
+                            <span class="truncate opacity-90 flex-1">${name}</span>
+                            <span class="ml-1 opacity-70">${val}</span>
+                        </div>`;
+                    };
+
+                    const tagD = renderTag('⚡', uD, Math.round(p.favUnits.d.v).toLocaleString(), 'border-orange-500/30 bg-orange-900/20', 'text-orange-200');
+                    const tagK = renderTag('🪦', uK, p.favUnits.k.v, 'border-red-500/30 bg-red-900/20', 'text-red-200');
+                    const tagT = renderTag('🧱', uT, Math.round(p.favUnits.t.v).toLocaleString(), 'border-blue-500/30 bg-blue-900/20', 'text-blue-200');
+                    
+                    if (tagD || tagK || tagT) {
+                        favHtml = `<div class="flex flex-col gap-0.5 ml-2 w-24 md:w-32 flex-shrink-0 border-l border-white/10 pl-1 justify-center h-full">
+                            ${tagD}${tagK}${tagT}
+                        </div>`;
+                    }
+                }
+
                 return `
                 <div class="teammate-row flex items-center p-2 md:p-3 rounded-xl md:rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}">
                     <div class="flex-1 min-w-0 pr-2 md:pr-4 flex flex-col justify-center">
@@ -1132,6 +1334,8 @@
                         <div class="flex items-center gap-1"><div class="bar-container"><div class="bar-loss" style="width:${p.lPct}%"></div></div></div>
                         <div class="flex items-center gap-1"><div class="bar-container"><div class="bar-obj" style="width:${p.oPct}%"></div></div></div>
                     </div>
+
+                    ${favHtml}
                 </div>
             `}).join('');
         }
@@ -1157,9 +1361,6 @@
             document.getElementById('idSearchModal').classList.add('hidden');
         }
 
-        // ============================================
-        // [NEW] 对局 ID 查找功能逻辑区
-        // ============================================
         function openMatchSearchModal() {
             document.getElementById('matchSearchModal').classList.remove('hidden');
             document.getElementById('matchIdInput').focus();
@@ -1188,7 +1389,6 @@
                 const detail = await robustFetch(`https://www.barmory.net/stb/match/${mid}`);
                 const data = detail.Data;
                 
-                // 同样进行胜负逻辑推断 (参考之前的修复逻辑)
                 if (detail.WinnerTeam === undefined) {
                     const pValues = Object.values(data);
                     const ref = pValues.find(p => p.NewRating !== undefined && p.OldRating !== undefined);
@@ -1230,13 +1430,11 @@
             }
         }
 
-        // 从对局列表选中玩家并触发主检测
         function useFromMatch(uid) {
             document.getElementById('steamInput').value = uid;
             closeMatchSearchModal();
             handleCheck();
         }
-        // ============================================
 
         async function doNameSearch() {
             const name = document.getElementById('modalSearchInput').value.trim();
