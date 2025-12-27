@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Broken Arrow Maggot Index v3.23 - By Zola</title>
+    <title>玩家行为分析 v3.23 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -106,25 +106,26 @@
 
     <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
         <div class="flex gap-4 items-center">
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.23 RUS Support</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.23.2 JA Support</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
             <button onclick="setLang('zh')" id="btn_lang_zh" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">中文</button>
             <button onclick="setLang('ru')" id="btn_lang_ru" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">Русский</button>
+            <button onclick="setLang('ja')" id="btn_lang_ja" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">日本語</button>
         </div>
     </div>
 
     <div class="glass-panel w-full max-w-6xl mx-auto rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-10 shadow-2xl border-white/5">
         <div class="text-center mb-8 md:mb-12">
             <h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter mb-4 flex flex-col md:block items-center justify-center">
-                <span id="lbl_title">断箭蛆指数</span>
+                <span id="lbl_title">玩家行为分析</span>
                 <span class="text-base md:text-xl text-cyan-500 italic mt-2 md:mt-0 md:ml-4 opacity-80 font-serif">By Zola</span>
             </h1>
             <div class="flex justify-center gap-6 mb-4">
                 <a href="https://barmory.net/" target="_blank" class="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-700 hover:text-white transition-all font-medium">Data Source: Barmory.net</a>
             </div>
-            <p class="text-cyan-400 font-mono text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold" id="lbl_subtitle">Broken Arrow Maggot Index</p>
+            <p class="text-cyan-400 font-mono text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold" id="lbl_subtitle">Player Behavior Analysis</p>
         </div>
 
         <div class="flex flex-col items-center mb-10 md:mb-16">
@@ -174,13 +175,13 @@
                     <div id="calcTimeDisplay" class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Calculated: 2024-01-01 00:00:00</div>
                 </div>
 
-                <h2 class="text-slate-400 text-xs md:text-sm font-black uppercase tracking-[0.2em] mb-2" id="lbl_maggot_index_title">蛆指数</h2>
+                <h2 class="text-slate-400 text-xs md:text-sm font-black uppercase tracking-[0.2em] mb-2" id="lbl_maggot_index_title">综合评价</h2>
                 <div class="text-[6rem] md:text-[10rem] font-black text-white leading-none mb-4 md:mb-6" id="maggotScoreDisplay" style="text-shadow: 0 5px 25px rgba(0,0,0,0.4);">1.0</div>
                 <div id="maggotLabel" class="text-xl md:text-3xl font-black px-8 py-2 md:px-10 md:py-3 rounded-full bg-slate-900 border-2 border-white/10 shadow-2xl mb-8 md:mb-12">Unknown</div>
                 
                 <div class="w-full max-w-3xl mb-8 md:mb-12">
                     <div class="flex justify-between text-[10px] md:text-xs text-slate-400 mb-4 uppercase font-black tracking-widest">
-                        <span id="lbl_god_range">神</span><span id="lbl_avg_range">中庸</span><span id="lbl_maggot_range">蛆</span>
+                        <span id="lbl_god_range">神</span><span id="lbl_maggot_range">蛆</span>
                     </div>
                     <div class="maggot-meter-bg"><div id="meterIndicator" class="maggot-indicator" style="left: 0%;"></div></div>
                 </div>
@@ -316,10 +317,10 @@
 
         const DICT = {
             zh: {
-                title: "断箭蛆指数", subtitle: "Broken Arrow Maggot Index", 
+                title: "玩家行为分析", subtitle: "Broken Arrow Behavior Analysis", 
                 placeholder: "Steam64 ID 或 游戏内部数字 ID...", 
-                check: "开始检测", loading: "同步中...", maggot_index_title: "蛆指数",
-                god_range: "神", avg_range: " ", maggot_range: "蛆",
+                check: "开始检测", loading: "同步中...", maggot_index_title: "综合评价",
+                god_range: "神", maggot_range: "蛆",
                 history_title: "最近 12 局有效对局", 
                 find_id_btn: "不知道 ID？通过用户名查找",
                 find_match_btn: "只知道对局 ID？通过对局查玩家",
@@ -360,18 +361,17 @@
                     TotalSpawnedUnitScore: "招募单位总分全队最高", 
                     TotalRefundedUnitScore: "退款单位总分全队最高"
                 },
-                trend_desc: "最近 3 局排名与历史平均排名的对比趋势",
+                trend_desc: "最近 6 局排名与历史平均排名的对比趋势",
                 elo_desc: "最新的 ELO 评分 (基于最新一局数据)",
             },
             en: {
-                title: "Maggot Index", 
-                subtitle: "Broken Arrow Performance Index", 
+                title: "Player Behavior Analysis", 
+                subtitle: "Broken Arrow Analytics", 
                 placeholder: "Steam64 ID or In-Game Numeric ID...", 
                 check: "ANALYZE", 
                 loading: "Syncing...", 
-                maggot_index_title: "MAGGOT INDEX",
+                maggot_index_title: "PERFORMANCE RATING",
                 god_range: "GOD", 
-                avg_range: " ", 
                 maggot_range: "MAGGOT",
                 history_title: "Last 12 Valid Matches",
                 
@@ -443,18 +443,17 @@
                     TotalRefundedUnitScore: "Highest total point value of units sold back"
                 },
                 
-                trend_desc: "Performance trend over recent matches vs history",
+                trend_desc: "Performance trend over recent 6 matches vs history",
                 elo_desc: "Current ELO Rating (Live update)",
             },
             ru: {
-                title: "Индекс Личинки",
-                subtitle: "Индекс Эффективности Broken Arrow",
+                title: "Анализ поведения игроков",
+                subtitle: "Broken Arrow Analytics",
                 placeholder: "Steam64 ID или Внутренний ID...",
                 check: "ПРОВЕРИТЬ",
                 loading: "Синхронизация...",
-                maggot_index_title: "ИНДЕКС ЛИЧИНКИ",
+                maggot_index_title: "ОБЩИЙ РЕЙТИНГ",
                 god_range: "БОГ",
-                avg_range: " ",
                 maggot_range: "ЛИЧИНКА",
                 history_title: "Последние 12 матчей",
 
@@ -528,6 +527,88 @@
 
                 trend_desc: "Тренд эффективности за последние матчи",
                 elo_desc: "Текущий рейтинг ELO (Обновление в реальном времени)",
+            },
+            ja: {
+                title: "プレイヤー行動分析", 
+                subtitle: "Broken Arrow 戦績分析", 
+                placeholder: "Steam64 ID または ゲーム内ID...", 
+                check: "分析開始", 
+                loading: "同期中...", 
+                maggot_index_title: "総合スコア",
+                god_range: "神", 
+                maggot_range: "地雷",
+                history_title: "直近12試合の記録",
+                
+                find_id_btn: "IDが不明な場合は名前で検索",
+                find_match_btn: "マッチIDからプレイヤーを検索",
+                
+                modal_title: "プレイヤーID検索", 
+                modal_input_ph: "ユーザー名を入力...", 
+                modal_btn_search: "検索",
+                modal_pname: "プレイヤー名", 
+                modal_pid: "内部ID", 
+                modal_use_btn: "このIDで分析",
+                modal_status_search: "検索中...", 
+                modal_status_err: "エラー: ", 
+                modal_status_none: "プレイヤーが見つかりません",
+                modal_status_found: "{n} 件見つかりました",
+
+                modal_match_title: "マッチID検索",
+                modal_match_input_ph: "マッチIDを入力 (例: 184523)...",
+                modal_match_btn_search: "戦績取得",
+                modal_match_loading: "データ取得中...",
+                modal_match_err: "情報の取得に失敗しました",
+
+                kill: "撃破", loss: "損失", obj: "占領",
+                levels: ["👑 神様", "🦁 キャリー", "😐 一般兵", "🐛 微地雷", "💩 超地雷"],
+                
+                tag_killer: "⚔️ キル重視", 
+                tag_kd: "📈 KD重視", 
+                tag_obj: "🚩 占領重視", 
+                
+                trend_up: "🚀 調子上昇中", 
+                trend_down: "📉 調子低下中", 
+                trend_flat: "➡️ 安定", 
+                
+                err_net: "ネットワーク混雑、後ほど試してください", 
+                err_insufficient: "データ不足（12試合未満）",
+                
+                lbl_ref_kdr: "KDランク", 
+                lbl_ref_kr: "撃破ランク", 
+                lbl_ref_dr: "生存ランク", 
+                lbl_ref_or: "占領ランク", 
+                lbl_ref_wr: "勝率 (直近12戦)",
+                
+                res_vic: "勝利", res_def: "敗北", res_draw: "引分",
+                meta_map: "マップ", meta_dur: "時間", meta_win: "勝者",
+                reasons: { 1: "圧倒", 2: "判定", 3: "降伏" },
+                
+                medals: {
+                    Destruction: "撃破王", 
+                    Losses: "特攻隊長",           
+                    DamageDealt: "火力王",       
+                    DamageReceived: "タンク王",      
+                    SupplyPointsConsumed: "浪費家",   
+                    SupplyPointsConsumedFromAllies: "泥棒猫", 
+                    SupplyPointsConsumedByAllies: "衛生兵",
+                    TotalSpawnedUnitScore: "動員王",
+                    TotalRefundedUnitScore: "返金王" 
+                },
+                
+                medal_descs: {
+                    Destruction: "敵ユニット撃破スコアがチーム内最多", 
+                    Losses: "自ユニット損失スコアがチーム内最多 (カモ)", 
+                    DamageDealt: "敵への総ダメージ量がチーム内最多", 
+                    DamageReceived: "被ダメージ総量がチーム内最多",
+                    SupplyPointsConsumed: "補給ポイント消費量がチーム内最多", 
+                    SupplyPointsConsumedFromAllies: "味方の補給物資使用量がチーム内最多", 
+                    SupplyPointsConsumedByAllies: "味方への補給提供量がチーム内最多", 
+                    TotalSpawnedUnitScore: "ユニット配備総額がチーム内最多", 
+                    TotalRefundedUnitScore: "ユニット売却総額がチーム内最多"
+                },
+                
+                trend_desc: "直近6試合とそれ以前のパフォーマンス比較",
+                elo_desc: "現在のELOレート (リアルタイム更新)",
             }
         };
 
@@ -535,7 +616,13 @@
         const HISTORY_KEY = 'ba_maggot_v37_history';
 
         function setLang(l) {
-            currentLang = l; localStorage.setItem('ba_lang', l); updateUIStrings();
+            currentLang = l; 
+            localStorage.setItem('ba_lang', l); 
+            
+            // 动态修改 Tab 标题
+            document.title = DICT[currentLang].title + " v3.23 - By Zola";
+
+            updateUIStrings();
         }
 
         function updateUIStrings() {
@@ -546,7 +633,6 @@
             document.getElementById('btn_check').innerText = t.check;
             document.getElementById('lbl_maggot_index_title').innerText = t.maggot_index_title;
             document.getElementById('lbl_god_range').innerText = t.god_range;
-            document.getElementById('lbl_avg_range').innerText = t.avg_range;
             document.getElementById('lbl_maggot_range').innerText = t.maggot_range;
             document.getElementById('lbl_history_title').innerText = t.history_title;
             document.getElementById('lbl_find_id_btn').innerText = t.find_id_btn;
@@ -575,6 +661,7 @@
             document.getElementById('btn_lang_zh').className = `${btnBase} ${currentLang==='zh'?btnActive:btnInactive}`;
             document.getElementById('btn_lang_en').className = `${btnBase} ${currentLang==='en'?btnActive:btnInactive}`;
             document.getElementById('btn_lang_ru').className = `${btnBase} ${currentLang==='ru'?btnActive:btnInactive}`;
+            document.getElementById('btn_lang_ja').className = `${btnBase} ${currentLang==='ja'?btnActive:btnInactive}`;
         }
 
         async function robustFetch(url, attempt = 0) {
@@ -591,7 +678,8 @@
         }
 
         window.onload = () => {
-            setLang(localStorage.getItem('ba_lang') || 'zh');
+            const savedLang = localStorage.getItem('ba_lang');
+            setLang(savedLang || 'zh'); // 默认中文
             renderHistory();
             const urlId = new URLSearchParams(window.location.search).get('steamId');
             if(urlId) { document.getElementById('steamInput').value=urlId; handleCheck(); }
@@ -933,9 +1021,15 @@
                 container.appendChild(el);
             });
 
-            // 渲染趋势标签 (Trend Tag)
-            const recentAvg = stats.slice(0,3).reduce((a,b)=>a+b.myRank,0)/3;
-            const oldAvg = stats.slice(3).reduce((a,b)=>a+b.myRank,0)/9;
+            // 渲染趋势标签 (Trend Tag) - Updated to 6 games
+            // 前 6 局 (stats[0]...stats[5]) vs 后 6 局 (stats[6]...stats[11])
+            const recentStats = stats.slice(0, 6);
+            const oldStats = stats.slice(6);
+            
+            // 防止除以零
+            const recentAvg = recentStats.length > 0 ? recentStats.reduce((a,b)=>a+b.myRank,0)/recentStats.length : 0;
+            const oldAvg = oldStats.length > 0 ? oldStats.reduce((a,b)=>a+b.myRank,0)/oldStats.length : recentAvg;
+
             const trendText = recentAvg < oldAvg - 0.4 ? t.trend_up : (recentAvg > oldAvg + 0.4 ? t.trend_down : t.trend_flat);
             
             const trendEl = document.createElement('div');
