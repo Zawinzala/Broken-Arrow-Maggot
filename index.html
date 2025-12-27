@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>玩家行为分析 v3.32 - By Zola</title>
+    <title>玩家行为分析 v3.34 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -63,10 +63,11 @@
         @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
         @keyframes tagPopLeft { from { opacity: 0; transform: scale(0.5) rotate(-15deg); } to { opacity: 1; transform: scale(1) rotate(-5deg); } }
         
-        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 80px; } 
+        .teammate-row { transition: all 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 80px; cursor: pointer; } 
         @media (min-width: 768px) { .teammate-row { min-height: 85px; } }
         
-        .teammate-row:hover { background: rgba(255,255,255,0.05); }
+        .teammate-row:hover { background: rgba(255,255,255,0.1) !important; }
+        .teammate-row:active { background: rgba(255,255,255,0.15) !important; transform: scale(0.995); }
         .is-me { background: rgba(6, 182, 212, 0.15) !important; border-left: 3px solid #06b6d4; }
         @media (min-width: 768px) { .is-me { border-left-width: 5px; } }
 
@@ -123,6 +124,19 @@
             border: 1px solid rgba(255,255,255,0.05);
             white-space: nowrap;
         }
+
+        .stat-grid-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .stat-grid-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
+        .stat-grid-value { font-size: 14px; font-weight: bold; color: #e2e8f0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     </style>
 </head>
 <body class="min-h-screen pt-4 px-2 pb-24 md:pt-10 md:px-4">
@@ -133,7 +147,7 @@
                 <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
                 <span class="text-[10px] md:text-xs font-mono font-bold">GitHub</span>
             </a>
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.32 Error Fix</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.34 Detail View</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -249,7 +263,7 @@
         </div>
     </div>
 
-    <!-- Modals (unchanged structure, just content) -->
+    <!-- Modals -->
     <div id="idSearchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 relative shadow-2xl bg-slate-900/90 border border-slate-600">
             <button onclick="closeSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
@@ -295,6 +309,72 @@
         </div>
     </div>
 
+    <!-- Player Detail Modal -->
+    <div id="playerDetailModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center modal-backdrop p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 relative shadow-2xl bg-slate-900/95 border border-slate-600 flex flex-col max-h-[90vh]">
+            <button onclick="closePlayerDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-10 p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div class="text-center mb-6">
+                <h2 id="pd_name" class="text-2xl font-black text-white">Player Name</h2>
+                <div class="flex justify-center gap-4 mt-2 text-xs text-slate-400 font-mono">
+                    <span id="pd_id">ID: 123456</span>
+                    <span id="pd_elo" class="text-cyan-400">ELO 1200 (+15.0)</span>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto custom-scrollbar pr-2 flex-1">
+                <!-- Basic Stats -->
+                <div class="grid grid-cols-4 gap-2 mb-4">
+                    <div class="stat-grid-item bg-green-900/20 border-green-500/30">
+                        <div class="stat-grid-label text-green-300" id="lbl_pd_kill">击杀分</div>
+                        <div class="stat-grid-value text-green-100" id="pd_kill">0</div>
+                    </div>
+                    <div class="stat-grid-item bg-red-900/20 border-red-500/30">
+                        <div class="stat-grid-label text-red-300" id="lbl_pd_loss">损失分</div>
+                        <div class="stat-grid-value text-red-100" id="pd_loss">0</div>
+                    </div>
+                    <div class="stat-grid-item bg-blue-900/20 border-blue-500/30">
+                        <div class="stat-grid-label text-blue-300" id="lbl_pd_obj">占点分</div>
+                        <div class="stat-grid-value text-blue-100" id="pd_obj">0</div>
+                    </div>
+                    <div class="stat-grid-item bg-yellow-900/20 border-yellow-500/30">
+                        <div class="stat-grid-label text-yellow-300">K/D</div>
+                        <div class="stat-grid-value text-yellow-100" id="pd_kd">0.00</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Stats -->
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-white/10 pb-1">Detailed Stats</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_dmg_dealt">伤害输出</div><div class="stat-grid-value text-orange-400" id="pd_dmg_dealt">0</div></div>
+                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_dmg_taken">承受伤害</div><div class="stat-grid-value text-slate-400" id="pd_dmg_taken">0</div></div>
+                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_supply">补给消耗</div><div class="stat-grid-value text-yellow-400" id="pd_supply">0</div></div>
+                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_supply_ally">吃盟友补给</div><div class="stat-grid-value text-pink-400" id="pd_supply_ally">0</div></div>
+                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_supply_give">喂盟友补给</div><div class="stat-grid-value text-green-400" id="pd_supply_give">0</div></div>
+                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_units">单位总值</div><div class="stat-grid-value text-blue-400" id="pd_units">0</div></div>
+                </div>
+
+                <!-- Top Units -->
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-white/10 pb-1">Top Units</h3>
+                <div class="grid grid-cols-1 gap-2">
+                    <div class="bg-slate-800/50 rounded p-2 flex justify-between items-center border-l-2 border-orange-500">
+                        <div class="text-xs text-orange-300 font-bold" id="lbl_pd_top_dmg">最高伤害</div>
+                        <div class="text-right"><div class="text-xs text-white font-bold" id="pd_top_dmg_name">-</div><div class="text-[10px] text-slate-400" id="pd_top_dmg_val">0</div></div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded p-2 flex justify-between items-center border-l-2 border-red-500">
+                        <div class="text-xs text-red-300 font-bold" id="lbl_pd_top_kill">最高击杀</div>
+                        <div class="text-right"><div class="text-xs text-white font-bold" id="pd_top_kill_name">-</div><div class="text-[10px] text-slate-400" id="pd_top_kill_val">0</div></div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded p-2 flex justify-between items-center border-l-2 border-blue-500">
+                        <div class="text-xs text-blue-300 font-bold" id="lbl_pd_top_tank">最高承伤</div>
+                        <div class="text-right"><div class="text-xs text-white font-bold" id="pd_top_tank_name">-</div><div class="text-[10px] text-slate-400" id="pd_top_tank_val">0</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const CONFIG = {
             MATCH_GOAL: 12,
@@ -320,6 +400,7 @@
 
         let UNIT_NAME_CACHE = {};
         let IS_UNIT_CACHE_LOADED = false;
+        let CURRENT_MATCH_STATS = []; // Store stats globally for detail view
         const UNIT_CACHE_KEY = 'ba_unit_dict';
         const UNIT_CACHE_TS_KEY = 'ba_unit_dict_ts';
 
@@ -381,6 +462,11 @@
                 unit_dmg_title: "最高伤害",
                 unit_kill_title: "最高击杀",
                 unit_tank_title: "最高承伤",
+
+                // Detail Modal
+                pd_dmg_dealt: "伤害输出", pd_dmg_taken: "承受伤害",
+                pd_supply: "补给消耗", pd_supply_ally: "吃盟友补给", pd_supply_give: "喂盟友补给",
+                pd_units: "单位总值"
             },
             en: {
                 title: "Player Behavior Analysis", 
@@ -474,6 +560,11 @@
                 unit_dmg_title: "Max Damage",
                 unit_kill_title: "Max Kills",
                 unit_tank_title: "Max Taken",
+
+                // Detail Modal
+                pd_dmg_dealt: "Damage Dealt", pd_dmg_taken: "Damage Received",
+                pd_supply: "Supply Used", pd_supply_ally: "Taken from Ally", pd_supply_give: "Given to Ally",
+                pd_units: "Unit Value"
             },
             ru: {
                 title: "Анализ поведения игроков",
@@ -567,6 +658,10 @@
                 unit_dmg_title: "Макс. урон",
                 unit_kill_title: "Убийца",
                 unit_tank_title: "Танк",
+
+                pd_dmg_dealt: "Урон", pd_dmg_taken: "Получено",
+                pd_supply: "Припасы", pd_supply_ally: "От союз.", pd_supply_give: "Союзникам",
+                pd_units: "Юниты"
             },
             ja: {
                 title: "プレイヤー行動分析", 
@@ -659,6 +754,10 @@
                 unit_dmg_title: "最大ダメージ",
                 unit_kill_title: "最多キル",
                 unit_tank_title: "最大被弾",
+
+                pd_dmg_dealt: "与ダメージ", pd_dmg_taken: "被ダメージ",
+                pd_supply: "補給使用", pd_supply_ally: "味方補給使用", pd_supply_give: "味方へ補給",
+                pd_units: "ユニット総額"
             }
         };
 
@@ -668,7 +767,7 @@
         function setLang(l) {
             currentLang = l; 
             localStorage.setItem('ba_lang', l); 
-            document.title = DICT[currentLang].title + " v3.32 - By Zola";
+            document.title = DICT[currentLang].title + " v3.34 - By Zola";
             updateUIStrings();
         }
 
@@ -700,6 +799,20 @@
             document.getElementById('modal_match_title').innerText = t.modal_match_title;
             document.getElementById('matchIdInput').placeholder = t.modal_match_input_ph;
             document.getElementById('modal_match_btn_search').innerText = t.modal_match_btn_search;
+
+            // Player Detail Labels
+            document.getElementById('lbl_pd_kill').innerText = t.kill;
+            document.getElementById('lbl_pd_loss').innerText = t.loss;
+            document.getElementById('lbl_pd_obj').innerText = t.obj;
+            document.getElementById('lbl_pd_dmg_dealt').innerText = t.pd_dmg_dealt;
+            document.getElementById('lbl_pd_dmg_taken').innerText = t.pd_dmg_taken;
+            document.getElementById('lbl_pd_supply').innerText = t.pd_supply;
+            document.getElementById('lbl_pd_supply_ally').innerText = t.pd_supply_ally;
+            document.getElementById('lbl_pd_supply_give').innerText = t.pd_supply_give;
+            document.getElementById('lbl_pd_units').innerText = t.pd_units;
+            document.getElementById('lbl_pd_top_dmg').innerText = t.unit_dmg_title;
+            document.getElementById('lbl_pd_top_kill').innerText = t.unit_kill_title;
+            document.getElementById('lbl_pd_top_tank').innerText = t.unit_tank_title;
 
             const btnBase = "px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold";
             const btnActive = "bg-cyan-600 text-white shadow-lg shadow-cyan-900/40";
@@ -1061,13 +1174,24 @@
                 const mapPlayer = (p) => {
                     const k = p.DestructionScore || 0, l = p.LossesScore || 0;
                     
-                    // --- 单局内单位统计 ---
+                    // --- 单局内单位统计 (聚合版) ---
                     let topD = {id:0, v:-1}, topK = {id:0, v:-1}, topT = {id:0, v:-1};
+                    
                     if (p.UnitData) {
+                        const unitAgg = {};
                         Object.values(p.UnitData).forEach(u => {
-                           if (u.TotalDamageDealt > topD.v) topD = {id: u.Id, v: u.TotalDamageDealt};
-                           if (u.KilledCount > topK.v) topK = {id: u.Id, v: u.KilledCount};
-                           if (u.TotalDamageReceived > topT.v) topT = {id: u.Id, v: u.TotalDamageReceived};
+                            if (!u.Id) return;
+                            if (!unitAgg[u.Id]) unitAgg[u.Id] = { d: 0, k: 0, t: 0 };
+                            // 累加同ID单位的数据
+                            unitAgg[u.Id].d += (u.TotalDamageDealt || 0);
+                            unitAgg[u.Id].k += (u.KilledCount || 0);
+                            unitAgg[u.Id].t += (u.TotalDamageReceived || 0);
+                        });
+
+                        Object.entries(unitAgg).forEach(([uid, stats]) => {
+                            if (stats.d > topD.v) topD = {id: uid, v: stats.d};
+                            if (stats.k > topK.v) topK = {id: uid, v: stats.k};
+                            if (stats.t > topT.v) topT = {id: uid, v: stats.t};
                         });
                     }
 
@@ -1135,6 +1259,9 @@
                     winnerTeam: meta.WinnerTeam
                 };
             });
+
+            // Store stats globally so click handlers can access them
+            CURRENT_MATCH_STATS = stats;
 
             const topMedals = Object.entries(medalCounts)
                 .sort((a,b) => b[1] - a[1])
@@ -1272,14 +1399,14 @@
                         </span>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-white/10">
-                        <div class="bg-[#0f172a] p-2 md:p-4">${renderTeam(m.ally, t)}</div>
-                        <div class="bg-[#0f172a] p-2 md:p-4">${renderTeam(m.enemy, t)}</div>
+                        <div class="bg-[#0f172a] p-2 md:p-4">${renderTeam(m.ally, t, m.id)}</div>
+                        <div class="bg-[#0f172a] p-2 md:p-4">${renderTeam(m.enemy, t, m.id)}</div>
                     </div>
                 </div>
             `}).join('');
         }
 
-        function renderTeam(players, t) {
+        function renderTeam(players, t, matchId) {
             return players.map(p => {
                 const hoverDetail = `${t.kill}: ${p.kScore.toLocaleString()} | ${t.loss}: ${p.lScore.toLocaleString()} | ${t.obj}: ${p.oScore}`;
                 const medalsHtml = p.medals.length > 0 ? 
@@ -1298,19 +1425,18 @@
                     const uK = p.favUnits.k.id > 0 ? getUnitDisplayName(p.favUnits.k.id) : '';
                     const uT = p.favUnits.t.id > 0 ? getUnitDisplayName(p.favUnits.t.id) : '';
                     
-                    const renderTag = (icon, name, val, colorClass, textClass) => {
+                    const renderTag = (name, val, colorClass, textClass) => {
                         if (!name) return '';
-                        // 手机电脑统一显示: 图标+名字+数值
+                        // 手机电脑统一显示: 名字+数值 (去掉了图标参数)
                         return `<div class="match-unit-tag ${textClass} ${colorClass}">
-                            <span class="flex-shrink-0">${icon}</span>
                             <span class="truncate opacity-90 flex-1">${name}</span>
                             <span class="ml-1 opacity-70">${val}</span>
                         </div>`;
                     };
 
-                    const tagD = renderTag('⚡', uD, Math.round(p.favUnits.d.v).toLocaleString(), 'border-orange-500/30 bg-orange-900/20', 'text-orange-200');
-                    const tagK = renderTag('🔫', uK, p.favUnits.k.v, 'border-red-500/30 bg-red-900/20', 'text-red-200');
-                    const tagT = renderTag('🛡️', uT, Math.round(p.favUnits.t.v).toLocaleString(), 'border-blue-500/30 bg-blue-900/20', 'text-blue-200');
+                    const tagD = renderTag(uD, Math.round(p.favUnits.d.v).toLocaleString(), 'border-orange-500/30 bg-orange-900/20', 'text-orange-200');
+                    const tagK = renderTag(uK, p.favUnits.k.v, 'border-red-500/30 bg-red-900/20', 'text-red-200');
+                    const tagT = renderTag(uT, Math.round(p.favUnits.t.v).toLocaleString(), 'border-blue-500/30 bg-blue-900/20', 'text-blue-200');
                     
                     if (tagD || tagK || tagT) {
                         favHtml = `<div class="flex flex-col gap-0.5 ml-2 w-24 md:w-32 flex-shrink-0 border-l border-white/10 pl-1 justify-center h-full">
@@ -1320,7 +1446,7 @@
                 }
 
                 return `
-                <div class="teammate-row flex items-center p-2 md:p-3 rounded-xl md:rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}">
+                <div class="teammate-row flex items-center p-2 md:p-3 rounded-xl md:rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}" onclick="openPlayerDetail('${matchId}', '${p.id}')">
                     <div class="flex-1 min-w-0 pr-2 md:pr-4 flex flex-col justify-center relative">
                         <div class="flex justify-between items-start w-full">
                             <div class="text-xs md:text-sm font-black text-slate-100 truncate mb-0.5 mr-1">${escapeHtml(p.name)}</div>
@@ -1330,7 +1456,7 @@
                             </div>
                         </div>
                         ${medalsHtml}
-                        <div class="id-link mt-1" onclick="inspect('${p.id}')">${p.id}</div>
+                        <div class="id-link mt-1" onclick="event.stopPropagation(); inspect('${p.id}')">${p.id}</div>
                     </div>
                     
                     <div class="w-16 md:w-28 space-y-1 flex-shrink-0">
@@ -1342,6 +1468,56 @@
                     ${favHtml}
                 </div>
             `}).join('');
+        }
+
+        // --- Player Detail Modal Logic ---
+        function openPlayerDetail(matchId, playerId) {
+            const match = CURRENT_MATCH_STATS.find(m => String(m.id) === String(matchId));
+            if(!match) return;
+
+            // Search in ally and enemy
+            let player = match.ally.find(p => String(p.id) === String(playerId));
+            if (!player) player = match.enemy.find(p => String(p.id) === String(playerId));
+            if (!player) return;
+
+            const t = DICT[currentLang];
+            const raw = player.rawData;
+
+            document.getElementById('pd_name').innerText = player.name || 'Unknown';
+            document.getElementById('pd_id').innerText = `ID: ${player.id}`;
+            document.getElementById('pd_elo').innerText = `ELO ${player.elo} (${parseFloat(player.gain)>=0?'+':''}${player.gain})`;
+            document.getElementById('pd_elo').className = parseFloat(player.gain) >= 0 ? "text-green-400 font-mono" : "text-red-400 font-mono";
+
+            document.getElementById('pd_kill').innerText = Math.round(player.kScore).toLocaleString();
+            document.getElementById('pd_loss').innerText = Math.round(player.lScore).toLocaleString();
+            document.getElementById('pd_obj').innerText = Math.round(player.oScore).toLocaleString();
+            document.getElementById('pd_kd').innerText = player.kd.toFixed(2);
+
+            // Detailed Stats
+            document.getElementById('pd_dmg_dealt').innerText = Math.round(raw.DamageDealt || 0).toLocaleString();
+            document.getElementById('pd_dmg_taken').innerText = Math.round(raw.DamageReceived || 0).toLocaleString();
+            document.getElementById('pd_supply').innerText = Math.round(raw.SupplyPointsConsumed || 0).toLocaleString();
+            document.getElementById('pd_supply_ally').innerText = Math.round(raw.SupplyPointsConsumedFromAllies || 0).toLocaleString();
+            document.getElementById('pd_supply_give').innerText = Math.round(raw.SupplyPointsConsumedByAllies || 0).toLocaleString();
+            document.getElementById('pd_units').innerText = Math.round(raw.TotalSpawnedUnitScore || 0).toLocaleString();
+
+            // Top Units
+            const setTopUnit = (prefix, unitObj) => {
+                const name = unitObj && unitObj.id > 0 ? getUnitDisplayName(unitObj.id) : '-';
+                const val = unitObj && unitObj.v > -1 ? Math.round(unitObj.v).toLocaleString() : '0';
+                document.getElementById(`${prefix}_name`).innerText = name;
+                document.getElementById(`${prefix}_val`).innerText = val;
+            };
+
+            setTopUnit('pd_top_dmg', player.favUnits.d);
+            setTopUnit('pd_top_kill', player.favUnits.k);
+            setTopUnit('pd_top_tank', player.favUnits.t);
+
+            document.getElementById('playerDetailModal').classList.remove('hidden');
+        }
+
+        function closePlayerDetailModal() {
+            document.getElementById('playerDetailModal').classList.add('hidden');
         }
 
         function saveHistory(id, name) {
