@@ -1066,7 +1066,10 @@
 
             const container = document.getElementById('unitStickerContainer');
             if(!container) return;
-
+            // ============================================
+            // [FIX] 修复：在这里添加清空逻辑，防止重复追加
+            container.innerHTML = ''; 
+            // ============================================
             const items = [
                 { type: 'dmg', unit: favUnits.topDmg, icon: '⚡', labelPrefix: { zh: '输出', en: 'Dmg', ja: '火力', ru: 'Dmg' } },
                 { type: 'kill', unit: favUnits.topKill, icon: '🔫', labelPrefix: { zh: '击杀', en: 'Kill', ja: '撃破', ru: 'Kill' } },
@@ -1701,3 +1704,4 @@
     </script>
 </body>
 </html>
+
