@@ -12,7 +12,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>断箭蛆指数 v3.34 - By Zola</title>
+    <title>断箭蛆指数 v3.35 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 增加 overflow-x-hidden 防止移动端横向滚动 */
@@ -164,7 +164,7 @@
                 <span class="text-base md:text-xl text-cyan-500 italic mt-2 md:mt-0 md:ml-4 opacity-80 font-serif">By Zola</span>
             </h1>
             <div class="flex justify-center gap-6 mb-4">
-                <a href="https://barmory.net/" target="_blank" class="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-700 hover:text-white transition-all font-medium">Data Source: Barmory.net</a>
+                <a href="https://batrace.aoeiaol.top/" target="_blank" class="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-700 hover:text-white transition-all font-medium">Data Source: Batrace API</a>
             </div>
             <p class="text-cyan-400 font-mono text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold" id="lbl_subtitle">Player Behavior Analysis</p>
         </div>
@@ -405,7 +405,7 @@
         const UNIT_CACHE_TS_KEY = 'ba_unit_dict_ts';
         const DICT = {
             zh: {
-                title: "断箭蛆指数（正在维护并升级）", 
+                title: "断箭蛆指数", 
                 subtitle: "Broken Arrow Behavior Analysis", 
                 placeholder: "Steam64 ID 或 游戏内部数字 ID...", 
                 check: "开始检测", 
@@ -480,7 +480,7 @@
                 pd_units: "单位总值"
             },
             en: {
-                title: "BA Maggot Index (Maintenance)", 
+                title: "BA Maggot Index", 
                 subtitle: "Broken Arrow Analytics", 
                 placeholder: "Steam64 ID or In-Game Numeric ID...", 
                 check: "ANALYZE", 
@@ -578,7 +578,7 @@
                 pd_units: "Unit Value"
             },
             ru: {
-                title: "BA Maggot Index (Обслуживание)",
+                title: "BA Maggot Index",
                 subtitle: "Broken Arrow Analytics",
                 placeholder: "Steam64 ID или Внутренний ID...",
                 check: "ПРОВЕРИТЬ",
@@ -675,7 +675,7 @@
                 pd_units: "Юниты"
             },
             ja: {
-                title: "BA Maggot Index (メンテナンス中)", 
+                title: "BA Maggot Index", 
                 subtitle: "Broken Arrow 戦績分析", 
                 placeholder: "Steam64 ID または ゲーム内ID...", 
                 check: "分析開始", 
@@ -838,6 +838,14 @@
         async function robustFetch(url, attempt = 0) {
             const proxy = CONFIG.PROXIES[attempt % CONFIG.PROXIES.length];
             try {
+                // 直接请求，如果失败再使用代理 (对于 Batrace API 可以尝试直连)
+                if (attempt === 0) {
+                    try {
+                        const r = await fetch(url);
+                        if (r.ok) return await r.json();
+                    } catch (e) { /* ignore */ }
+                }
+
                 const fetchUrl = proxy.url(url);
                 const r = await fetch(fetchUrl);
                 if(!r.ok) throw new Error(`HTTP_${r.status}`);
@@ -852,6 +860,85 @@
                 if (attempt < 4) return robustFetch(url, attempt + 1);
                 throw e;
             }
+        }
+        
+        async function fetchText(url, attempt = 0) {
+            const proxy = CONFIG.PROXIES[attempt % CONFIG.PROXIES.length];
+            try {
+                if (attempt === 0) {
+                    try {
+                        const r = await fetch(url);
+                        if (r.ok) return await r.text();
+                    } catch (e) { /* ignore */ }
+                }
+
+                const fetchUrl = proxy.url(url);
+                const r = await fetch(fetchUrl);
+                if(!r.ok) throw new Error(`HTTP_${r.status}`);
+                const d = await r.json(); 
+                if (d.contents) return d.contents; 
+                return JSON.stringify(d); // Fallback
+            } catch (e) {
+                if (attempt < 4) return fetchText(url, attempt + 1);
+                throw e;
+            }
+        }
+
+        // --- Stream Consumer Implementation ---
+        function parseAndConsumeBuffer(buffer) {
+            const results = [];
+            let braceCount = 0;
+            let startIndex = -1;
+            let inString = false;
+            let isEscaped = false;
+            let lastEndIndex = 0;
+
+            for (let i = 0; i < buffer.length; i++) {
+                const char = buffer[i];
+                
+                if (inString) {
+                    if (char === '\\' && !isEscaped) {
+                        isEscaped = true;
+                    } else {
+                        if (char === '"' && !isEscaped) {
+                            inString = false;
+                        }
+                        isEscaped = false;
+                    }
+                } else {
+                    if (char === '"') {
+                        inString = true;
+                    } else if (char === '{') {
+                        if (braceCount === 0) startIndex = i;
+                        braceCount++;
+                    } else if (char === '}') {
+                        braceCount--;
+                        if (braceCount === 0 && startIndex !== -1) {
+                            // Found a complete object
+                            const potentialJson = buffer.substring(startIndex, i + 1);
+                            try {
+                                const obj = JSON.parse(potentialJson);
+                                results.push(obj);
+                                lastEndIndex = i + 1;
+                                startIndex = -1; // Reset for next object
+                            } catch (e) {
+                                // Invalid JSON (very rare in this specific context unless truncated inside string)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return {
+                objects: results,
+                remaining: buffer.substring(lastEndIndex)
+            };
+        }
+        
+        // Backward compatibility function if needed (kept for reference, not used in main path now)
+        function* extractJsonObjects(text) {
+             const { objects } = parseAndConsumeBuffer(text);
+             for (const obj of objects) yield obj;
         }
 
         window.onload = () => {
@@ -970,47 +1057,124 @@
 
             updateProgress(0, t.loading, "Initializing...");
 
-            // 提前尝试加载单位库，但不阻塞主流程太久
             ensureGlobalUnitList();
 
             try {
                 let uid = input;
-                let userData = null;
-                if (input.length > 10 || isNaN(input)) {
+                let steamId = input;
+                
+                // 1. Resolve Steam ID if needed
+                if (input.length < 16) { // Assuming internal ID is shorter than Steam64
                     updateProgress(5, "Resolving...", "Checking Identity...");
-                    userData = await robustFetch(`https://www.barmory.net/stb/commander/${input}/steam`);
-                    uid = String(userData.id);
+                    const userData = await robustFetch(`https://batrace.aoeiaol.top/api/v1/players/${input}`);
+                    if (!userData.steam_id) throw new Error("Could not resolve Steam ID");
+                    steamId = userData.steam_id;
+                    uid = String(userData.id); // Internal ID used for logic later
                 }
 
-                updateProgress(10, "Scanning...", "Pulling Matches...");
-                const timeStr = new Date().toISOString().split('T')[0] + '_' + new Date().getHours().toString().padStart(2,'0');
-                const matchList = await robustFetch(`https://www.barmory.net/stb/commander/${uid}/matches?time=${timeStr}`);
+                updateProgress(10, "Connecting...", "Establishing Data Stream...");
+                
+                const matchesUrl = `https://batrace.aoeiaol.top/api/v1/matches_steam64?steam64=${steamId}`;
                 
                 const validMatches = [];
-                for(let i=0; i < matchList.length && validMatches.length < CONFIG.MATCH_GOAL; i++) {
-                    const mId = matchList[i];
-                    try {
-                        const detail = await robustFetch(`https://www.barmory.net/stb/match/${mId}`);
-                        const players = Object.values(detail.Data);
-                        const hasEloChange = players.some(p => Math.abs(p.NewRating - p.OldRating) > 0.01);
-                        if(players.length >= CONFIG.MIN_PLAYERS && hasEloChange) {
-                            validMatches.push({ id: mId, data: detail });
-                            const prg = Math.round((validMatches.length / CONFIG.MATCH_GOAL) * 100);
-                            updateProgress(prg, `Syncing (${validMatches.length}/12)`, `Match ${mId} OK`);
+                let buffer = "";
+                let streamReader = null;
+                
+                try {
+                    // Try Streaming Direct Fetch (Fastest & Best Progress Bar)
+                    const response = await fetch(matchesUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    
+                    const reader = response.body.getReader();
+                    streamReader = reader;
+                    const decoder = new TextDecoder("utf-8");
+                    
+                    updateProgress(12, "Downloading...", "Streaming Matches...");
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        buffer += decoder.decode(value, { stream: true });
+                        
+                        // Parse buffer incrementally
+                        const { objects, remaining } = parseAndConsumeBuffer(buffer);
+                        buffer = remaining;
+                        
+                        // Process objects as they arrive
+                        for (const obj of objects) {
+                            if (obj.type === "match" && obj.data) {
+                                const mData = obj.data;
+                                const players = Object.values(mData.Data || {});
+                                const hasEloChange = players.some(p => Math.abs(p.NewRating - p.OldRating) > 0.01);
+                                
+                                if (players.length >= CONFIG.MIN_PLAYERS && hasEloChange) {
+                                    validMatches.push({ id: mData.fightId || mData.id, data: mData });
+                                    
+                                    // Update Progress Real-time
+                                    // Map 12 matches to 15% -> 95% range
+                                    const progress = 15 + Math.round((validMatches.length / CONFIG.MATCH_GOAL) * 80);
+                                    updateProgress(
+                                        progress, 
+                                        `Analyzing (${validMatches.length}/${CONFIG.MATCH_GOAL})`, 
+                                        `Found Match ${mData.fightId || mData.id}`
+                                    );
+                                }
+                            }
                         }
-                    } catch(e) { console.error(`Match ${mId} Failed`, e); }
-                    await new Promise(r => setTimeout(r, 600)); 
+
+                        // Early exit to save bandwidth
+                        if (validMatches.length >= CONFIG.MATCH_GOAL) {
+                            console.log("Goal reached, closing stream.");
+                            await reader.cancel();
+                            break;
+                        }
+                    }
+                    
+                } catch (streamError) {
+                    console.warn("Stream failed, fallback to legacy load", streamError);
+                    // Fallback to old full-load method if stream fails (e.g. strict CORS/Proxy needed)
+                    // This will be slower and jumpy but works
+                    const rawText = await fetchText(matchesUrl);
+                    updateProgress(50, "Parsing...", "Processing Full Data...");
+                    
+                    // Use the generator for the full text
+                    for (const obj of extractJsonObjects(rawText)) {
+                        if (validMatches.length >= CONFIG.MATCH_GOAL) break;
+                        if (obj.type === "match" && obj.data) {
+                            const mData = obj.data;
+                            const players = Object.values(mData.Data || {});
+                            if (players.length >= CONFIG.MIN_PLAYERS && players.some(p => Math.abs(p.NewRating - p.OldRating) > 0.01)) {
+                                validMatches.push({ id: mData.fightId || mData.id, data: mData });
+                            }
+                        }
+                    }
+                }
+                
+                if (validMatches.length < 1) throw new Error(t.err_insufficient);
+                
+                // Logic to ensure correct internal ID if we started with SteamID
+                if (uid === steamId && validMatches.length > 0) {
+                     // Heuristic: Find player present in all valid matches
+                    const idCounts = {};
+                    validMatches.forEach(m => {
+                        Object.keys(m.data.Data).forEach(pid => {
+                            idCounts[pid] = (idCounts[pid] || 0) + 1;
+                        });
+                    });
+                    const candidates = Object.keys(idCounts).filter(pid => idCounts[pid] === validMatches.length);
+                    if (candidates.length > 0) uid = candidates[0]; 
                 }
 
-                if(validMatches.length < CONFIG.MATCH_GOAL) throw new Error(t.err_insufficient);
-                
+                updateProgress(100, "Done", "Rendering...");
+
                 const finalMe = validMatches[0].data.Data[uid];
-                saveHistory(uid, finalMe?.Name);
+                saveHistory(input, finalMe?.Name); 
                 
                 document.getElementById('userNameDisplay').innerText = `${finalMe?.Name || 'Unknown'} ${finalMe?.Level ? '(Lv.' + finalMe.Level + ')' : ''}`;
                 document.getElementById('calcTimeDisplay').innerText = `Calculated: ${new Date().toLocaleString()}`;
 
-                // 渲染主界面
+                // Render
                 processFinalData(uid, validMatches);
 
             } catch (e) {
@@ -1072,15 +1236,12 @@
         }
 
         async function fetchAndShowUnitStickers(favUnits) {
-            // 确保字典加载（如果还没加载完的话）
             await ensureGlobalUnitList();
 
             const container = document.getElementById('unitStickerContainer');
             if(!container) return;
-            // ============================================
-            // [FIX] 修复：在这里添加清空逻辑，防止重复追加
             container.innerHTML = ''; 
-            // ============================================
+            
             const items = [
                 { type: 'dmg', unit: favUnits.topDmg, icon: '⚡', labelPrefix: { zh: '输出', en: 'Dmg', ja: '火力', ru: 'Dmg' } },
                 { type: 'kill', unit: favUnits.topKill, icon: '🔫', labelPrefix: { zh: '击杀', en: 'Kill', ja: '撃破', ru: 'Kill' } },
@@ -1092,7 +1253,6 @@
 
                 let name = getUnitDisplayName(item.unit.id);
                 
-                // 只有当有单位名时才显示
                 if (name) {
                     const el = document.createElement('div');
                     let colorClass = "bg-slate-600/20 border-slate-500/50 text-slate-300";
@@ -1196,7 +1356,6 @@
                         Object.values(p.UnitData).forEach(u => {
                             if (!u.Id) return;
                             if (!unitAgg[u.Id]) unitAgg[u.Id] = { d: 0, k: 0, t: 0 };
-                            // 累加同ID单位的数据
                             unitAgg[u.Id].d += (u.TotalDamageDealt || 0);
                             unitAgg[u.Id].k += (u.KilledCount || 0);
                             unitAgg[u.Id].t += (u.TotalDamageReceived || 0);
@@ -1218,7 +1377,7 @@
                         kScore: k, lScore: l, oScore: p.ObjectivesCaptured || 0, kd: k / (l || 1),
                         rawData: p,
                         medals: [],
-                        favUnits: { d: topD, k: topK, t: topT } // Store fav units
+                        favUnits: { d: topD, k: topK, t: topT }
                     };
                 };
 
@@ -1274,7 +1433,6 @@
                 };
             });
 
-            // Store stats globally so click handlers can access them
             CURRENT_MATCH_STATS = stats;
 
             const topMedals = Object.entries(medalCounts)
@@ -1311,7 +1469,6 @@
             document.getElementById('ref_avgOR').innerText = `#${avgOR.toFixed(1)}`;
             document.getElementById('ref_WR').innerText = Math.round((wins / stats.length) * 100) + '%';
 
-            // --- 渲染徽章贴纸 (右侧) ---
             const container = document.querySelector('.tag-sticker-container');
             container.innerHTML = ''; 
 
@@ -1357,7 +1514,6 @@
                 container.appendChild(el);
             });
 
-            // Trend
             const recentAvg = stats.slice(0,3).reduce((a,b)=>a+b.myRank,0)/3;
             const oldAvg = stats.slice(3).reduce((a,b)=>a+b.myRank,0)/9;
             const trendText = recentAvg < oldAvg - 0.4 ? t.trend_up : (recentAvg > oldAvg + 0.4 ? t.trend_down : t.trend_flat);
@@ -1367,7 +1523,6 @@
             trendEl.innerText = trendText;
             container.appendChild(trendEl);
 
-            // Elo
             if (stats.length > 0) {
                 const currentMe = stats[0].ally.find(p => p.isMe);
                 if (currentMe) {
@@ -1432,7 +1587,6 @@
                             </div>`;
                     }).join('')}</div>` : '';
 
-                // --- 渲染爱用单位图标 (重构为直显三排) ---
                 let favHtml = '';
                 if (p.favUnits) {
                     const uD = p.favUnits.d.id > 0 ? getUnitDisplayName(p.favUnits.d.id) : '';
@@ -1441,7 +1595,6 @@
                     
                     const renderTag = (name, val, colorClass, textClass) => {
                         if (!name) return '';
-                        // 手机电脑统一显示: 名字+数值 (去掉了图标参数)
                         return `<div class="match-unit-tag ${textClass} ${colorClass}">
                             <span class="truncate opacity-90 flex-1">${name}</span>
                             <span class="ml-1 opacity-70">${val}</span>
@@ -1489,7 +1642,6 @@
             const match = CURRENT_MATCH_STATS.find(m => String(m.id) === String(matchId));
             if(!match) return;
 
-            // Search in ally and enemy
             let player = match.ally.find(p => String(p.id) === String(playerId));
             if (!player) player = match.enemy.find(p => String(p.id) === String(playerId));
             if (!player) return;
@@ -1507,7 +1659,6 @@
             document.getElementById('pd_obj').innerText = Math.round(player.oScore).toLocaleString();
             document.getElementById('pd_kd').innerText = player.kd.toFixed(2);
 
-            // Detailed Stats
             document.getElementById('pd_dmg_dealt').innerText = Math.round(raw.DamageDealt || 0).toLocaleString();
             document.getElementById('pd_dmg_taken').innerText = Math.round(raw.DamageReceived || 0).toLocaleString();
             document.getElementById('pd_supply').innerText = Math.round(raw.SupplyPointsConsumed || 0).toLocaleString();
@@ -1515,7 +1666,6 @@
             document.getElementById('pd_supply_give').innerText = Math.round(raw.SupplyPointsConsumedByAllies || 0).toLocaleString();
             document.getElementById('pd_units').innerText = Math.round(raw.TotalSpawnedUnitScore || 0).toLocaleString();
 
-            // Top Units
             const setTopUnit = (prefix, unitObj) => {
                 const name = unitObj && unitObj.id > 0 ? getUnitDisplayName(unitObj.id) : '-';
                 const val = unitObj && unitObj.v > -1 ? Math.round(unitObj.v).toLocaleString() : '0';
@@ -1580,7 +1730,20 @@
             resultArea.classList.add('hidden');
 
             try {
-                const detail = await robustFetch(`https://www.barmory.net/stb/match/${mid}`);
+                // Replaced Barmory with Batrace API
+                const dataRaw = await robustFetch(`https://batrace.aoeiaol.top/api/v1/matches/${mid}`);
+                
+                // Batrace might return the raw match object directly.
+                // Or it might be wrapped. Assuming standard Batrace response structure where root is match object.
+                let detail = { Data: dataRaw.Data, WinnerTeam: dataRaw.WinnerTeam, EndMatchReason: dataRaw.EndMatchReason };
+                if (!detail.Data && dataRaw.data) {
+                    // Handle potential wrapped structure
+                    detail = dataRaw.data;
+                } else if (!detail.Data) {
+                    // Assuming dataRaw IS the match object which contains Data
+                    detail = dataRaw;
+                }
+                
                 const data = detail.Data;
                 
                 if (detail.WinnerTeam === undefined) {
@@ -1646,6 +1809,7 @@
             listEl.innerHTML = '';
 
             try {
+                // Keep this Batrace API call as it was already correct in the source provided
                 const url = `https://batrace.aoeiaol.top/api/v1/search/players?q=${encodeURIComponent(name)}&limit=20`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error("API Request Failed");
@@ -1715,6 +1879,3 @@
     </script>
 </body>
 </html>
-
-
-
