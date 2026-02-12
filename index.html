@@ -1064,12 +1064,12 @@
                 let steamId = input;
                 
                 // 1. Resolve Steam ID if needed
-                if (input.length < 16) { // Assuming internal ID is shorter than Steam64
+                if (input.length < 16) { 
                     updateProgress(5, "Resolving...", "Checking Identity...");
                     const userData = await robustFetch(`https://batrace.aoeiaol.top/api/v1/players/${input}`);
                     if (!userData.steam_id) throw new Error("Could not resolve Steam ID");
                     steamId = userData.steam_id;
-                    uid = String(userData.id); // Internal ID used for logic later
+                    uid = String(userData.id); 
                 }
 
                 updateProgress(10, "Connecting...", "Establishing Data Stream...");
@@ -1078,30 +1078,33 @@
                 
                 const validMatches = [];
                 let buffer = "";
-                let streamReader = null;
+                
+                // [设置] 最大尝试获取 50 局，用于覆盖乱序数据
+                const FETCH_LIMIT = 50; 
                 
                 try {
-                    // Try Streaming Direct Fetch (Fastest & Best Progress Bar)
                     const response = await fetch(matchesUrl);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     
                     const reader = response.body.getReader();
-                    streamReader = reader;
                     const decoder = new TextDecoder("utf-8");
                     
                     updateProgress(12, "Downloading...", "Streaming Matches...");
 
                     while (true) {
                         const { done, value } = await reader.read();
-                        if (done) break;
+                        
+                        // [逻辑] 如果流结束了（玩家数据读完了），或者已经收集到了 50 局，就停止
+                        if (done || validMatches.length >= FETCH_LIMIT) {
+                            if (!done) await reader.cancel(); // 如果是因为到了 50 局而停止，主动断开
+                            console.log("Stream fetch finished or limit reached.");
+                            break;
+                        }
                         
                         buffer += decoder.decode(value, { stream: true });
-                        
-                        // Parse buffer incrementally
                         const { objects, remaining } = parseAndConsumeBuffer(buffer);
                         buffer = remaining;
                         
-                        // Process objects as they arrive
                         for (const obj of objects) {
                             if (obj.type === "match" && obj.data) {
                                 const mData = obj.data;
@@ -1111,36 +1114,25 @@
                                 if (players.length >= CONFIG.MIN_PLAYERS && hasEloChange) {
                                     validMatches.push({ id: mData.fightId || mData.id, data: mData });
                                     
-                                    // Update Progress Real-time
-                                    // Map 12 matches to 15% -> 95% range
-                                    const progress = 15 + Math.round((validMatches.length / CONFIG.MATCH_GOAL) * 80);
+                                    // 进度条显示：分母显示 50，让用户知道我们在尝试获取更多样本
+                                    const progress = 15 + Math.round((validMatches.length / FETCH_LIMIT) * 80);
                                     updateProgress(
-                                        progress, 
-                                        `Analyzing (${validMatches.length}/${CONFIG.MATCH_GOAL})`, 
-                                        `Found Match ${mData.fightId || mData.id}`
+                                        Math.min(progress, 99), 
+                                        `Analyzing...`, 
+                                        `Found ${validMatches.length} Matches`
                                     );
                                 }
                             }
-                        }
-
-                        // Early exit to save bandwidth
-                        if (validMatches.length >= CONFIG.MATCH_GOAL) {
-                            console.log("Goal reached, closing stream.");
-                            await reader.cancel();
-                            break;
                         }
                     }
                     
                 } catch (streamError) {
                     console.warn("Stream failed, fallback to legacy load", streamError);
-                    // Fallback to old full-load method if stream fails (e.g. strict CORS/Proxy needed)
-                    // This will be slower and jumpy but works
                     const rawText = await fetchText(matchesUrl);
                     updateProgress(50, "Parsing...", "Processing Full Data...");
                     
-                    // Use the generator for the full text
                     for (const obj of extractJsonObjects(rawText)) {
-                        if (validMatches.length >= CONFIG.MATCH_GOAL) break;
+                        if (validMatches.length >= FETCH_LIMIT) break;
                         if (obj.type === "match" && obj.data) {
                             const mData = obj.data;
                             const players = Object.values(mData.Data || {});
@@ -1151,31 +1143,43 @@
                     }
                 }
                 
-                if (validMatches.length < 1) throw new Error(t.err_insufficient);
-                
-                // Logic to ensure correct internal ID if we started with SteamID
-                if (uid === steamId && validMatches.length > 0) {
-                     // Heuristic: Find player present in all valid matches
+                // [步骤 1] 先按时间倒序排列（处理 API 返回乱序的问题）
+                validMatches.sort((a, b) => {
+                    const tA = a.data.EndTime || 0;
+                    const tB = b.data.EndTime || 0;
+                    return tB - tA; // 降序：最新的在最前
+                });
+
+                // [步骤 2] 严格检查：如果总有效对局不足 12 局，抛出错误
+                // 这会处理“只有 8 局”的情况 -> 报错
+                // 也会处理“只有 14 局”的情况 -> 通过
+                if (validMatches.length < CONFIG.MATCH_GOAL) {
+                    throw new Error(t.err_insufficient);
+                }
+
+                // [步骤 3] 截取最新的 12 局
+                const finalMatches = validMatches.slice(0, CONFIG.MATCH_GOAL);
+
+                if (uid === steamId && finalMatches.length > 0) {
                     const idCounts = {};
-                    validMatches.forEach(m => {
+                    finalMatches.forEach(m => {
                         Object.keys(m.data.Data).forEach(pid => {
                             idCounts[pid] = (idCounts[pid] || 0) + 1;
                         });
                     });
-                    const candidates = Object.keys(idCounts).filter(pid => idCounts[pid] === validMatches.length);
+                    const candidates = Object.keys(idCounts).filter(pid => idCounts[pid] === finalMatches.length);
                     if (candidates.length > 0) uid = candidates[0]; 
                 }
 
                 updateProgress(100, "Done", "Rendering...");
 
-                const finalMe = validMatches[0].data.Data[uid];
+                const finalMe = finalMatches[0].data.Data[uid];
                 saveHistory(input, finalMe?.Name); 
                 
                 document.getElementById('userNameDisplay').innerText = `${finalMe?.Name || 'Unknown'} ${finalMe?.Level ? '(Lv.' + finalMe.Level + ')' : ''}`;
                 document.getElementById('calcTimeDisplay').innerText = `Calculated: ${new Date().toLocaleString()}`;
 
-                // Render
-                processFinalData(uid, validMatches);
+                processFinalData(uid, finalMatches);
 
             } catch (e) {
                 document.getElementById('errorArea').classList.remove('hidden');
