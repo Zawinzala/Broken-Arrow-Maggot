@@ -8,14 +8,12 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>断箭蛆指数 v3.35 - By Zola</title>
+    <title>断箭蛆指数 V4 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 增加 overflow-x-hidden 防止移动端横向滚动 */
         body { background-color: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; overflow-x: hidden; }
         .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .bar-container { background: rgba(0,0,0,0.5); height: 6px; border-radius: 4px; overflow: hidden; flex: 1; } 
@@ -31,34 +29,18 @@
         .maggot-meter-bg { background: linear-gradient(90deg, #22c55e 0%, #eab308 50%, #ef4444 100%); height: 18px; border-radius: 9px; position: relative; }
         .maggot-indicator { position: absolute; top: -4px; width: 6px; height: 26px; background: white; border: 2px solid #000; transform: translateX(-50%); transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
         
-        /* --- 贴纸容器 (右侧 - 评价) --- */
         .tag-sticker-container { position: absolute; top: 1rem; right: 1rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; z-index: 30; transform-origin: top right; transform: scale(0.75); pointer-events: none; }
         @media (min-width: 768px) { .tag-sticker-container { top: 1.5rem; right: 1.5rem; gap: 0.75rem; transform: scale(1); } }
         
-        /* --- 贴纸容器 (左侧 - 累计爱用单位) --- */
         .tag-sticker-container-left { position: absolute; top: 1rem; left: 1rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; z-index: 30; transform-origin: top left; transform: scale(0.75); pointer-events: none; }
         @media (min-width: 768px) { .tag-sticker-container-left { top: 1.5rem; left: 1.5rem; gap: 0.75rem; transform: scale(1); } }
 
         .tag-sticker { 
-            pointer-events: auto; 
-            padding: 0.5rem 1.25rem; 
-            border-radius: 0.75rem; 
-            font-weight: 900; 
-            font-style: italic; 
-            font-size: 0.9rem; 
-            text-transform: uppercase; 
-            transform: rotate(8deg); 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4); 
-            border-width: 2px; 
-            animation: tagPop 0.5s ease-out forwards; 
-            opacity: 0; 
-            white-space: nowrap; 
+            pointer-events: auto; padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-weight: 900; font-style: italic; 
+            font-size: 0.9rem; text-transform: uppercase; transform: rotate(8deg); box-shadow: 0 6px 15px rgba(0,0,0,0.4); 
+            border-width: 2px; animation: tagPop 0.5s ease-out forwards; opacity: 0; white-space: nowrap; 
         }
-        
-        .tag-sticker-left {
-            transform: rotate(-5deg);
-            animation: tagPopLeft 0.5s ease-out forwards;
-        }
+        .tag-sticker-left { transform: rotate(-5deg); animation: tagPopLeft 0.5s ease-out forwards; }
 
         @keyframes tagPop { from { opacity: 0; transform: scale(0.5) rotate(20deg); } to { opacity: 1; transform: scale(1) rotate(8deg); } }
         @keyframes tagPopLeft { from { opacity: 0; transform: scale(0.5) rotate(-15deg); } to { opacity: 1; transform: scale(1) rotate(-5deg); } }
@@ -71,85 +53,38 @@
         .is-me { background: rgba(6, 182, 212, 0.15) !important; border-left: 3px solid #06b6d4; }
         @media (min-width: 768px) { .is-me { border-left-width: 5px; } }
 
-        .id-link { cursor: pointer; color: #94a3b8; font-family: ui-monospace, monospace; font-size: 0.7rem; border-bottom: 1px dotted #64748b; width: fit-content; opacity: 0.7; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-        @media (min-width: 768px) { .id-link { font-size: 0.75rem; } }
-        .id-link:hover { color: #22d3ee; border-bottom-color: #22d3ee; opacity: 1; }
-        
         .history-chip { font-size: 0.85rem; padding: 6px 14px; background: #1e293b; border: 1px solid #475569; border-radius: 99px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
         .history-chip:hover { border-color: #06b6d4; color: #22d3ee; background: #0f172a; }
         .history-del { font-size: 1.1rem; line-height: 1; opacity: 0.5; }
         .result-fade { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Modal Styles */
         .modal-backdrop { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); }
         .search-result-item:hover { background: rgba(249, 115, 22, 0.1); border-color: rgba(249, 115, 22, 0.5); }
         
-        .medal-badge { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 2px;
-            padding: 2px 4px; 
-            border-radius: 4px; 
-            background: rgba(255,255,255,0.08); 
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.2s;
-            cursor: help;
-            flex-shrink: 0; /* 防止挤压，强制换行 */
-        }
+        .medal-badge { display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px; border-radius: 4px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; cursor: help; flex-shrink: 0; }
         @media (min-width: 768px) { .medal-badge { gap: 4px; padding: 2px 6px; border-radius: 6px; } }
-
-        .medal-badge:hover { 
-            background: rgba(255,255,255,0.15); 
-            transform: translateY(-1px);
-            border-color: rgba(255,255,255,0.2);
-        }
+        .medal-badge:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); border-color: rgba(255,255,255,0.2); }
         
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-        
-        /* 单局单位标签样式 - 紧凑型 */
-        .match-unit-tag {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 1px 4px;
-            border-radius: 3px;
-            font-size: 10px; /* 小字体 */
-            line-height: 1.2;
-            width: 100%;
-            overflow: hidden;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.05);
-            white-space: nowrap;
-        }
 
-        .stat-grid-item {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
+        .stat-grid-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .stat-grid-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
-        .stat-grid-value { font-size: 14px; font-weight: bold; color: #e2e8f0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        .stat-grid-value { font-size: 14px; font-weight: bold; color: #e2e8f0; font-family: ui-monospace, monospace; }
     </style>
 </head>
 <body class="min-h-screen pt-4 px-2 pb-24 md:pt-10 md:px-4">
 
-    <div class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 md:mb-8 px-2">
+    <div class="w-full max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 px-2 gap-4">
         <div class="flex gap-4 items-center">
             <a href="https://github.com/Zawinzala/Broken-Arrow-Maggot" target="_blank" class="flex items-center gap-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 hover:text-white transition group">
-                <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
                 <span class="text-[10px] md:text-xs font-mono font-bold">GitHub</span>
             </a>
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">v3.34 Detail View</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">V4</div>
         </div>
-        <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
+        <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700 flex-wrap justify-center">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
             <button onclick="setLang('zh')" id="btn_lang_zh" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">中文</button>
             <button onclick="setLang('ru')" id="btn_lang_ru" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">Русский</button>
@@ -164,29 +99,22 @@
                 <span class="text-base md:text-xl text-cyan-500 italic mt-2 md:mt-0 md:ml-4 opacity-80 font-serif">By Zola</span>
             </h1>
             <div class="flex justify-center gap-6 mb-4">
-                <a href="https://batrace.aoeiaol.top/" target="_blank" class="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-700 hover:text-white transition-all font-medium">Data Source: Batrace API</a>
+                <a href="https://dash.batrace.top/" target="_blank" class="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-700 hover:text-white transition-all font-medium">Data Source: Batrace Dash API</a>
             </div>
             <p class="text-cyan-400 font-mono text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold" id="lbl_subtitle">Player Behavior Analysis</p>
         </div>
 
         <div class="flex flex-col items-center mb-10 md:mb-16">
             <div class="flex flex-col md:flex-row gap-3 md:gap-4 w-full max-w-2xl relative">
-                <input type="text" id="steamInput" class="flex-1 bg-slate-900 border-2 border-slate-700 text-white p-4 md:p-5 rounded-xl md:rounded-2xl text-center text-base md:text-lg focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none transition-all placeholder-slate-600 shadow-2xl font-medium">
+                <input type="text" id="steamInput" class="flex-1 bg-slate-900 border-2 border-slate-700 text-white p-4 md:p-5 rounded-xl md:rounded-2xl text-center text-base md:text-lg focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none transition-all placeholder-slate-600 shadow-2xl font-medium" onkeydown="if(event.key === 'Enter') handleCheck()">
                 <button onclick="handleCheck()" id="btn_check" class="bg-cyan-600 hover:bg-cyan-500 text-white font-black px-12 py-4 md:py-5 rounded-xl md:rounded-2xl shadow-xl transform active:scale-95 transition-all text-base md:text-lg whitespace-nowrap">开始检测</button>
             </div>
             
             <div class="flex flex-row flex-wrap justify-center gap-2 md:gap-6 mt-4">
                 <button onclick="openSearchModal()" class="text-slate-400 text-xs md:text-sm hover:text-orange-400 transition flex items-center gap-2 group p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
                     <span id="lbl_find_id_btn" class="border-b border-dotted border-slate-600 group-hover:border-orange-400">不知道 ID？通过用户名查找</span>
                 </button>
-
                 <button onclick="openMatchSearchModal()" class="text-slate-400 text-xs md:text-sm hover:text-cyan-400 transition flex items-center gap-2 group p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
                     <span id="lbl_find_match_btn" class="border-b border-dotted border-slate-600 group-hover:border-cyan-400">只知道对局 ID？通过对局查玩家</span>
                 </button>
             </div>
@@ -200,7 +128,7 @@
                 <span id="loadPercent">0%</span>
             </div>
             <div class="load-progress-bg"><div id="loadProgressFill" class="load-progress-fill"></div></div>
-            <p class="text-xs text-slate-500 mt-3 font-mono font-medium" id="loadDetail">Synchronizing Data Chains...</p>
+            <p class="text-xs text-slate-500 mt-3 font-mono font-medium" id="loadDetail">Fetching Dash API...</p>
         </div>
 
         <div id="errorArea" class="hidden mb-10 max-w-2xl mx-auto bg-red-900/30 border border-red-500/50 text-red-100 p-6 rounded-3xl text-base text-center font-bold">
@@ -209,17 +137,17 @@
 
         <div id="resultPanel" class="hidden result-fade">
             <div class="bg-slate-800/60 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-white/10 flex flex-col items-center mb-10 md:mb-16 relative overflow-hidden">
-                <!-- 右侧评价贴纸 -->
-                <div class="tag-sticker-container"></div>
-                <!-- 左侧累计爱用单位贴纸 -->
+                <div class="tag-sticker-container" id="rightStickerContainer"></div>
                 <div class="tag-sticker-container-left" id="unitStickerContainer"></div>
 
                 <div class="text-center mb-4 mt-2 md:mt-0 w-full px-2">
-                    <div id="userNameDisplay" class="text-xl md:text-3xl font-black text-white mb-2 truncate">Commander Name</div>
-                    <div id="calcTimeDisplay" class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Calculated: 2024-01-01 00:00:00</div>
+                    <div id="userNameDisplay" class="text-2xl md:text-4xl font-black text-white mb-2 truncate">Commander Name</div>
+                    <div id="calcTimeDisplay" class="text-[10px] md:text-xs font-mono text-slate-400 uppercase tracking-widest bg-black/20 inline-block px-4 py-1.5 rounded-full border border-white/5">
+                        Lv.0 <span class="mx-1 md:mx-2 opacity-30">|</span> ELO 0 <span class="mx-1 md:mx-2 opacity-30">|</span> 2024-01-01
+                    </div>
                 </div>
 
-                <h2 class="text-slate-400 text-xs md:text-sm font-black uppercase tracking-[0.2em] mb-2" id="lbl_maggot_index_title">综合评价</h2>
+                <h2 class="text-slate-400 text-xs md:text-sm font-black uppercase tracking-[0.2em] mb-2 mt-4" id="lbl_maggot_index_title">综合评价</h2>
                 <div class="text-[6rem] md:text-[10rem] font-black text-white leading-none mb-4 md:mb-6" id="maggotScoreDisplay" style="text-shadow: 0 5px 25px rgba(0,0,0,0.4);">1.0</div>
                 <div id="maggotLabel" class="text-xl md:text-3xl font-black px-8 py-2 md:px-10 md:py-3 rounded-full bg-slate-900 border-2 border-white/10 shadow-2xl mb-8 md:mb-12">Unknown</div>
                 
@@ -231,26 +159,11 @@
                 </div>
 
                 <div class="w-full max-w-5xl grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 pt-8 md:pt-10 border-t-2 border-white/5">
-                    <div class="text-center">
-                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_kdr">平均 KD 排名</div>
-                        <div class="text-xl md:text-2xl font-mono font-black text-cyan-400" id="ref_avgKDR">#0.0</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_kr">平均击杀排名</div>
-                        <div class="text-xl md:text-2xl font-mono font-black text-green-400" id="ref_avgKR">#0.0</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_dr">爱兵如子排名</div>
-                        <div class="text-xl md:text-2xl font-mono font-black text-red-400" id="ref_avgDR">#0.0</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_or">平均占点排名</div>
-                        <div class="text-xl md:text-2xl font-mono font-black text-blue-400" id="ref_avgOR">#0.0</div>
-                    </div>
-                    <div class="text-center col-span-2 md:col-span-1">
-                        <div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1 md:mb-2" id="lbl_ref_wr">最近 12 局胜率</div>
-                        <div class="text-xl md:text-2xl font-mono font-black text-yellow-400" id="ref_WR">0%</div>
-                    </div>
+                    <div class="text-center"><div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1" id="lbl_ref_kdr">平均 KD 排名</div><div class="text-xl md:text-2xl font-mono font-black text-cyan-400" id="ref_avgKDR">#0.0</div></div>
+                    <div class="text-center"><div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1" id="lbl_ref_kr">平均击杀排名</div><div class="text-xl md:text-2xl font-mono font-black text-green-400" id="ref_avgKR">#0.0</div></div>
+                    <div class="text-center"><div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1" id="lbl_ref_dr">爱兵如子排名</div><div class="text-xl md:text-2xl font-mono font-black text-red-400" id="ref_avgDR">#0.0</div></div>
+                    <div class="text-center"><div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1" id="lbl_ref_or">平均MVP排名</div><div class="text-xl md:text-2xl font-mono font-black text-blue-400" id="ref_avgOR">#0.0</div></div>
+                    <div class="text-center col-span-2 md:col-span-1"><div class="text-[10px] md:text-xs text-slate-500 uppercase font-black mb-1" id="lbl_ref_wr">最近 12 局胜率</div><div class="text-xl md:text-2xl font-mono font-black text-yellow-400" id="ref_WR">0%</div></div>
                 </div>
             </div>
 
@@ -266,38 +179,24 @@
     <!-- Modals -->
     <div id="idSearchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 relative shadow-2xl bg-slate-900/90 border border-slate-600">
-            <button onclick="closeSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            <h2 id="modal_title" class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-1 text-center">玩家内部 ID 查询</h2>
-            <div class="text-[10px] text-slate-500 mb-6 text-center font-mono">Data from: <a href="https://dash.aoeiaol.top/" target="_blank" class="hover:text-orange-400 border-b border-dotted border-slate-600 transition">https://dash.aoeiaol.top/</a></div>
+            <button onclick="closeSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
+            <h2 id="modal_title" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-4 text-center">玩家查询</h2>
             <div class="flex gap-2 mb-2">
-                <input type="text" id="modalSearchInput" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-3 placeholder-slate-500" placeholder="输入游戏用户名..." onkeydown="if(event.key === 'Enter') doNameSearch()">
-                <button onclick="doNameSearch()" id="modal_btn_search" class="text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-800 font-medium rounded-lg text-sm px-6 py-3 transition whitespace-nowrap">查询</button>
+                <input type="text" id="modalSearchInput" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg w-full p-3" placeholder="输入游戏用户名..." onkeydown="if(event.key === 'Enter') doNameSearch()">
+                <button onclick="doNameSearch()" id="modal_btn_search" class="text-white bg-orange-600 hover:bg-orange-700 rounded-lg px-6 py-3">查询</button>
             </div>
             <div id="modalStatusMsg" class="text-xs text-slate-400 min-h-[1.5rem] mb-2 pl-1"></div>
             <div id="modalResultList" class="hidden rounded-xl overflow-hidden max-h-[300px] overflow-y-auto flex flex-col gap-1 pr-1 custom-scrollbar"></div>
-            <div id="modalFinalResult" class="hidden mt-4 bg-orange-900/10 border border-orange-500/20 rounded-xl p-4 text-center">
-                <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-1" id="lbl_modal_pname">玩家名称</div>
-                <div id="modalSelectedName" class="text-xl font-bold text-white mb-2"></div>
-                <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-1" id="lbl_modal_pid">内部 ID</div>
-                <div class="flex items-center justify-center gap-2 mb-3">
-                    <code id="modalSelectedId" class="bg-black/30 px-3 py-1 rounded text-orange-300 font-mono text-xl font-bold select-all"></code>
-                </div>
-                <button onclick="useFoundId()" id="btn_use_id" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-lg shadow-lg transition">使用此 ID 检测</button>
-            </div>
         </div>
     </div>
 
     <div id="matchSearchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
-        <div class="glass-panel w-full max-w-4xl rounded-2xl p-6 relative shadow-2xl bg-slate-900/95 border border-slate-600 flex flex-col max-h-[90vh]">
-            <button onclick="closeMatchSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            <h2 id="modal_match_title" class="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6 text-center">通过对局 ID 查找玩家</h2>
+        <div class="glass-panel w-full max-w-4xl rounded-2xl p-6 relative shadow-2xl bg-slate-900/95 flex flex-col max-h-[90vh]">
+            <button onclick="closeMatchSearchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-10">✕</button>
+            <h2 id="modal_match_title" class="text-xl md:text-2xl font-black text-cyan-400 mb-6 text-center">通过对局查找玩家</h2>
             <div class="flex gap-2 mb-4">
-                <input type="text" id="matchIdInput" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-xl focus:ring-cyan-500 focus:border-cyan-500 block w-full p-4 placeholder-slate-500 font-mono" placeholder="输入对局 ID..." onkeydown="if(event.key === 'Enter') doMatchSearch()">
-                <button onclick="doMatchSearch()" id="modal_match_btn_search" class="text-white bg-cyan-600 hover:bg-cyan-500 focus:ring-4 focus:outline-none focus:ring-cyan-800 font-bold rounded-xl text-sm px-6 py-4 transition whitespace-nowrap">获取战绩</button>
+                <input type="text" id="matchIdInput" class="bg-slate-800 border border-slate-600 text-white rounded-xl w-full p-4 font-mono" placeholder="输入对局 ID..." onkeydown="if(event.key === 'Enter') doMatchSearch()">
+                <button onclick="doMatchSearch()" id="modal_match_btn_search" class="text-white bg-cyan-600 hover:bg-cyan-500 rounded-xl px-6 py-4 font-bold">获取战绩</button>
             </div>
             <div id="matchModalStatus" class="text-xs mb-4 pl-1 text-center min-h-[1rem]"></div>
             <div id="matchModalResultArea" class="hidden flex-1 overflow-y-auto custom-scrollbar pr-2">
@@ -309,12 +208,10 @@
         </div>
     </div>
 
-    <!-- Player Detail Modal -->
+    <!-- 玩家详情模态框 -->
     <div id="playerDetailModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center modal-backdrop p-4">
         <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 relative shadow-2xl bg-slate-900/95 border border-slate-600 flex flex-col max-h-[90vh]">
-            <button onclick="closePlayerDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-10 p-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
+            <button onclick="closePlayerDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-10 p-2">✕</button>
             <div class="text-center mb-6">
                 <h2 id="pd_name" class="text-2xl font-black text-white">Player Name</h2>
                 <div class="flex justify-center gap-4 mt-2 text-xs text-slate-400 font-mono">
@@ -324,18 +221,17 @@
             </div>
             
             <div class="overflow-y-auto custom-scrollbar pr-2 flex-1">
-                <!-- Basic Stats -->
                 <div class="grid grid-cols-4 gap-2 mb-4">
                     <div class="stat-grid-item bg-green-900/20 border-green-500/30">
-                        <div class="stat-grid-label text-green-300" id="lbl_pd_kill">击杀分</div>
+                        <div class="stat-grid-label text-green-300">击杀经济</div>
                         <div class="stat-grid-value text-green-100" id="pd_kill">0</div>
                     </div>
                     <div class="stat-grid-item bg-red-900/20 border-red-500/30">
-                        <div class="stat-grid-label text-red-300" id="lbl_pd_loss">损失分</div>
+                        <div class="stat-grid-label text-red-300">损失经济</div>
                         <div class="stat-grid-value text-red-100" id="pd_loss">0</div>
                     </div>
                     <div class="stat-grid-item bg-blue-900/20 border-blue-500/30">
-                        <div class="stat-grid-label text-blue-300" id="lbl_pd_obj">占点分</div>
+                        <div class="stat-grid-label text-blue-300">MVP得分</div>
                         <div class="stat-grid-value text-blue-100" id="pd_obj">0</div>
                     </div>
                     <div class="stat-grid-item bg-yellow-900/20 border-yellow-500/30">
@@ -344,441 +240,120 @@
                     </div>
                 </div>
 
-                <!-- Detailed Stats -->
-                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-white/10 pb-1">Detailed Stats</h3>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
-                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_dmg_dealt">伤害输出</div><div class="stat-grid-value text-orange-400" id="pd_dmg_dealt">0</div></div>
-                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_dmg_taken">承受伤害</div><div class="stat-grid-value text-slate-400" id="pd_dmg_taken">0</div></div>
-                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_supply">补给消耗</div><div class="stat-grid-value text-yellow-400" id="pd_supply">0</div></div>
-                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_supply_ally">吃盟友补给</div><div class="stat-grid-value text-pink-400" id="pd_supply_ally">0</div></div>
-                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_supply_give">喂盟友补给</div><div class="stat-grid-value text-green-400" id="pd_supply_give">0</div></div>
-                    <div class="stat-grid-item"><div class="stat-grid-label" id="lbl_pd_units">单位总值</div><div class="stat-grid-value text-blue-400" id="pd_units">0</div></div>
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-white/10 pb-1">Economics & Combat</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                    <div class="stat-grid-item"><div class="stat-grid-label">伤害输出</div><div class="stat-grid-value text-orange-400" id="pd_dmg_dealt">0</div></div>
+                    <div class="stat-grid-item"><div class="stat-grid-label">出兵投入</div><div class="stat-grid-value text-slate-300" id="pd_units">0</div></div>
+                    <div class="stat-grid-item"><div class="stat-grid-label">退款回收</div><div class="stat-grid-value text-emerald-400" id="pd_refund">0</div></div>
+                    <div class="stat-grid-item"><div class="stat-grid-label">投资回报率</div><div class="stat-grid-value text-pink-400" id="pd_roi">0</div></div>
                 </div>
 
-                <!-- Top Units -->
-                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-white/10 pb-1">Top Units</h3>
-                <div class="grid grid-cols-1 gap-2">
-                    <div class="bg-slate-800/50 rounded p-2 flex justify-between items-center border-l-2 border-orange-500">
-                        <div class="text-xs text-orange-300 font-bold" id="lbl_pd_top_dmg">最高伤害</div>
-                        <div class="text-right"><div class="text-xs text-white font-bold" id="pd_top_dmg_name">-</div><div class="text-[10px] text-slate-400" id="pd_top_dmg_val">0</div></div>
-                    </div>
-                    <div class="bg-slate-800/50 rounded p-2 flex justify-between items-center border-l-2 border-red-500">
-                        <div class="text-xs text-red-300 font-bold" id="lbl_pd_top_kill">最高击杀</div>
-                        <div class="text-right"><div class="text-xs text-white font-bold" id="pd_top_kill_name">-</div><div class="text-[10px] text-slate-400" id="pd_top_kill_val">0</div></div>
-                    </div>
-                    <div class="bg-slate-800/50 rounded p-2 flex justify-between items-center border-l-2 border-blue-500">
-                        <div class="text-xs text-blue-300 font-bold" id="lbl_pd_top_tank">最高承伤</div>
-                        <div class="text-right"><div class="text-xs text-white font-bold" id="pd_top_tank_name">-</div><div class="text-[10px] text-slate-400" id="pd_top_tank_val">0</div></div>
-                    </div>
-                </div>
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-white/10 pb-1">Class Preferences</h3>
+                <!-- 新的兵种列表容器 -->
+                <div id="pd_categories_list" class="flex flex-col gap-2"></div>
             </div>
         </div>
     </div>
 
     <script>
-        const CONFIG = {
-            MATCH_GOAL: 12,
-            MIN_PLAYERS: 10,
-            PROXIES: [
-                { name: "Codetabs", url: (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
-                { name: "CorsProxy", url: (u) => `https://corsproxy.io/?${encodeURIComponent(u)}` },
-                { name: "AllOrigins", url: (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}&cb=${Date.now()}` }
-            ]
+        let CURRENT_MATCH_STATS = []; 
+
+        const API = {
+            INFO: (id) => `https://dash.batrace.top/api/players/info?stbid=${id}`,
+            ANALYSIS: (id) => `https://dash.batrace.top/api/analysis/player?stbid=${id}`,
+            MATCH: (id) => `https://dash.batrace.top/api/analysis/match?matchid=${id}`,
+            SEARCH: (q) => `https://dash.batrace.top/api/players/search?q=${encodeURIComponent(q)}&limit=20`
         };
 
-        const MEDAL_CONFIG = [
-            { key: 'Destruction', icon: '⚔️', color: 'text-red-400' },
-            { key: 'Losses', icon: '☠️', color: 'text-gray-400' }, 
-            { key: 'DamageDealt', icon: '💥', color: 'text-orange-400' }, 
-            { key: 'DamageReceived', icon: '🧱', color: 'text-slate-400' }, 
-            { key: 'SupplyPointsConsumed', icon: '🍔', color: 'text-yellow-400' }, 
-            { key: 'SupplyPointsConsumedFromAllies', icon: '🐱', color: 'text-pink-400' }, 
-            { key: 'SupplyPointsConsumedByAllies', icon: '🚑', color: 'text-green-400' }, 
-            { key: 'TotalSpawnedUnitScore', icon: '🛒', color: 'text-blue-400' }, 
-            { key: 'TotalRefundedUnitScore', icon: '💸', color: 'text-emerald-400' }
-        ];
+        const CONFIG = { MATCH_GOAL: 12, MIN_PLAYERS: 10 };
 
-        let UNIT_NAME_CACHE = {};
-        let IS_UNIT_CACHE_LOADED = false;
-        let CURRENT_MATCH_STATS = []; // Store stats globally for detail view
-        const UNIT_CACHE_KEY = 'ba_unit_dict';
-        const UNIT_CACHE_TS_KEY = 'ba_unit_dict_ts';
+        const BREAKDOWN_DEFS = {
+            destruction: { icon: '⚔️', color: 'text-red-400' },
+            damage: { icon: '💥', color: 'text-orange-400' },
+            dlRatio: { icon: '🛡️', color: 'text-emerald-400' },
+            efficiency: { icon: '💰', color: 'text-yellow-400' },
+            objectives: { icon: '🚩', color: 'text-blue-400' },
+            supply: { icon: '🍔', color: 'text-pink-400' } // 移除了 experience
+        };
+
+        const COLOR_STYLES = {
+            'text-red-400': 'bg-red-600/20 border-red-500/50 text-red-300',
+            'text-orange-400': 'bg-orange-600/20 border-orange-500/50 text-orange-300',
+            'text-emerald-400': 'bg-emerald-600/20 border-emerald-500/50 text-emerald-300',
+            'text-yellow-400': 'bg-yellow-600/20 border-yellow-500/50 text-yellow-300',
+            'text-blue-400': 'bg-blue-600/20 border-blue-500/50 text-blue-300',
+            'text-pink-400': 'bg-pink-600/20 border-pink-500/50 text-pink-300'
+        };
+
+        const CAT_ICONS = { infantry: '🪖', vehicles: '🚙', support: '🎯', helicopters: '🚁', aircrafts: '✈️', recon: '🔭', logistic: '📦' };
+        const CAT_NAMES = {
+            zh: { infantry: '步兵', vehicles: '载具', support: '支援', helicopters: '直升机', aircrafts: '战机', recon: '侦察', logistic: '后勤' },
+            en: { infantry: 'Infantry', vehicles: 'Vehicles', support: 'Support', helicopters: 'Helicopters', aircrafts: 'Aircrafts', recon: 'Recon', logistic: 'Logistics' },
+            ru: { infantry: 'Пехота', vehicles: 'Техника', support: 'Поддержка', helicopters: 'Вертолеты', aircrafts: 'Самолеты', recon: 'Разведка', logistic: 'Логистика' },
+            ja: { infantry: '歩兵', vehicles: '車両', support: '支援', helicopters: 'ヘリ', aircrafts: '航空機', recon: '偵察', logistic: '兵站' }
+        };
+
         const DICT = {
             zh: {
-                title: "断箭蛆指数", 
-                subtitle: "Broken Arrow Behavior Analysis", 
-                placeholder: "Steam64 ID 或 游戏内部数字 ID...", 
-                check: "开始检测", 
-                loading: "同步中...", 
-                maggot_index_title: "综合评价",
-                god_range: "神", 
-                avg_range: " ", 
-                maggot_range: "蛆",
-                history_title: "最近 12 局有效对局", 
-                find_id_btn: "不知道 ID？通过用户名查找",
-                find_match_btn: "只知道对局 ID？通过对局查玩家",
-                
-                modal_title: "玩家内部 ID 查询", 
-                modal_input_ph: "输入游戏用户名...", 
-                modal_btn_search: "查询",
-                modal_pname: "玩家名称", 
-                modal_pid: "内部 ID", 
-                modal_use_btn: "使用此 ID 检测",
-                modal_status_search: "搜索中...", 
-                modal_status_err: "出错了: ", 
-                modal_status_none: "未找到该玩家",
-                modal_status_found: "找到 {n} 个结果",
-                
-                modal_match_title: "通过对局 ID 查找玩家",
-                modal_match_input_ph: "输入对局 ID (如 184523)...",
-                modal_match_btn_search: "获取战绩",
-                modal_match_loading: "正在获取对局信息...",
-                modal_match_err: "获取失败，请检查 ID 是否正确",
-
-                kill: "击杀", loss: "损失", obj: "占点",
+                title: "断箭蛆指数", subtitle: "Broken Arrow Behavior Analysis", placeholder: "输入内部数字 ID...", 
+                check: "开始检测", loading: "获取数据中...", maggot_index_title: "综合评价",
+                god_range: "神", maggot_range: "蛆", history_title: "最近 12 局有效对局", 
+                find_id_btn: "不知道 ID？通过用户名查找", find_match_btn: "只知道对局 ID？通过对局查玩家",
+                kill: "击杀", loss: "损失", obj: "MVP",
                 levels: ["👑 神", "🦁 团队支柱", "😐 平平淡淡", "🐛 有点蛆", "💩 蛆！"],
-                tag_killer: "⚔️ 击杀为主", tag_kd: "📈 KD 为主", tag_obj: "🚩 占点为主",
-                trend_up: "🚀 最近变强", trend_down: "📉 最近变蛆", trend_flat: "➡️ 稳如泰山",
-                err_net: "网络拥塞，请稍后再试", err_insufficient: "有效对局不足 12 局",
-                lbl_ref_kdr: "平均 KD 排名", lbl_ref_kr: "平均击杀排名",
-                lbl_ref_dr: "爱兵如子排名", lbl_ref_or: "平均占点排名", lbl_ref_wr: "最近 12 局胜率",
+                trend_up: "🚀 最近变强", trend_down: "📉 最近变蛆", trend_flat: "➡️ 实力平稳",
+                err_net: "网络错误，由于跨域限制或接口宕机", err_insufficient: "有效对局不足 12 局",
+                lbl_ref_kdr: "平均 KD 排名", lbl_ref_kr: "平均击杀排名", lbl_ref_dr: "生存/经济排名", lbl_ref_or: "MVP得分排名", lbl_ref_wr: "最近 12 局胜率",
                 res_vic: "胜利", res_def: "失败", res_draw: "平局",
-                meta_map: "地图", meta_dur: "时长", meta_win: "获胜方",
-                reasons: { 1: "统治结束", 2: "正常结束", 3: "投降结束" },
-                medals: {
-                    Destruction: "口人魔", Losses: "送死王", DamageDealt: "炸炸炸", DamageReceived: "耐炸王",
-                    SupplyPointsConsumed: "大胃袋", SupplyPointsConsumedFromAllies: "小馋猫", SupplyPointsConsumedByAllies: "奶妈", 
-                    TotalSpawnedUnitScore: "采购官", TotalRefundedUnitScore: "仅退款"
-                },
-                medal_descs: {
-                    Destruction: "击杀得分全队最高", 
-                    Losses: "损失得分全队最高 (送分最多)", 
-                    DamageDealt: "对敌造成伤害总量全队最高", 
-                    DamageReceived: "承受伤害总量全队最高",
-                    SupplyPointsConsumed: "消耗补给总分全队最高", 
-                    SupplyPointsConsumedFromAllies: "消耗盟友补给分数全队最高", 
-                    SupplyPointsConsumedByAllies: "提供给盟友补给分数全队最高", 
-                    TotalSpawnedUnitScore: "招募单位总分全队最高", 
-                    TotalRefundedUnitScore: "退款单位总分全队最高"
-                },
-                trend_desc: "最近 6 局排名与历史平均排名的对比趋势",
-                elo_desc: "最新的 ELO 评分 (基于最新一局数据)",
-                
-                // New
-                lbl_fav_units_title: "玩家最爱单位 (最近 12 局累计)",
-                lbl_fav_dmg: "输出机器 (Total Dmg)",
-                lbl_fav_kill: "击杀机器 (Total Kills)",
-                lbl_fav_tank: "抗压机器 (Total Taken)",
-                
-                unit_dmg_title: "最高伤害",
-                unit_kill_title: "最高击杀",
-                unit_tank_title: "最高承伤",
-
-                // Detail Modal
-                pd_dmg_dealt: "伤害输出", pd_dmg_taken: "承受伤害",
-                pd_supply: "补给消耗", pd_supply_ally: "吃盟友补给", pd_supply_give: "喂盟友补给",
-                pd_units: "单位总值"
+                tags: { destruction: "歼灭大师", damage: "火力投送", dlRatio: "爱兵如子", efficiency: "精打细算", objectives: "攻防专家", supply: "战场奶妈" }
             },
             en: {
-                title: "BA Maggot Index", 
-                subtitle: "Broken Arrow Analytics", 
-                placeholder: "Steam64 ID or In-Game Numeric ID...", 
-                check: "ANALYZE", 
-                loading: "Syncing...", 
-                maggot_index_title: "PERFORMANCE RATING",
-                god_range: "GOD", 
-                avg_range: " ", 
-                maggot_range: "MAGGOT",
-                history_title: "Last 12 Valid Matches",
-                
-                find_id_btn: "Forgot ID? Search by Name",
-                find_match_btn: "Have Match ID? Search Players",
-                
-                modal_title: "Player Internal ID Lookup", 
-                modal_input_ph: "Enter Username...", 
-                modal_btn_search: "Search",
-                modal_pname: "Player Name", 
-                modal_pid: "Internal ID", 
-                modal_use_btn: "Analyze This ID",
-                modal_status_search: "Searching...", 
-                modal_status_err: "Error: ", 
-                modal_status_none: "No players found",
-                modal_status_found: "Found {n} results",
-
-                modal_match_title: "Search Player by Match ID",
-                modal_match_input_ph: "Enter Match ID (e.g. 184523)...",
-                modal_match_btn_search: "Fetch Stats",
-                modal_match_loading: "Retrieving match data...",
-                modal_match_err: "Failed to fetch match info",
-
-                kill: "Kills", loss: "Losses", obj: "Caps",
+                title: "BA Maggot Index", subtitle: "Broken Arrow Analytics", placeholder: "Numeric ID...", 
+                check: "ANALYZE", loading: "Fetching API...", maggot_index_title: "PERFORMANCE RATING",
+                god_range: "GOD", maggot_range: "MAGGOT", history_title: "Last 12 Valid Matches",
+                find_id_btn: "Search by Name", find_match_btn: "Search by Match",
+                kill: "Kills", loss: "Losses", obj: "MVP",
                 levels: ["👑 GODLIKE", "🦁 CARRY", "😐 AVERAGE", "🐛 BitMaggot", "💩 MAGGOT!"],
-                
-                tag_killer: "⚔️ Fragger", 
-                tag_kd: "📈 KD Player", 
-                tag_obj: "🚩 PTFO", 
-                
-                trend_up: "🚀 On the Rise", 
-                trend_down: "📉 Slumping", 
-                trend_flat: "➡️ Consistent", 
-                
-                err_net: "Network congestion, please retry", 
-                err_insufficient: "Insufficient data (Need 12+ matches)",
-                
-                lbl_ref_kdr: "KD Rating Rank", 
-                lbl_ref_kr: "Kill Rating Rank",
-                lbl_ref_dr: "Unit Preservation Rank", 
-                lbl_ref_or: "Objective Rank", 
-                lbl_ref_wr: "Win Rate (Last 12)",
-                
+                trend_up: "🚀 Getting Stronger", trend_down: "📉 Slumping", trend_flat: "➡️ Consistent",
+                err_net: "Network/CORS Error", err_insufficient: "Need 12+ matches",
+                lbl_ref_kdr: "KD Rank", lbl_ref_kr: "Kill Rank", lbl_ref_dr: "Econ Rank", lbl_ref_or: "MVP Score Rank", lbl_ref_wr: "Win Rate",
                 res_vic: "VICTORY", res_def: "DEFEAT", res_draw: "DRAW",
-                meta_map: "Map", meta_dur: "Time", meta_win: "Winner",
-                reasons: { 1: "Domination", 2: "Time/Score", 3: "Surrender" },
-                
-                medals: {
-                    Destruction: "Top Fragger", 
-                    Losses: "Cannon Fodder",            
-                    DamageDealt: "Heavy Hitter",        
-                    DamageReceived: "Bullet Sponge",       
-                    SupplyPointsConsumed: "Big Spender",    
-                    SupplyPointsConsumedFromAllies: "Freeloader", 
-                    SupplyPointsConsumedByAllies: "Medic",
-                    TotalSpawnedUnitScore: "War Machine",
-                    TotalRefundedUnitScore: "Refund King" 
-                },
-                
-                medal_descs: {
-                    Destruction: "Highest total value of enemy units destroyed (Raw Kill Score)", 
-                    Losses: "Highest total value of own units lost (Feeder)", 
-                    DamageDealt: "Highest total physical damage dealt to enemies", 
-                    DamageReceived: "Highest total physical damage received",
-                    SupplyPointsConsumed: "Most supply points spent on units/ammo", 
-                    SupplyPointsConsumedFromAllies: "Most supply taken from teammates' stashes", 
-                    SupplyPointsConsumedByAllies: "Most supply provided to teammates", 
-                    TotalSpawnedUnitScore: "Highest total point value of units deployed", 
-                    TotalRefundedUnitScore: "Highest total point value of units sold back"
-                },
-                
-                trend_desc: "Performance trend over recent 6 matches vs history",
-                elo_desc: "Current ELO Rating (Live update)",
-
-                // New
-                lbl_fav_units_title: "Favorite Units (Last 12 Matches)",
-                lbl_fav_dmg: "Heavy Hitter (Total Dmg)",
-                lbl_fav_kill: "Terminator (Total Kills)",
-                lbl_fav_tank: "Damage Soaked (Total Taken)",
-
-                unit_dmg_title: "Max Damage",
-                unit_kill_title: "Max Kills",
-                unit_tank_title: "Max Taken",
-
-                // Detail Modal
-                pd_dmg_dealt: "Damage Dealt", pd_dmg_taken: "Damage Received",
-                pd_supply: "Supply Used", pd_supply_ally: "Taken from Ally", pd_supply_give: "Given to Ally",
-                pd_units: "Unit Value"
+                tags: { destruction: "Master Destroyer", damage: "Firepower", dlRatio: "Survivor", efficiency: "Efficient", objectives: "Objective Expert", supply: "Logistics" }
             },
             ru: {
-                title: "BA Maggot Index",
-                subtitle: "Broken Arrow Analytics",
-                placeholder: "Steam64 ID или Внутренний ID...",
-                check: "ПРОВЕРИТЬ",
-                loading: "Синхронизация...",
-                maggot_index_title: "ОБЩИЙ РЕЙТИНГ",
-                god_range: "БОГ",
-                avg_range: " ",
-                maggot_range: "ЛИЧИНКА",
-                history_title: "Последние 12 матчей",
-
-                find_id_btn: "Забыли ID? Поиск по имени",
-                find_match_btn: "Есть ID матча? Найти игроков",
-
-                modal_title: "Поиск ID игрока",
-                modal_input_ph: "Введите имя пользователя...",
-                modal_btn_search: "Поиск",
-                modal_pname: "Имя игрока",
-                modal_pid: "Внутренний ID",
-                modal_use_btn: "Анализировать этот ID",
-                modal_status_search: "Поиск...",
-                modal_status_err: "Ошибка: ",
-                modal_status_none: "Игроки не найдены",
-                modal_status_found: "Найдено {n} результатов",
-
-                modal_match_title: "Поиск игрока по ID матча",
-                modal_match_input_ph: "Введите ID матча (например, 184523)...",
-                modal_match_btn_search: "Получить статистику",
-                modal_match_loading: "Получение данных матча...",
-                modal_match_err: "Не удалось получить информацию о матче",
-
-                kill: "Убийства", loss: "Потери", obj: "Точки",
+                title: "BA Maggot Index", subtitle: "Broken Arrow Analytics", placeholder: "Числовой ID...", 
+                check: "АНАЛИЗ", loading: "Загрузка API...", maggot_index_title: "РЕЙТИНГ ЭФФЕКТИВНОСТИ",
+                god_range: "БОГ", maggot_range: "ЛИЧИНКА", history_title: "Последние 12 матчей",
+                find_id_btn: "Поиск по имени", find_match_btn: "Поиск по ID матча",
+                kill: "Убийства", loss: "Потери", obj: "MVP",
                 levels: ["👑 БОГ", "🦁 ТАЩЕР", "😐 СРЕДНЕ", "🐛 НЕМНОГО ЛИЧИНКА", "💩 ЛИЧИНКА!"],
-
-                tag_killer: "⚔️ Фрагер",
-                tag_kd: "📈 КД Игрок",
-                tag_obj: "🚩 Объектив",
-
-                trend_up: "🚀 На подъеме",
-                trend_down: "📉 Спад",
-                trend_flat: "➡️ Стабильно",
-
-                err_net: "Ошибка сети, попробуйте позже",
-                err_insufficient: "Недостаточно данных (нужно 12+ матчей)",
-
-                lbl_ref_kdr: "Ранг KD",
-                lbl_ref_kr: "Ранг убийств",
-                lbl_ref_dr: "Ранг сохранности",
-                lbl_ref_or: "Ранг захвата",
-                lbl_ref_wr: "Винрейт (Посл. 12)",
-
+                trend_up: "🚀 На подъеме", trend_down: "📉 Спад", trend_flat: "➡️ Стабильно",
+                err_net: "Ошибка сети/CORS", err_insufficient: "Нужно 12+ матчей",
+                lbl_ref_kdr: "Ранг KD", lbl_ref_kr: "Ранг убийств", lbl_ref_dr: "Ранг экономии", lbl_ref_or: "Ранг MVP", lbl_ref_wr: "Винрейт (12 игр)",
                 res_vic: "ПОБЕДА", res_def: "ПОРАЖЕНИЕ", res_draw: "НИЧЬЯ",
-                meta_map: "Карта", meta_dur: "Время", meta_win: "Победитель",
-                reasons: { 1: "Доминирование", 2: "Время/Счет", 3: "Сдача" },
-
-                medals: {
-                    Destruction: "Главный убийца",
-                    Losses: "Пушечное мясо",
-                    DamageDealt: "Тяжелая артиллерия",
-                    DamageReceived: "Губка для пуль",
-                    SupplyPointsConsumed: "Транжира",
-                    SupplyPointsConsumedFromAllies: "Халявщик",
-                    SupplyPointsConsumedByAllies: "Медик",
-                    TotalSpawnedUnitScore: "Военная машина",
-                    TotalRefundedUnitScore: "Король возвратов"
-                },
-
-                medal_descs: {
-                    Destruction: "Наибольшая ценность уничтоженных врагов",
-                    Losses: "Наибольшая ценность потерянных собственных юнитов",
-                    DamageDealt: "Наибольший нанесенный физический урон",
-                    DamageReceived: "Наибольший полученный физический урон",
-                    SupplyPointsConsumed: "Больше всего потрачено припасов",
-                    SupplyPointsConsumedFromAllies: "Больше всего взято припасов у союзников",
-                    SupplyPointsConsumedByAllies: "Больше всего передано припасов союзникам",
-                    TotalSpawnedUnitScore: "Наибольшая стоимость вызванных юнитов",
-                    TotalRefundedUnitScore: "Наибольшая стоимость возвращенных юнитов"
-                },
-
-                trend_desc: "Тренд эффективности за последние матчи",
-                elo_desc: "Текущий рейтинг ELO (Обновление в реальном времени)",
-
-                // New
-                lbl_fav_units_title: "Любимые юниты (12 матчей)",
-                lbl_fav_dmg: "Макс. урон",
-                lbl_fav_kill: "Убийца",
-                lbl_fav_tank: "Танк",
-
-                unit_dmg_title: "Макс. урон",
-                unit_kill_title: "Убийца",
-                unit_tank_title: "Танк",
-
-                pd_dmg_dealt: "Урон", pd_dmg_taken: "Получено",
-                pd_supply: "Припасы", pd_supply_ally: "От союз.", pd_supply_give: "Союзникам",
-                pd_units: "Юниты"
+                tags: { destruction: "Мастер-убийца", damage: "Огневая мощь", dlRatio: "Выживаемость", efficiency: "Эффективность", objectives: "Захват", supply: "Снабжение" }
             },
             ja: {
-                title: "BA Maggot Index", 
-                subtitle: "Broken Arrow 戦績分析", 
-                placeholder: "Steam64 ID または ゲーム内ID...", 
-                check: "分析開始", 
-                loading: "同期中...", 
-                maggot_index_title: "総合スコア",
-                god_range: "神", 
-                maggot_range: "地雷",
-                history_title: "直近12試合の記録",
-                
-                find_id_btn: "IDが不明な場合は名前で検索",
-                find_match_btn: "マッチIDからプレイヤーを検索",
-                
-                modal_title: "プレイヤーID検索", 
-                modal_input_ph: "ユーザー名を入力...", 
-                modal_btn_search: "検索",
-                modal_pname: "プレイヤー名", 
-                modal_pid: "内部ID", 
-                modal_use_btn: "このIDで分析",
-                modal_status_search: "検索中...", 
-                modal_status_err: "エラー: ", 
-                modal_status_none: "プレイヤーが見つかりません",
-                modal_status_found: "{n} 件見つかりました",
-
-                modal_match_title: "マッチID検索",
-                modal_match_input_ph: "マッチIDを入力 (例: 184523)...",
-                modal_match_btn_search: "戦績取得",
-                modal_match_loading: "データ取得中...",
-                modal_match_err: "情報の取得に失敗しました",
-
-                kill: "撃破", loss: "損失", obj: "占領",
+                title: "BA Maggot Index", subtitle: "Broken Arrow Analytics", placeholder: "数字IDを入力...", 
+                check: "分析開始", loading: "API取得中...", maggot_index_title: "パフォーマンス評価",
+                god_range: "神", maggot_range: "地雷", history_title: "直近12試合の記録",
+                find_id_btn: "名前で検索", find_match_btn: "マッチIDで検索",
+                kill: "撃破", loss: "損失", obj: "MVP",
                 levels: ["👑 神様", "🦁 キャリー", "😐 一般兵", "🐛 微地雷", "💩 超地雷"],
-                
-                tag_killer: "⚔️ キル重視", 
-                tag_kd: "📈 KD重視", 
-                tag_obj: "🚩 占領重視", 
-                
-                trend_up: "🚀 調子上昇中", 
-                trend_down: "📉 調子低下中", 
-                trend_flat: "➡️ 安定", 
-                
-                err_net: "ネットワーク混雑、後ほど試してください", 
-                err_insufficient: "データ不足（12試合未満）",
-                
-                lbl_ref_kdr: "KDランク", 
-                lbl_ref_kr: "撃破ランク", 
-                lbl_ref_dr: "生存ランク", 
-                lbl_ref_or: "占領ランク", 
-                lbl_ref_wr: "勝率 (直近12戦)",
-                
+                trend_up: "🚀 調子上昇中", trend_down: "📉 調子低下中", trend_flat: "➡️ 実力安定",
+                err_net: "通信エラー", err_insufficient: "データ不足（12試合未満）",
+                lbl_ref_kdr: "KDランク", lbl_ref_kr: "撃破ランク", lbl_ref_dr: "経済ランク", lbl_ref_or: "MVPスコアランク", lbl_ref_wr: "勝率 (直近12戦)",
                 res_vic: "勝利", res_def: "敗北", res_draw: "引分",
-                meta_map: "マップ", meta_dur: "時間", meta_win: "勝者",
-                reasons: { 1: "圧倒", 2: "判定", 3: "降伏" },
-                
-                medals: {
-                    Destruction: "撃破王", 
-                    Losses: "特攻隊長",            
-                    DamageDealt: "火力王",        
-                    DamageReceived: "タンク王",       
-                    SupplyPointsConsumed: "浪費家",    
-                    SupplyPointsConsumedFromAllies: "泥棒猫", 
-                    SupplyPointsConsumedByAllies: "衛生兵",
-                    TotalSpawnedUnitScore: "動員王",
-                    TotalRefundedUnitScore: "返金王" 
-                },
-                
-                medal_descs: {
-                    Destruction: "敵ユニット撃破スコアがチーム内最多", 
-                    Losses: "自ユニット損失スコアがチーム内最多 (カモ)", 
-                    DamageDealt: "敵への総ダメージ量がチーム内最多", 
-                    DamageReceived: "被ダメージ総量がチーム内最多",
-                    SupplyPointsConsumed: "補給ポイント消費量がチーム内最多", 
-                    SupplyPointsConsumedFromAllies: "味方の補給物資使用量がチーム内最多", 
-                    SupplyPointsConsumedByAllies: "味方への補給提供量がチーム内最多", 
-                    TotalSpawnedUnitScore: "ユニット配備総額がチーム内最多", 
-                    TotalRefundedUnitScore: "ユニット売却総額がチーム内最多"
-                },
-                
-                trend_desc: "直近6試合とそれ以前のパフォーマンス比較",
-                elo_desc: "現在のELOレート (リアルタイム更新)",
-
-                // New
-                lbl_fav_units_title: "愛用ユニット (直近12戦累計)",
-                lbl_fav_dmg: "火力担当 (総スコア)",
-                lbl_fav_kill: "撃破担当 (総キル)",
-                lbl_fav_tank: "タンク担当 (総被弾)",
-
-                unit_dmg_title: "最大ダメージ",
-                unit_kill_title: "最多キル",
-                unit_tank_title: "最大被弾",
-
-                pd_dmg_dealt: "与ダメージ", pd_dmg_taken: "被ダメージ",
-                pd_supply: "補給使用", pd_supply_ally: "味方補給使用", pd_supply_give: "味方へ補給",
-                pd_units: "ユニット総額"
+                tags: { destruction: "殲滅マスター", damage: "火力投射", dlRatio: "生存の達人", efficiency: "効率的", objectives: "攻防エキスパート", supply: "戦場の母" }
             }
         };
 
         let currentLang = 'zh';
-        const HISTORY_KEY = 'ba_maggot_v37_history';
+        const HISTORY_KEY = 'ba_maggot_v4_history';
 
         function setLang(l) {
-            currentLang = l; 
-            localStorage.setItem('ba_lang', l); 
-            document.title = DICT[currentLang].title + " v3.34 - By Zola";
+            currentLang = l; localStorage.setItem('ba_lang', l); 
+            document.title = DICT[currentLang].title + " V4";
             updateUIStrings();
         }
 
@@ -792,178 +367,36 @@
             document.getElementById('lbl_god_range').innerText = t.god_range;
             document.getElementById('lbl_maggot_range').innerText = t.maggot_range;
             document.getElementById('lbl_history_title').innerText = t.history_title;
-            document.getElementById('lbl_find_id_btn').innerText = t.find_id_btn;
-            document.getElementById('lbl_find_match_btn').innerText = t.find_match_btn;
+            
             document.getElementById('lbl_ref_kdr').innerText = t.lbl_ref_kdr;
             document.getElementById('lbl_ref_kr').innerText = t.lbl_ref_kr;
             document.getElementById('lbl_ref_dr').innerText = t.lbl_ref_dr;
             document.getElementById('lbl_ref_or').innerText = t.lbl_ref_or;
             document.getElementById('lbl_ref_wr').innerText = t.lbl_ref_wr;
-            
-            document.getElementById('modal_title').innerText = t.modal_title;
-            document.getElementById('modalSearchInput').placeholder = t.modal_input_ph;
-            document.getElementById('modal_btn_search').innerText = t.modal_btn_search;
-            document.getElementById('lbl_modal_pname').innerText = t.modal_pname;
-            document.getElementById('lbl_modal_pid').innerText = t.modal_pid;
-            document.getElementById('btn_use_id').innerText = t.modal_use_btn;
 
-            document.getElementById('modal_match_title').innerText = t.modal_match_title;
-            document.getElementById('matchIdInput').placeholder = t.modal_match_input_ph;
-            document.getElementById('modal_match_btn_search').innerText = t.modal_match_btn_search;
-
-            // Player Detail Labels
-            document.getElementById('lbl_pd_kill').innerText = t.kill;
-            document.getElementById('lbl_pd_loss').innerText = t.loss;
-            document.getElementById('lbl_pd_obj').innerText = t.obj;
-            document.getElementById('lbl_pd_dmg_dealt').innerText = t.pd_dmg_dealt;
-            document.getElementById('lbl_pd_dmg_taken').innerText = t.pd_dmg_taken;
-            document.getElementById('lbl_pd_supply').innerText = t.pd_supply;
-            document.getElementById('lbl_pd_supply_ally').innerText = t.pd_supply_ally;
-            document.getElementById('lbl_pd_supply_give').innerText = t.pd_supply_give;
-            document.getElementById('lbl_pd_units').innerText = t.pd_units;
-            document.getElementById('lbl_pd_top_dmg').innerText = t.unit_dmg_title;
-            document.getElementById('lbl_pd_top_kill').innerText = t.unit_kill_title;
-            document.getElementById('lbl_pd_top_tank').innerText = t.unit_tank_title;
-
-            const btnBase = "px-3 py-1 md:px-5 md:py-1.5 text-xs rounded-lg transition font-bold";
-            const btnActive = "bg-cyan-600 text-white shadow-lg shadow-cyan-900/40";
-            const btnInactive = "text-slate-400 hover:text-white";
-
-            document.getElementById('btn_lang_zh').className = `${btnBase} ${currentLang==='zh'?btnActive:btnInactive}`;
-            document.getElementById('btn_lang_en').className = `${btnBase} ${currentLang==='en'?btnActive:btnInactive}`;
-            document.getElementById('btn_lang_ru').className = `${btnBase} ${currentLang==='ru'?btnActive:btnInactive}`;
-            document.getElementById('btn_lang_ja').className = `${btnBase} ${currentLang==='ja'?btnActive:btnInactive}`;
-        }
-
-        async function robustFetch(url, attempt = 0) {
-            const proxy = CONFIG.PROXIES[attempt % CONFIG.PROXIES.length];
-            try {
-                // 直接请求，如果失败再使用代理 (对于 Batrace API 可以尝试直连)
-                if (attempt === 0) {
-                    try {
-                        const r = await fetch(url);
-                        if (r.ok) return await r.json();
-                    } catch (e) { /* ignore */ }
-                }
-
-                const fetchUrl = proxy.url(url);
-                const r = await fetch(fetchUrl);
-                if(!r.ok) throw new Error(`HTTP_${r.status}`);
-                const d = await r.json();
-                
-                // AllOrigins / Codetabs formatting
-                if (d.contents) {
-                    return typeof d.contents === 'string' ? JSON.parse(d.contents) : d.contents;
-                }
-                return d;
-            } catch (e) {
-                if (attempt < 4) return robustFetch(url, attempt + 1);
-                throw e;
-            }
-        }
-        
-        async function fetchText(url, attempt = 0) {
-            const proxy = CONFIG.PROXIES[attempt % CONFIG.PROXIES.length];
-            try {
-                if (attempt === 0) {
-                    try {
-                        const r = await fetch(url);
-                        if (r.ok) return await r.text();
-                    } catch (e) { /* ignore */ }
-                }
-
-                const fetchUrl = proxy.url(url);
-                const r = await fetch(fetchUrl);
-                if(!r.ok) throw new Error(`HTTP_${r.status}`);
-                const d = await r.json(); 
-                if (d.contents) return d.contents; 
-                return JSON.stringify(d); // Fallback
-            } catch (e) {
-                if (attempt < 4) return fetchText(url, attempt + 1);
-                throw e;
-            }
-        }
-
-        // --- Stream Consumer Implementation ---
-        function parseAndConsumeBuffer(buffer) {
-            const results = [];
-            let braceCount = 0;
-            let startIndex = -1;
-            let inString = false;
-            let isEscaped = false;
-            let lastEndIndex = 0;
-
-            for (let i = 0; i < buffer.length; i++) {
-                const char = buffer[i];
-                
-                if (inString) {
-                    if (char === '\\' && !isEscaped) {
-                        isEscaped = true;
-                    } else {
-                        if (char === '"' && !isEscaped) {
-                            inString = false;
-                        }
-                        isEscaped = false;
-                    }
-                } else {
-                    if (char === '"') {
-                        inString = true;
-                    } else if (char === '{') {
-                        if (braceCount === 0) startIndex = i;
-                        braceCount++;
-                    } else if (char === '}') {
-                        braceCount--;
-                        if (braceCount === 0 && startIndex !== -1) {
-                            // Found a complete object
-                            const potentialJson = buffer.substring(startIndex, i + 1);
-                            try {
-                                const obj = JSON.parse(potentialJson);
-                                results.push(obj);
-                                lastEndIndex = i + 1;
-                                startIndex = -1; // Reset for next object
-                            } catch (e) {
-                                // Invalid JSON (very rare in this specific context unless truncated inside string)
-                            }
-                        }
-                    }
-                }
-            }
-            
-            return {
-                objects: results,
-                remaining: buffer.substring(lastEndIndex)
-            };
-        }
-        
-        // Backward compatibility function if needed (kept for reference, not used in main path now)
-        function* extractJsonObjects(text) {
-             const { objects } = parseAndConsumeBuffer(text);
-             for (const obj of objects) yield obj;
+            ['zh', 'en', 'ru', 'ja'].forEach(lang => {
+                document.getElementById('btn_lang_' + lang).className = `px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold ${currentLang === lang ? 'bg-cyan-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`;
+            });
         }
 
         window.onload = () => {
-            const savedLang = localStorage.getItem('ba_lang');
-            setLang(savedLang || 'zh'); // 默认中文
+            setLang(localStorage.getItem('ba_lang') || 'zh');
             renderHistory();
-            const urlId = new URLSearchParams(window.location.search).get('steamId');
-            if(urlId) { document.getElementById('steamInput').value=urlId; handleCheck(); }
         };
 
         function renderHistory() {
             const h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            const container = document.getElementById('historyContainer');
-            container.innerHTML = h.map(x => `
+            document.getElementById('historyContainer').innerHTML = h.map(x => `
                 <div class="history-chip">
-                    <span class="font-bold" onclick="useHistory('${x.id}')">${escapeHtml(x.name)}</span>
-                    <span class="history-del cursor-pointer" onclick="event.stopPropagation(); removeHistory('${x.id}')">×</span>
+                    <span class="font-bold" onclick="document.getElementById('steamInput').value='${x.id}'; handleCheck();">${x.name}</span>
+                    <span class="history-del cursor-pointer" onclick="removeHistory('${x.id}')">×</span>
                 </div>
             `).join('');
         }
-        function useHistory(id) { document.getElementById('steamInput').value = id; handleCheck(); }
+        
         function removeHistory(id) {
             let h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(h.filter(x => x.id !== id)));
-            renderHistory();
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(h.filter(x => x.id !== id))); renderHistory();
         }
 
         function updateProgress(percent, status, detail) {
@@ -973,213 +406,92 @@
             document.getElementById('loadDetail').innerText = detail;
         }
 
-        // --- Load Global Unit Library with Caching (24 Hours) ---
-        async function ensureGlobalUnitList() {
-            if (IS_UNIT_CACHE_LOADED) return;
-            
-            const now = Date.now();
-            const cachedData = localStorage.getItem(UNIT_CACHE_KEY);
-            const cachedTime = localStorage.getItem(UNIT_CACHE_TS_KEY);
-            const oneDay = 24 * 60 * 60 * 1000;
-
-            // 1. 尝试从缓存读取
-            if (cachedData && cachedTime && (now - parseInt(cachedTime) < oneDay)) {
-                try {
-                    const list = JSON.parse(cachedData);
-                    processUnitList(list);
-                    console.log('Unit Library loaded from Cache');
-                    return;
-                } catch (e) {
-                    console.warn('Cache corrupted, fetching fresh data');
-                }
-            }
-
-            // 2. 缓存失效或不存在，网络请求
+        async function robustFetch(url, attempt = 0) {
+            const proxies = [
+                (u) => u,
+                (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+                (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}&cb=${Date.now()}`,
+                (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
+            ];
             try {
-                // Direct fetch (CORS enabled)
-                const resp = await fetch('https://batrace.aoeiaol.top/api/v1/Units');
-                if (!resp.ok) throw new Error('Unit API Failed');
-                const list = await resp.json();
-                
-                // 更新缓存
-                localStorage.setItem(UNIT_CACHE_KEY, JSON.stringify(list));
-                localStorage.setItem(UNIT_CACHE_TS_KEY, now.toString());
-                
-                processUnitList(list);
-                console.log('Unit Library loaded from API');
+                const fetchUrl = proxies[attempt](url);
+                const r = await fetch(fetchUrl);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const d = await r.json();
+                if (d && d.contents) return typeof d.contents === 'string' ? JSON.parse(d.contents) : d.contents;
+                return d;
             } catch (e) {
-                console.warn('Failed to load unit library:', e);
-                // 3. 网络请求失败，尝试使用旧缓存（即使过期）
-                if (cachedData) {
-                    try {
-                        const list = JSON.parse(cachedData);
-                        processUnitList(list);
-                        console.log('Unit Library loaded from STALE Cache');
-                    } catch(ex) {}
-                }
+                if (attempt < proxies.length - 1) return robustFetch(url, attempt + 1);
+                throw new Error(DICT[currentLang].err_net);
             }
-        }
-
-        function processUnitList(list) {
-            if (Array.isArray(list)) {
-                list.forEach(u => {
-                    const id = u.Id || u.id;
-                    const name = u.Name || u.name;
-                    if (id && name) {
-                        UNIT_NAME_CACHE[id] = name;
-                    }
-                });
-                IS_UNIT_CACHE_LOADED = true;
-            }
-        }
-
-        function getUnitDisplayName(id) {
-            return UNIT_NAME_CACHE[id] || `Unit ${id}`;
         }
 
         async function handleCheck() {
-            const input = document.getElementById('steamInput').value.trim();
+            let input = document.getElementById('steamInput').value.trim();
             if(!input) return;
-
-            if (typeof gtag === 'function') {
-                gtag('event', 'search_player', {
-                    'search_term': input
-                });
-            }
-
-            const t = DICT[currentLang];
             
             document.getElementById('errorArea').classList.add('hidden');
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('resultPanel').classList.add('hidden');
-            
+            document.getElementById('rightStickerContainer').innerHTML = '';
             document.getElementById('unitStickerContainer').innerHTML = '';
 
-            updateProgress(0, t.loading, "Initializing...");
-
-            ensureGlobalUnitList();
-
             try {
-                let uid = input;
-                let steamId = input;
-                
-                // 1. Resolve Steam ID if needed
-                if (input.length < 16) { 
-                    updateProgress(5, "Resolving...", "Checking Identity...");
-                    const userData = await robustFetch(`https://batrace.aoeiaol.top/api/v1/players/${input}`);
-                    if (!userData.steam_id) throw new Error("Could not resolve Steam ID");
-                    steamId = userData.steam_id;
-                    uid = String(userData.id); 
+                updateProgress(5, "Resolving...", "Checking ID");
+
+                if (isNaN(input)) {
+                    const searchRes = await robustFetch(API.SEARCH(input));
+                    if (!searchRes.players || searchRes.players.length === 0) throw new Error("Player not found.");
+                    input = searchRes.players[0].id.toString();
                 }
 
-                updateProgress(10, "Connecting...", "Establishing Data Stream...");
+                updateProgress(15, "Connecting...", "Fetching Player Stats...");
+                const infoRes = await robustFetch(API.INFO(input));
+                const analysisRes = await robustFetch(API.ANALYSIS(input));
                 
-                const matchesUrl = `https://batrace.aoeiaol.top/api/v1/matches_steam64?steam64=${steamId}`;
-                
-                const validMatches = [];
-                let buffer = "";
-                
-                // [设置] 最大尝试获取 50 局，用于覆盖乱序数据
-                const FETCH_LIMIT = 50; 
-                
-                try {
-                    const response = await fetch(matchesUrl);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder("utf-8");
-                    
-                    updateProgress(12, "Downloading...", "Streaming Matches...");
+                if (!infoRes.last_fights_data || infoRes.last_fights_data.length === 0) {
+                    throw new Error("No recent matches found.");
+                }
 
-                    while (true) {
-                        const { done, value } = await reader.read();
+                const matchIds = infoRes.last_fights_data.slice(0, 30); // 多获取几局用于 ELO 过滤
+                let validMatches = [];
+                
+                updateProgress(30, "Downloading...", "Fetching Match Details");
+
+                for (let i = 0; i < matchIds.length; i++) {
+                    if (validMatches.length >= CONFIG.MATCH_GOAL) break;
+                    try {
+                        const mid = matchIds[i];
+                        const trendData = analysisRes.trend?.points?.find(t => String(t.matchId) === String(mid));
                         
-                        // [逻辑] 如果流结束了（玩家数据读完了），或者已经收集到了 50 局，就停止
-                        if (done || validMatches.length >= FETCH_LIMIT) {
-                            if (!done) await reader.cancel(); // 如果是因为到了 50 局而停止，主动断开
-                            console.log("Stream fetch finished or limit reached.");
-                            break;
+                        // 核心：严格校验该局是否有实质的 ELO 变动，以此剔除不正常的对局
+                        if (!trendData || Math.abs(trendData.ratingAfter - trendData.ratingBefore) < 0.01) {
+                            continue;
                         }
-                        
-                        buffer += decoder.decode(value, { stream: true });
-                        const { objects, remaining } = parseAndConsumeBuffer(buffer);
-                        buffer = remaining;
-                        
-                        for (const obj of objects) {
-                            if (obj.type === "match" && obj.data) {
-                                const mData = obj.data;
-                                const players = Object.values(mData.Data || {});
-                                const hasEloChange = players.some(p => Math.abs(p.NewRating - p.OldRating) > 0.01);
-                                
-                                if (players.length >= CONFIG.MIN_PLAYERS && hasEloChange) {
-                                    validMatches.push({ id: mData.fightId || mData.id, data: mData });
-                                    
-                                    // 进度条显示：分母显示 50，让用户知道我们在尝试获取更多样本
-                                    const progress = 15 + Math.round((validMatches.length / FETCH_LIMIT) * 80);
-                                    updateProgress(
-                                        Math.min(progress, 99), 
-                                        `Analyzing...`, 
-                                        `Found ${validMatches.length} Matches`
-                                    );
-                                }
-                            }
-                        }
-                    }
-                    
-                } catch (streamError) {
-                    console.warn("Stream failed, fallback to legacy load", streamError);
-                    const rawText = await fetchText(matchesUrl);
-                    updateProgress(50, "Parsing...", "Processing Full Data...");
-                    
-                    for (const obj of extractJsonObjects(rawText)) {
-                        if (validMatches.length >= FETCH_LIMIT) break;
-                        if (obj.type === "match" && obj.data) {
-                            const mData = obj.data;
-                            const players = Object.values(mData.Data || {});
-                            if (players.length >= CONFIG.MIN_PLAYERS && players.some(p => Math.abs(p.NewRating - p.OldRating) > 0.01)) {
-                                validMatches.push({ id: mData.fightId || mData.id, data: mData });
-                            }
-                        }
-                    }
-                }
-                
-                // [步骤 1] 先按时间倒序排列（处理 API 返回乱序的问题）
-                validMatches.sort((a, b) => {
-                    const tA = a.data.EndTime || 0;
-                    const tB = b.data.EndTime || 0;
-                    return tB - tA; // 降序：最新的在最前
-                });
 
-                // [步骤 2] 严格检查：如果总有效对局不足 12 局，抛出错误
-                // 这会处理“只有 8 局”的情况 -> 报错
-                // 也会处理“只有 14 局”的情况 -> 通过
-                if (validMatches.length < CONFIG.MATCH_GOAL) {
-                    throw new Error(t.err_insufficient);
+                        const matchData = await robustFetch(API.MATCH(mid));
+                        if (matchData && matchData.mvpRanking && matchData.mvpRanking.length >= CONFIG.MIN_PLAYERS) {
+                            validMatches.push(formatNewMatchData(mid, matchData, input, trendData));
+                        }
+                    } catch(e) { console.warn("Skip match", e); }
+                    updateProgress(30 + Math.floor((i/matchIds.length)*60), "Processing...", `Parsed ${validMatches.length} Matches`);
                 }
 
-                // [步骤 3] 截取最新的 12 局
-                const finalMatches = validMatches.slice(0, CONFIG.MATCH_GOAL);
-
-                if (uid === steamId && finalMatches.length > 0) {
-                    const idCounts = {};
-                    finalMatches.forEach(m => {
-                        Object.keys(m.data.Data).forEach(pid => {
-                            idCounts[pid] = (idCounts[pid] || 0) + 1;
-                        });
-                    });
-                    const candidates = Object.keys(idCounts).filter(pid => idCounts[pid] === finalMatches.length);
-                    if (candidates.length > 0) uid = candidates[0]; 
-                }
+                if (validMatches.length < CONFIG.MATCH_GOAL) throw new Error(DICT[currentLang].err_insufficient);
 
                 updateProgress(100, "Done", "Rendering...");
 
-                const finalMe = finalMatches[0].data.Data[uid];
-                saveHistory(input, finalMe?.Name); 
-                
-                document.getElementById('userNameDisplay').innerText = `${finalMe?.Name || 'Unknown'} ${finalMe?.Level ? '(Lv.' + finalMe.Level + ')' : ''}`;
-                document.getElementById('calcTimeDisplay').innerText = `Calculated: ${new Date().toLocaleString()}`;
+                let h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+                h = h.filter(x => x.id !== input);
+                h.unshift({ id: input, name: infoRes.info.name });
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0, 10)));
+                renderHistory();
 
-                processFinalData(uid, finalMatches);
+                document.getElementById('userNameDisplay').innerText = infoRes.info.name;
+                const dateStr = new Date().toLocaleString();
+                document.getElementById('calcTimeDisplay').innerHTML = `Lv.${infoRes.info.level} <span class="mx-1 md:mx-2 opacity-30">|</span> ELO ${Math.round(infoRes.info.rating)} <span class="mx-1 md:mx-2 opacity-30">|</span> ${dateStr}`;
+
+                processFinalData(input, validMatches, analysisRes);
 
             } catch (e) {
                 document.getElementById('errorArea').classList.remove('hidden');
@@ -1189,386 +501,214 @@
             }
         }
 
-        function formatDuration(sec) {
-            const m = Math.floor(sec / 60);
-            const s = sec % 60;
-            return `${m}m ${s}s`;
+        function formatNewMatchData(matchId, matchRaw, myUid, trendData) {
+            const mappedPlayers = [];
+            const isMeWin = trendData ? trendData.won : false;
+            let myTeamId = null;
+
+            matchRaw.mvpRanking.forEach(p => {
+                if (String(p.playerId) === String(myUid)) myTeamId = p.teamId;
+                mappedPlayers.push({
+                    id: p.playerId, name: p.playerName, teamId: p.teamId, isMe: String(p.playerId) === String(myUid),
+                    mvpScore: p.score, 
+                    breakdown: p.breakdown || {},
+                    earnedTags: [], 
+                    kScore: 0, lScore: 0, dmgDealt: 0, Investment: 0, Refunded: 0, roi: 0,
+                    unitCategories: [], elo: "---", gain: null 
+                });
+            });
+
+            if (myTeamId === null) myTeamId = mappedPlayers[0]?.teamId || 0;
+
+            if (matchRaw.economy && matchRaw.economy.players) {
+                matchRaw.economy.players.forEach(ep => {
+                    const mp = mappedPlayers.find(p => p.id === ep.playerId);
+                    if (mp) {
+                        mp.kScore = ep.returnValue || 0;
+                        mp.Investment = ep.investment || 0;
+                        mp.Refunded = ep.refunded || 0;
+                        mp.roi = ep.roi;
+                        mp.lScore = Math.max(0, ep.investment - ep.refunded); 
+                    }
+                });
+            }
+
+            if (matchRaw.damageContribution) {
+                ['teamA', 'teamB'].forEach(t => {
+                    if (matchRaw.damageContribution[t]) {
+                        matchRaw.damageContribution[t].forEach(dp => {
+                            const mp = mappedPlayers.find(p => p.name === dp.playerName); 
+                            if (mp) mp.dmgDealt = dp.damageDealt || 0;
+                        });
+                    }
+                });
+            }
+
+            if (matchRaw.unitComposition && matchRaw.unitComposition.byPlayer) {
+                matchRaw.unitComposition.byPlayer.forEach(up => {
+                    const mp = mappedPlayers.find(p => p.id === up.playerId);
+                    if (mp) mp.unitCategories = up.categories || [];
+                });
+            }
+
+            const maxK = Math.max(...mappedPlayers.map(p => p.kScore), 1);
+            const maxL = Math.max(...mappedPlayers.map(p => p.lScore), 1);
+
+            mappedPlayers.forEach(p => {
+                p.kPct = (p.kScore / maxK) * 100;
+                p.lPct = (p.lScore / maxL) * 100;
+                p.oPct = p.mvpScore; 
+                p.kd = p.kScore / (p.lScore || 1);
+            });
+
+            const ally = mappedPlayers.filter(p => p.teamId === myTeamId).sort((a,b)=>b.mvpScore - a.mvpScore);
+            const enemy = mappedPlayers.filter(p => p.teamId !== myTeamId).sort((a,b)=>b.mvpScore - a.mvpScore);
+
+            const assignTags = (team) => {
+                Object.keys(BREAKDOWN_DEFS).forEach(k => {
+                    const maxVal = Math.max(...team.map(p => p.breakdown[k] || 0));
+                    if (maxVal > 0) {
+                        const threshold = maxVal * 0.9;
+                        team.forEach(p => {
+                            const val = p.breakdown[k] || 0;
+                            if (val >= threshold) {
+                                p.earnedTags.push({ key: k, val: val });
+                            }
+                        });
+                    }
+                });
+                team.forEach(p => p.earnedTags.sort((a,b) => b.val - a.val));
+            };
+            assignTags(ally);
+            assignTags(enemy);
+
+            const myDataObj = ally.find(p => p.isMe);
+            if (myDataObj && trendData) {
+                myDataObj.elo = Math.round(trendData.ratingAfter);
+                myDataObj.gain = (trendData.ratingAfter - trendData.ratingBefore).toFixed(1);
+            }
+
+            return {
+                id: matchId,
+                isWin: isMeWin,
+                ally, enemy,
+                myRank: ally.findIndex(p => p.isMe) + 1 || 5 
+            };
         }
 
-        function formatMatchTime(ts) {
-            const d = new Date(ts * 1000);
-            return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-        }
+        function processFinalData(myUid, matches, analysisRes) {
+            let kRankSum=0, oRankSum=0, kdRankSum=0, lossRankSum=0, wins=0;
+            const tagCounts = {};
 
-        // ============================================
-        // [New] 累计爱用单位 - 异步贴纸逻辑
-        // ============================================
-        function calculateFavoriteUnits(matches, myUid) {
-            const unitStats = {};
+            CURRENT_MATCH_STATS = matches;
 
             matches.forEach(m => {
-                const myData = m.data.Data[myUid];
-                if (!myData || !myData.UnitData) return;
+                if(m.isWin) wins++;
+                const calcR = (list, fn) => { const r = [...list].sort(fn).findIndex(p=>p.isMe) + 1; return r === 0 ? 5 : r; };
+                kRankSum += calcR(m.ally, (a,b)=>b.kScore - a.kScore);
+                oRankSum += calcR(m.ally, (a,b)=>b.mvpScore - a.mvpScore); 
+                kdRankSum += calcR(m.ally, (a,b)=>b.kd - a.kd);
+                lossRankSum += calcR(m.ally, (a,b)=>a.lScore - b.lScore); 
 
-                Object.values(myData.UnitData).forEach(unit => {
-                    const typeId = unit.Id; 
-                    if (!typeId) return;
-
-                    if (!unitStats[typeId]) {
-                        unitStats[typeId] = {
-                            id: typeId,
-                            damageDealt: 0,
-                            kills: 0,
-                            damageReceived: 0
-                        };
-                    }
-
-                    unitStats[typeId].damageDealt += (unit.TotalDamageDealt || 0);
-                    unitStats[typeId].kills += (unit.KilledCount || 0);
-                    unitStats[typeId].damageReceived += (unit.TotalDamageReceived || 0);
-                });
+                const myObj = m.ally.find(p => p.isMe);
+                if (myObj) {
+                    myObj.earnedTags.forEach(tag => { tagCounts[tag.key] = (tagCounts[tag.key] || 0) + 1; });
+                }
             });
 
-            const unitsArr = Object.values(unitStats);
-            if (unitsArr.length === 0) return null;
-
-            const topDmg = [...unitsArr].sort((a,b) => b.damageDealt - a.damageDealt)[0];
-            const topKill = [...unitsArr].sort((a,b) => b.kills - a.kills)[0];
-            const topTank = [...unitsArr].sort((a,b) => b.damageReceived - a.damageReceived)[0];
-
-            return { topDmg, topKill, topTank };
-        }
-
-        async function fetchAndShowUnitStickers(favUnits) {
-            await ensureGlobalUnitList();
-
-            const container = document.getElementById('unitStickerContainer');
-            if(!container) return;
-            container.innerHTML = ''; 
-            
-            const items = [
-                { type: 'dmg', unit: favUnits.topDmg, icon: '⚡', labelPrefix: { zh: '输出', en: 'Dmg', ja: '火力', ru: 'Dmg' } },
-                { type: 'kill', unit: favUnits.topKill, icon: '🔫', labelPrefix: { zh: '击杀', en: 'Kill', ja: '撃破', ru: 'Kill' } },
-                { type: 'tank', unit: favUnits.topTank, icon: '🛡️', labelPrefix: { zh: '抗伤', en: 'Tank', ja: '耐久', ru: 'Tank' } }
-            ];
-
-            for (const item of items) {
-                if (!item.unit || item.unit.id <= 0) continue;
-
-                let name = getUnitDisplayName(item.unit.id);
-                
-                if (name) {
-                    const el = document.createElement('div');
-                    let colorClass = "bg-slate-600/20 border-slate-500/50 text-slate-300";
-                    if(item.type === 'dmg') colorClass = "bg-orange-600/20 border-orange-500/50 text-orange-300";
-                    if(item.type === 'kill') colorClass = "bg-red-600/20 border-red-500/50 text-red-300";
-                    if(item.type === 'tank') colorClass = "bg-blue-600/20 border-blue-500/50 text-blue-300";
-
-                    el.className = `tag-sticker tag-sticker-left ${colorClass} flex items-center gap-2 cursor-help`;
-                    
-                    let valStr = '';
-                    if(item.type === 'dmg') valStr = Math.round(item.unit.damageDealt).toLocaleString();
-                    if(item.type === 'kill') valStr = item.unit.kills;
-                    if(item.type === 'tank') valStr = Math.round(item.unit.damageReceived).toLocaleString();
-                    el.title = `${item.labelPrefix[currentLang] || item.labelPrefix.en}: ${valStr}`;
-
-                    el.innerHTML = `<span class="text-lg">${item.icon}</span><span>${name}</span>`;
-                    container.appendChild(el);
-                    
-                    await new Promise(r => setTimeout(r, 100));
-                }
-            }
-        }
-
-        function processFinalData(myUid, matches) {
-            let kRankSum = 0, oRankSum = 0, kdRankSum = 0, lossRankSum = 0, wins = 0;
-            const medalCounts = {};
-
-            const stats = matches.map(m => {
-                const data = m.data.Data;
-                const meta = m.data; 
-
-                let t1DeltaSum = 0, t1Count = 0;
-                let t0DeltaSum = 0, t0Count = 0;
-
-                Object.values(data).forEach(p => {
-                    if (p.Name) { 
-                        const d = (p.NewRating || 0) - (p.OldRating || 0);
-                        if (p.TeamId === 1) { 
-                            t1DeltaSum += d; t1Count++; 
-                        } else { 
-                            t0DeltaSum += d; t0Count++; 
-                        }
-                    }
-                });
-                
-                const avgT1 = t1Count > 0 ? t1DeltaSum / t1Count : 0;
-                const avgT0 = t0Count > 0 ? t0DeltaSum / t0Count : 0;
-
-                const players = Object.entries(data).map(([key, val]) => {
-                    if (!val.Id) val.Id = key;
-
-                    if (val.Name) {
-                        val.TeamId = (val.TeamId === 1) ? 1 : 0;
-                    } else {
-                        val.Name = "Unknown";
-                        const myDelta = (val.NewRating || 0) - (val.OldRating || 0);
-                        const distT1 = Math.abs(myDelta - avgT1);
-                        const distT0 = Math.abs(myDelta - avgT0);
-                        if (t1Count === 0 && t0Count === 0) {
-                             val.TeamId = myDelta >= 0 ? 1 : 0;
-                        } else {
-                             val.TeamId = distT1 < distT0 ? 1 : 0;
-                        }
-                    }
-                    return val;
-                });
-
-                if (meta.WinnerTeam === undefined) {
-                    let team0EloDelta = 0;
-                    let team1EloDelta = 0;
-                    players.forEach(p => {
-                        if (p.NewRating !== undefined && p.OldRating !== undefined) {
-                            const delta = p.NewRating - p.OldRating;
-                            if (p.TeamId === 0) team0EloDelta += delta;
-                            if (p.TeamId === 1) team1EloDelta += delta;
-                        }
-                    });
-                    meta.WinnerTeam = team0EloDelta > team1EloDelta ? 0 : 1;
-                }
-
-                const myP = players.find(p => String(p.Id) === String(myUid));
-                const myTeamId = myP ? myP.TeamId : (meta.WinnerTeam === 0 ? 1 : 0); 
-                
-                const isDraw = meta.WinnerTeam === 101;
-                const isWin = !isDraw && (myTeamId === meta.WinnerTeam);
-                
-                if(isWin) wins++; 
-
-                const maxK = Math.max(...players.map(p => p.DestructionScore || 0), 1);
-                const maxL = Math.max(...players.map(p => p.LossesScore || 0), 1);
-                const maxO = Math.max(...players.map(p => p.ObjectivesCaptured || 0), 1);
-                
-                const mapPlayer = (p) => {
-                    const k = p.DestructionScore || 0, l = p.LossesScore || 0;
-                    
-                    // --- 单局内单位统计 (聚合版) ---
-                    let topD = {id:0, v:-1}, topK = {id:0, v:-1}, topT = {id:0, v:-1};
-                    
-                    if (p.UnitData) {
-                        const unitAgg = {};
-                        Object.values(p.UnitData).forEach(u => {
-                            if (!u.Id) return;
-                            if (!unitAgg[u.Id]) unitAgg[u.Id] = { d: 0, k: 0, t: 0 };
-                            unitAgg[u.Id].d += (u.TotalDamageDealt || 0);
-                            unitAgg[u.Id].k += (u.KilledCount || 0);
-                            unitAgg[u.Id].t += (u.TotalDamageReceived || 0);
-                        });
-
-                        Object.entries(unitAgg).forEach(([uid, stats]) => {
-                            if (stats.d > topD.v) topD = {id: uid, v: stats.d};
-                            if (stats.k > topK.v) topK = {id: uid, v: stats.k};
-                            if (stats.t > topT.v) topT = {id: uid, v: stats.t};
-                        });
-                    }
-
-                    return {
-                        id: p.Id, name: p.Name, elo: p.NewRating ? p.NewRating.toFixed(0) : "N/A",
-                        gain: p.NewRating && p.OldRating ? (p.NewRating - p.OldRating).toFixed(1) : "0.0",
-                        kPct: (k / maxK) * 100, lPct: (l / maxL) * 100, oPct: ((p.ObjectivesCaptured || 0) / maxO) * 100,
-                        isMe: String(p.Id) === String(myUid),
-                        score: (k - l) / 1000 + (p.ObjectivesCaptured || 0),
-                        kScore: k, lScore: l, oScore: p.ObjectivesCaptured || 0, kd: k / (l || 1),
-                        rawData: p,
-                        medals: [],
-                        favUnits: { d: topD, k: topK, t: topT }
-                    };
-                };
-
-                const ally = players.filter(p => p.TeamId === myTeamId).map(mapPlayer).sort((a,b)=>b.score - a.score);
-                const enemy = players.filter(p => p.TeamId !== myTeamId).map(mapPlayer).sort((a,b)=>b.score - a.score);
-
-                const assignMedals = (teamPlayers) => {
-                    MEDAL_CONFIG.forEach(def => {
-                        const maxVal = Math.max(...teamPlayers.map(p => p.rawData[def.key] || 0));
-                        if (maxVal > 0) { 
-                            teamPlayers.forEach(p => {
-                                if ((p.rawData[def.key] || 0) === maxVal) {
-                                    p.medals.push({ ...def, val: maxVal });
-                                }
-                            });
-                        }
-                    });
-                };
-                assignMedals(ally);
-                assignMedals(enemy);
-
-                const myP_Mapped = ally.find(p => p.isMe);
-                if(myP_Mapped && myP_Mapped.medals) {
-                    myP_Mapped.medals.forEach(m => {
-                        medalCounts[m.key] = (medalCounts[m.key] || 0) + 1;
-                    });
-                }
-
-                const calcR = (list, fn) => { 
-                    const r = [...list].sort(fn).findIndex(p=>p.isMe) + 1; 
-                    return r === 0 ? 5 : r; 
-                };
-
-                kRankSum += calcR(ally, (a,b)=>b.kScore - a.kScore);
-                oRankSum += calcR(ally, (a,b)=>b.oScore - a.oScore);
-                kdRankSum += calcR(ally, (a,b)=>b.kd - a.kd);
-                lossRankSum += calcR(ally, (a,b)=>a.lScore - b.lScore);
-
-                let currentMatchRank = ally.findIndex(p => p.isMe) + 1;
-                if (currentMatchRank === 0) currentMatchRank = 5;
-
-                return { 
-                    id: m.id, 
-                    myRank: currentMatchRank, 
-                    ally, enemy,
-                    isWin: isWin,
-                    isDraw: isDraw, 
-                    endReason: meta.EndMatchReason,
-                    endTime: meta.EndTime,
-                    mapId: meta.MapId,
-                    duration: meta.TotalPlayTimeInSec,
-                    winnerTeam: meta.WinnerTeam
-                };
-            });
-
-            CURRENT_MATCH_STATS = stats;
-
-            const topMedals = Object.entries(medalCounts)
-                .sort((a,b) => b[1] - a[1])
-                .slice(0, 2)
-                .map(x => x[0]);
-
-            renderResults(stats, kRankSum/12, kdRankSum/12, oRankSum/12, lossRankSum/12, wins, topMedals);
-
-            const favUnits = calculateFavoriteUnits(matches, myUid);
-            if (favUnits) {
-                fetchAndShowUnitStickers(favUnits);
-            }
-        }
-
-        function renderResults(stats, avgKR, avgKDR, avgOR, avgDR, wins, topMedals) {
-            const t = DICT[currentLang];
-            document.getElementById('resultPanel').classList.remove('hidden');
-            
-            const avgRank = stats.reduce((a,b) => a + b.myRank, 0) / stats.length; 
+            const avgRank = matches.reduce((a,b) => a + b.myRank, 0) / matches.length; 
             const normalizedRank = (avgRank - 1) / 4; 
             const sCurveValue = (1 - Math.cos(normalizedRank * Math.PI)) / 2; 
             const maggotIndex = 1 + (sCurveValue * 9); 
 
+            const t = DICT[currentLang];
             const display = document.getElementById('maggotScoreDisplay');
             display.innerText = maggotIndex.toFixed(1);
             display.style.color = maggotIndex <= 3.5 ? '#4ade80' : (maggotIndex <= 7 ? '#facc15' : '#f87171');
             document.getElementById('maggotLabel').innerText = t.levels[maggotIndex <= 2 ? 0 : (maggotIndex <= 4 ? 1 : (maggotIndex <= 6 ? 2 : (maggotIndex <= 8 ? 3 : 4)))];
             document.getElementById('meterIndicator').style.left = `${((maggotIndex-1)/9)*100}%`;
 
-            document.getElementById('ref_avgKDR').innerText = `#${avgKDR.toFixed(1)}`;
-            document.getElementById('ref_avgKR').innerText = `#${avgKR.toFixed(1)}`;
-            document.getElementById('ref_avgDR').innerText = `#${avgDR.toFixed(1)}`;
-            document.getElementById('ref_avgOR').innerText = `#${avgOR.toFixed(1)}`;
-            document.getElementById('ref_WR').innerText = Math.round((wins / stats.length) * 100) + '%';
+            document.getElementById('ref_avgKDR').innerText = `#${(kdRankSum/12).toFixed(1)}`;
+            document.getElementById('ref_avgKR').innerText = `#${(kRankSum/12).toFixed(1)}`;
+            document.getElementById('ref_avgDR').innerText = `#${(lossRankSum/12).toFixed(1)}`;
+            document.getElementById('ref_avgOR').innerText = `#${(oRankSum/12).toFixed(1)}`;
+            document.getElementById('ref_WR').innerText = Math.round((wins / matches.length) * 100) + '%';
 
-            const container = document.querySelector('.tag-sticker-container');
-            container.innerHTML = ''; 
-
-            const colorStyles = {
-                red:    "bg-red-600/20 border-red-500/50 text-red-300",
-                orange: "bg-orange-600/20 border-orange-500/50 text-orange-300",
-                amber:  "bg-amber-600/20 border-amber-500/50 text-amber-300",
-                yellow: "bg-yellow-600/20 border-yellow-500/50 text-yellow-300",
-                lime:   "bg-lime-600/20 border-lime-500/50 text-lime-300",
-                green:  "bg-green-600/20 border-green-500/50 text-green-300",
-                emerald:"bg-emerald-600/20 border-emerald-500/50 text-emerald-300",
-                teal:   "bg-teal-600/20 border-teal-500/50 text-teal-300",
-                cyan:   "bg-cyan-600/20 border-cyan-500/50 text-cyan-300",
-                sky:    "bg-sky-600/20 border-sky-500/50 text-sky-300",
-                blue:   "bg-blue-600/20 border-blue-500/50 text-blue-300",
-                indigo: "bg-indigo-600/20 border-indigo-500/50 text-indigo-300",
-                violet: "bg-violet-600/20 border-violet-500/50 text-violet-300",
-                purple: "bg-purple-600/20 border-purple-500/50 text-purple-300",
-                fuchsia:"bg-fuchsia-600/20 border-fuchsia-500/50 text-fuchsia-300",
-                pink:   "bg-pink-600/20 border-pink-500/50 text-pink-300",
-                rose:   "bg-rose-600/20 border-rose-500/50 text-rose-300",
-                slate:  "bg-slate-600/20 border-slate-500/50 text-slate-300",
-                gray:   "bg-gray-600/20 border-gray-500/50 text-gray-300",
-                zinc:   "bg-zinc-600/20 border-zinc-500/50 text-zinc-300",
-                stone:  "bg-stone-600/20 border-stone-500/50 text-stone-300",
-            };
-
-            topMedals.forEach(key => {
-                const conf = MEDAL_CONFIG.find(c => c.key === key);
-                if(!conf) return;
-                
-                const dict = DICT[currentLang];
-                const name = dict.medals[key] || key;
-                const desc = dict.medal_descs[key] || name;
-
-                const colorBase = conf.color.replace('text-', '').replace('-400', '');
-                const styleClass = colorStyles[colorBase] || colorStyles['gray'];
-                
-                const el = document.createElement('div');
-                el.title = desc; 
-                el.className = `tag-sticker ${styleClass} flex items-center gap-2 cursor-help`; 
-                el.innerHTML = `<span class="text-lg">${conf.icon}</span><span>${name}</span>`;
-                container.appendChild(el);
-            });
-
-            const recentAvg = stats.slice(0,3).reduce((a,b)=>a+b.myRank,0)/3;
-            const oldAvg = stats.slice(3).reduce((a,b)=>a+b.myRank,0)/9;
-            const trendText = recentAvg < oldAvg - 0.4 ? t.trend_up : (recentAvg > oldAvg + 0.4 ? t.trend_down : t.trend_flat);
+            const rightContainer = document.getElementById('rightStickerContainer');
+            
+            // 状态趋势分析
+            const recent3 = matches.slice(0, 3);
+            const older9 = matches.slice(3, 12);
+            const recentAvg = recent3.reduce((s, m) => s + m.myRank, 0) / (recent3.length || 1);
+            const olderAvg = older9.reduce((s, m) => s + m.myRank, 0) / (older9.length || 1);
+            
+            let trendKey = 'trend_flat';
+            if (recentAvg < olderAvg - 0.4) trendKey = 'trend_up';
+            else if (recentAvg > olderAvg + 0.4) trendKey = 'trend_down';
+            
             const trendEl = document.createElement('div');
-            trendEl.title = t.trend_desc;
-            trendEl.className = "tag-sticker bg-slate-600/20 border-slate-500/50 text-slate-300 cursor-help";
-            trendEl.innerText = trendText;
-            container.appendChild(trendEl);
+            trendEl.className = "tag-sticker bg-slate-700 border border-slate-500 text-slate-300";
+            trendEl.innerText = t[trendKey];
+            rightContainer.appendChild(trendEl);
 
-            if (stats.length > 0) {
-                const currentMe = stats[0].ally.find(p => p.isMe);
-                if (currentMe) {
-                    const eloEl = document.createElement('div');
-                    eloEl.title = t.elo_desc;
-                    eloEl.className = "tag-sticker bg-violet-600/20 border-violet-500/50 text-violet-300 font-mono cursor-help";
-                    eloEl.innerHTML = `ELO ${currentMe.elo}`;
-                    container.appendChild(eloEl);
-                }
+            // 游玩风格不翻译，原文大写直出
+            if (analysisRes.playStyle && analysisRes.playStyle.primaryStyle) {
+                const styleKey = analysisRes.playStyle.primaryStyle.replace('_', ' ').toUpperCase();
+                const el = document.createElement('div');
+                el.className = "tag-sticker bg-fuchsia-600/20 border-fuchsia-500/50 text-fuchsia-300";
+                el.innerText = styleKey;
+                rightContainer.appendChild(el);
             }
 
-            document.getElementById('matchesContainer').innerHTML = stats.map(m => {
-                const reasonText = t.reasons[m.endReason] || t.reasons[1];
-                const timeText = formatMatchTime(m.endTime);
-                const durText = formatDuration(m.duration);
-                let resultBadgeColor, resultText;
-                if (m.isDraw) {
-                    resultBadgeColor = 'bg-slate-600/30 text-slate-300 border border-slate-500/30';
-                    resultText = t.res_draw;
-                } else {
-                    resultBadgeColor = m.isWin ? 'bg-cyan-600/20 text-cyan-400' : 'bg-red-600/20 text-red-400';
-                    resultText = m.isWin ? t.res_vic : t.res_def;
-                }
+            // 获取最多的 前两个 能力徽章 (Req: 变成2个最多徽章)
+            Object.entries(tagCounts).sort((a,b) => b[1] - a[1]).slice(0, 2).forEach(x => {
+                const def = BREAKDOWN_DEFS[x[0]];
+                if(!def) return;
+                const styleClass = COLOR_STYLES[def.color] || 'bg-slate-800 border-slate-500 text-slate-300';
+                const el = document.createElement('div');
+                el.className = `tag-sticker ${styleClass} flex items-center gap-2`; 
+                el.innerHTML = `<span class="text-lg">${def.icon}</span><span>${t.tags[x[0]] || x[0]}</span>`;
+                rightContainer.appendChild(el);
+            });
+
+            const leftContainer = document.getElementById('unitStickerContainer');
+            if (analysisRes.highlightUnits && analysisRes.highlightUnits.length > 0) {
+                let availableUnits = [...analysisRes.highlightUnits];
+
+                const renderUnitSticker = (unit, icon, colorClass) => {
+                    if(!unit) return;
+                    const el = document.createElement('div');
+                    el.className = `tag-sticker tag-sticker-left ${colorClass} flex items-center gap-2`;
+                    el.innerHTML = `<span class="text-lg">${icon}</span><span>${unit.unitName}</span>`;
+                    leftContainer.appendChild(el);
+                };
+
+                let topDmg = availableUnits.sort((a,b) => b.totalDamage - a.totalDamage)[0];
+                renderUnitSticker(topDmg, '⚡', 'bg-orange-600/20 border-orange-500/50 text-orange-300');
+                
+                if(topDmg) availableUnits = availableUnits.filter(u => u.unitId !== topDmg.unitId);
+                let topSpawn = availableUnits.sort((a,b) => b.spawnCount - a.spawnCount)[0];
+                renderUnitSticker(topSpawn, '🛒', 'bg-blue-600/20 border-blue-500/50 text-blue-300');
+
+                if(topSpawn) availableUnits = availableUnits.filter(u => u.unitId !== topSpawn.unitId);
+                let topRoi = availableUnits.sort((a,b) => b.avgRoi - a.avgRoi)[0];
+                renderUnitSticker(topRoi, '📈', 'bg-emerald-600/20 border-emerald-500/50 text-emerald-300');
+            }
+
+            document.getElementById('resultPanel').classList.remove('hidden');
+
+            document.getElementById('matchesContainer').innerHTML = matches.map(m => {
+                let resultBadgeColor = m.isWin ? 'bg-cyan-600/20 text-cyan-400' : 'bg-red-600/20 text-red-400';
+                let resultText = m.isWin ? t.res_vic : t.res_def;
 
                 return `
                 <div class="glass-panel rounded-[2rem] md:rounded-[3rem] overflow-hidden border-white/10 shadow-2xl">
                     <div class="bg-white/5 px-4 py-3 md:px-8 md:py-4 flex flex-col md:flex-row justify-between items-start md:items-center text-[10px] md:text-xs font-bold font-mono text-slate-400 gap-2 md:gap-0">
                         <div class="flex flex-wrap items-center gap-2 md:gap-4 leading-relaxed">
                             <span class="whitespace-nowrap">ID: ${m.id}</span>
-                            <span class="w-px h-3 bg-white/10 hidden md:block"></span>
-                            <span>${timeText}</span>
-                            <span class="w-px h-3 bg-white/10 hidden md:block"></span>
-                            <span>${t.meta_map} ${m.mapId}</span>
-                            <span class="w-px h-3 bg-white/10 hidden md:block"></span>
-                            <span>${durText}</span>
-                            <span class="w-px h-3 bg-white/10 hidden md:block"></span>
-                            <span class="whitespace-nowrap">${reasonText}</span>
                         </div>
                         <span class="px-3 py-1 md:px-4 md:py-1 ${resultBadgeColor} rounded-lg font-black uppercase tracking-widest flex items-center gap-2 self-end md:self-auto">
-                            <span>Rank #${m.myRank}</span>
-                            <span class="opacity-50">/</span>
-                            <span>${resultText}</span>
+                            <span>Rank #${m.myRank}</span><span class="opacity-50">/</span><span>${resultText}</span>
                         </span>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-white/10">
@@ -1581,53 +721,37 @@
 
         function renderTeam(players, t, matchId) {
             return players.map(p => {
-                const hoverDetail = `${t.kill}: ${p.kScore.toLocaleString()} | ${t.loss}: ${p.lScore.toLocaleString()} | ${t.obj}: ${p.oScore}`;
-                const medalsHtml = p.medals.length > 0 ? 
-                    `<div class="flex flex-wrap gap-1 mt-1.5">${p.medals.map(m => {
-                        const mName = t.medals[m.key] || m.key;
-                        return `<div class="medal-badge group" title="${mName}: ${Math.round(m.val).toLocaleString()}">
-                                <span class="text-[10px] md:text-[12px] filter drop-shadow-md select-none leading-none">${m.icon}</span>
-                                <span class="text-[10px] font-bold ${m.color} opacity-90 leading-none whitespace-nowrap">${mName}</span>
+                const hoverDetail = `${t.kill}: ${Math.round(p.kScore)} | ${t.loss}: ${Math.round(p.lScore)} | MVP: ${p.mvpScore.toFixed(1)}`;
+                
+                let tagsHtml = '';
+                if (p.earnedTags.length > 0) {
+                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1.5">` + 
+                        p.earnedTags.slice(0, 3).map(tag => {
+                            const def = BREAKDOWN_DEFS[tag.key];
+                            const label = t.tags[tag.key] || tag.key;
+                            return `<div class="medal-badge group border-dashed border-white/20 bg-black/30" title="${label} 评分: ${tag.val.toFixed(1)}/100">
+                                <span class="text-[10px] filter drop-shadow-md select-none leading-none opacity-90">${def.icon}</span>
+                                <span class="text-[10px] font-bold ${def.color} opacity-80 leading-none whitespace-nowrap">${label}</span>
                             </div>`;
-                    }).join('')}</div>` : '';
-
-                let favHtml = '';
-                if (p.favUnits) {
-                    const uD = p.favUnits.d.id > 0 ? getUnitDisplayName(p.favUnits.d.id) : '';
-                    const uK = p.favUnits.k.id > 0 ? getUnitDisplayName(p.favUnits.k.id) : '';
-                    const uT = p.favUnits.t.id > 0 ? getUnitDisplayName(p.favUnits.t.id) : '';
-                    
-                    const renderTag = (name, val, colorClass, textClass) => {
-                        if (!name) return '';
-                        return `<div class="match-unit-tag ${textClass} ${colorClass}">
-                            <span class="truncate opacity-90 flex-1">${name}</span>
-                            <span class="ml-1 opacity-70">${val}</span>
-                        </div>`;
-                    };
-
-                    const tagD = renderTag(uD, Math.round(p.favUnits.d.v).toLocaleString(), 'border-orange-500/30 bg-orange-900/20', 'text-orange-200');
-                    const tagK = renderTag(uK, p.favUnits.k.v, 'border-red-500/30 bg-red-900/20', 'text-red-200');
-                    const tagT = renderTag(uT, Math.round(p.favUnits.t.v).toLocaleString(), 'border-blue-500/30 bg-blue-900/20', 'text-blue-200');
-                    
-                    if (tagD || tagK || tagT) {
-                        favHtml = `<div class="flex flex-col gap-0.5 ml-2 w-24 md:w-32 flex-shrink-0 border-l border-white/10 pl-1 justify-center h-full">
-                            ${tagD}${tagK}${tagT}
-                        </div>`;
-                    }
+                        }).join('') + `</div>`;
                 }
+
+                const eloHtml = p.gain !== null 
+                    ? `<div class="text-[10px] font-black ${parseFloat(p.gain)>=0?'text-green-500':'text-red-500'}">${parseFloat(p.gain)>0?'+':''}${p.gain}</div>
+                       <div class="text-[9px] font-bold text-slate-500">ELO ${p.elo}</div>`
+                    : `<div class="text-[10px] font-black text-transparent">-</div>
+                       <div class="text-[9px] font-bold text-slate-600">ELO ---</div>`;
 
                 return `
                 <div class="teammate-row flex items-center p-2 md:p-3 rounded-xl md:rounded-2xl ${p.isMe?'is-me':''}" title="${hoverDetail}" onclick="openPlayerDetail('${matchId}', '${p.id}')">
                     <div class="flex-1 min-w-0 pr-2 md:pr-4 flex flex-col justify-center relative">
                         <div class="flex justify-between items-start w-full">
-                            <div class="text-xs md:text-sm font-black text-slate-100 truncate mb-0.5 mr-1">${escapeHtml(p.name)}</div>
+                            <div class="text-xs md:text-sm font-black text-slate-100 truncate mb-0.5 mr-1">${p.name || 'Unknown'}</div>
                             <div class="text-right font-mono flex-shrink-0 flex flex-col items-end leading-none">
-                                <div class="text-[10px] md:text-[11px] font-black ${parseFloat(p.gain)>=0?'text-green-500':'text-red-500'}">${parseFloat(p.gain)>=0?'+':''}${p.gain}</div>
-                                <div class="text-[9px] md:text-[10px] font-bold text-slate-500">ELO ${p.elo}</div>
+                                ${eloHtml}
                             </div>
                         </div>
-                        ${medalsHtml}
-                        <div class="id-link mt-1" onclick="event.stopPropagation(); inspect('${p.id}')">${p.id}</div>
+                        ${tagsHtml}
                     </div>
                     
                     <div class="w-16 md:w-28 space-y-1 flex-shrink-0">
@@ -1635,250 +759,117 @@
                         <div class="flex items-center gap-1"><div class="bar-container"><div class="bar-loss" style="width:${p.lPct}%"></div></div></div>
                         <div class="flex items-center gap-1"><div class="bar-container"><div class="bar-obj" style="width:${p.oPct}%"></div></div></div>
                     </div>
-
-                    ${favHtml}
                 </div>
             `}).join('');
         }
 
-        // --- Player Detail Modal Logic ---
+        // ==========================================
+        // 模态框交互辅助代码 (重构兵种偏好展示)
+        // ==========================================
         function openPlayerDetail(matchId, playerId) {
             const match = CURRENT_MATCH_STATS.find(m => String(m.id) === String(matchId));
             if(!match) return;
+            let player = match.ally.find(p => String(p.id) === String(playerId)) || match.enemy.find(p => String(p.id) === String(playerId));
+            if(!player) return;
 
-            let player = match.ally.find(p => String(p.id) === String(playerId));
-            if (!player) player = match.enemy.find(p => String(p.id) === String(playerId));
-            if (!player) return;
-
-            const t = DICT[currentLang];
-            const raw = player.rawData;
-
-            document.getElementById('pd_name').innerText = player.name || 'Unknown';
+            document.getElementById('pd_name').innerText = player.name;
             document.getElementById('pd_id').innerText = `ID: ${player.id}`;
-            document.getElementById('pd_elo').innerText = `ELO ${player.elo} (${parseFloat(player.gain)>=0?'+':''}${player.gain})`;
-            document.getElementById('pd_elo').className = parseFloat(player.gain) >= 0 ? "text-green-400 font-mono" : "text-red-400 font-mono";
+            
+            if (player.gain !== null) {
+                document.getElementById('pd_elo').innerText = `ELO ${player.elo} (${parseFloat(player.gain)>=0?'+':''}${player.gain})`;
+                document.getElementById('pd_elo').className = parseFloat(player.gain)>=0 ? "text-green-400 font-mono" : "text-red-400 font-mono";
+            } else {
+                document.getElementById('pd_elo').innerText = `ELO ---`;
+                document.getElementById('pd_elo').className = "text-slate-500 font-mono";
+            }
 
             document.getElementById('pd_kill').innerText = Math.round(player.kScore).toLocaleString();
             document.getElementById('pd_loss').innerText = Math.round(player.lScore).toLocaleString();
-            document.getElementById('pd_obj').innerText = Math.round(player.oScore).toLocaleString();
+            document.getElementById('pd_obj').innerText = player.mvpScore.toFixed(1);
             document.getElementById('pd_kd').innerText = player.kd.toFixed(2);
 
-            document.getElementById('pd_dmg_dealt').innerText = Math.round(raw.DamageDealt || 0).toLocaleString();
-            document.getElementById('pd_dmg_taken').innerText = Math.round(raw.DamageReceived || 0).toLocaleString();
-            document.getElementById('pd_supply').innerText = Math.round(raw.SupplyPointsConsumed || 0).toLocaleString();
-            document.getElementById('pd_supply_ally').innerText = Math.round(raw.SupplyPointsConsumedFromAllies || 0).toLocaleString();
-            document.getElementById('pd_supply_give').innerText = Math.round(raw.SupplyPointsConsumedByAllies || 0).toLocaleString();
-            document.getElementById('pd_units').innerText = Math.round(raw.TotalSpawnedUnitScore || 0).toLocaleString();
+            document.getElementById('pd_dmg_dealt').innerText = Math.round(player.dmgDealt).toLocaleString();
+            document.getElementById('pd_units').innerText = Math.round(player.Investment).toLocaleString();
+            document.getElementById('pd_refund').innerText = Math.round(player.Refunded).toLocaleString();
+            document.getElementById('pd_roi').innerText = player.roi !== undefined ? player.roi.toFixed(2) : 'N/A';
 
-            const setTopUnit = (prefix, unitObj) => {
-                const name = unitObj && unitObj.id > 0 ? getUnitDisplayName(unitObj.id) : '-';
-                const val = unitObj && unitObj.v > -1 ? Math.round(unitObj.v).toLocaleString() : '0';
-                document.getElementById(`${prefix}_name`).innerText = name;
-                document.getElementById(`${prefix}_val`).innerText = val;
-            };
-
-            setTopUnit('pd_top_dmg', player.favUnits.d);
-            setTopUnit('pd_top_kill', player.favUnits.k);
-            setTopUnit('pd_top_tank', player.favUnits.t);
+            // 全新：战术偏好列表渲染
+            let catsHtml = '';
+            if (player.unitCategories && player.unitCategories.length > 0) {
+                let sortedCats = [...player.unitCategories].sort((a,b) => b.totalCost - a.totalCost);
+                catsHtml = sortedCats.map(c => {
+                    const icon = CAT_ICONS[c.categoryKey] || '❓';
+                    const name = CAT_NAMES[currentLang]?.[c.categoryKey] || c.categoryKey.toUpperCase();
+                    return `
+                    <div class="bg-slate-800/60 rounded-lg p-3 flex items-center justify-between border border-white/5 hover:bg-slate-700/60 transition">
+                        <div class="flex items-center gap-3 w-1/3">
+                            <span class="text-2xl drop-shadow-md">${icon}</span>
+                            <span class="text-sm font-bold text-slate-200">${name}</span>
+                        </div>
+                        <div class="flex-1 flex justify-around text-xs text-slate-400 font-mono">
+                            <div class="flex flex-col items-center"><span class="text-[10px] text-slate-500">QTY</span><span class="text-white">${c.count}</span></div>
+                            <div class="flex flex-col items-center"><span class="text-[10px] text-slate-500">COST</span><span class="text-blue-400">${Math.round(c.totalCost).toLocaleString()}</span></div>
+                            <div class="flex flex-col items-center"><span class="text-[10px] text-slate-500">DMG</span><span class="text-orange-400">${Math.round(c.totalDamage).toLocaleString()}</span></div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } else {
+                catsHtml = '<div class="text-center text-xs text-slate-500 py-6 border border-dashed border-white/10 rounded-lg">No combat data available</div>';
+            }
+            document.getElementById('pd_categories_list').innerHTML = catsHtml;
 
             document.getElementById('playerDetailModal').classList.remove('hidden');
         }
 
-        function closePlayerDetailModal() {
-            document.getElementById('playerDetailModal').classList.add('hidden');
-        }
+        function closePlayerDetailModal() { document.getElementById('playerDetailModal').classList.add('hidden'); }
+        function openSearchModal() { document.getElementById('idSearchModal').classList.remove('hidden'); }
+        function closeSearchModal() { document.getElementById('idSearchModal').classList.add('hidden'); }
+        function openMatchSearchModal() { document.getElementById('matchSearchModal').classList.remove('hidden'); }
+        function closeMatchSearchModal() { document.getElementById('matchSearchModal').classList.add('hidden'); }
 
-        function saveHistory(id, name) {
-            let h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            h = h.filter(x => x.id !== id);
-            h.unshift({ id, name: name || id });
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0, 10)));
-            renderHistory();
-        }
-        function inspect(id) { 
-            const newUrl = window.location.origin + window.location.pathname + '?steamId=' + id;
-            window.open(newUrl, '_blank'); 
-        }
-        function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-        function openSearchModal() {
-            document.getElementById('idSearchModal').classList.remove('hidden');
-            document.getElementById('modalSearchInput').focus();
-        }
-        function closeSearchModal() {
-            document.getElementById('idSearchModal').classList.add('hidden');
-        }
-
-        function openMatchSearchModal() {
-            document.getElementById('matchSearchModal').classList.remove('hidden');
-            document.getElementById('matchIdInput').focus();
-        }
-
-        function closeMatchSearchModal() {
-            document.getElementById('matchSearchModal').classList.add('hidden');
-            document.getElementById('matchModalResultArea').classList.add('hidden');
-            document.getElementById('matchIdInput').value = '';
-            document.getElementById('matchModalStatus').innerText = '';
+        async function doNameSearch() {
+            const name = document.getElementById('modalSearchInput').value.trim();
+            if (!name) return;
+            const status = document.getElementById('modalStatusMsg');
+            const list = document.getElementById('modalResultList');
+            status.innerText = "Searching...";
+            list.innerHTML = ''; list.classList.remove('hidden');
+            
+            try {
+                const res = await robustFetch(API.SEARCH(name));
+                if (!res.players || res.players.length === 0) { status.innerText = "No players found."; return; }
+                status.innerText = `Found ${res.players.length} players.`;
+                
+                res.players.forEach(p => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left p-3 rounded-lg bg-slate-800/50 border border-slate-700 transition hover:bg-orange-900/30";
+                    btn.innerHTML = `<div class="font-bold text-white">${p.name}</div><div class="text-xs text-slate-400 font-mono">ID: ${p.id}</div>`;
+                    btn.onclick = () => { document.getElementById('steamInput').value = p.id; closeSearchModal(); handleCheck(); };
+                    list.appendChild(btn);
+                });
+            } catch(e) { status.innerText = "Error: " + e.message; }
         }
 
         async function doMatchSearch() {
             const mid = document.getElementById('matchIdInput').value.trim();
-            const status = document.getElementById('matchModalStatus');
-            const resultArea = document.getElementById('matchModalResultArea');
-            const t = DICT[currentLang];
-
             if(!mid) return;
-
-            status.innerText = t.modal_match_loading;
-            status.className = "text-xs mb-4 pl-1 text-cyan-400 animate-pulse";
-            resultArea.classList.add('hidden');
-
-            try {
-                // Replaced Barmory with Batrace API
-                const dataRaw = await robustFetch(`https://batrace.aoeiaol.top/api/v1/matches/${mid}`);
-                
-                // Batrace might return the raw match object directly.
-                // Or it might be wrapped. Assuming standard Batrace response structure where root is match object.
-                let detail = { Data: dataRaw.Data, WinnerTeam: dataRaw.WinnerTeam, EndMatchReason: dataRaw.EndMatchReason };
-                if (!detail.Data && dataRaw.data) {
-                    // Handle potential wrapped structure
-                    detail = dataRaw.data;
-                } else if (!detail.Data) {
-                    // Assuming dataRaw IS the match object which contains Data
-                    detail = dataRaw;
-                }
-                
-                const data = detail.Data;
-                
-                if (detail.WinnerTeam === undefined) {
-                    const pValues = Object.values(data);
-                    const ref = pValues.find(p => p.NewRating !== undefined && p.OldRating !== undefined);
-                    if (ref) {
-                        const win = (ref.NewRating - ref.OldRating) >= 0;
-                        detail.WinnerTeam = win ? ref.TeamId : (ref.TeamId === 1 ? 0 : 1);
-                    }
-                }
-
-                const players = Object.entries(data).map(([id, val]) => ({...val, Id: id}));
-                const team0Players = players.filter(p => p.TeamId === 0 || p.TeamId === undefined);
-                const team1Players = players.filter(p => p.TeamId === 1);
-
-                const renderMiniCard = (p) => {
-                    const isWin = p.TeamId === detail.WinnerTeam;
-                    return `
-                        <div onclick="useFromMatch('${p.Id}')" class="flex items-center justify-between p-3 bg-slate-800/50 hover:bg-cyan-900/30 border border-slate-700 hover:border-cyan-500 rounded-xl cursor-pointer transition group">
-                            <div class="flex-1 min-w-0">
-                                <div class="text-sm font-bold text-slate-100 group-hover:text-white truncate">${escapeHtml(p.Name || 'Unknown')}</div>
-                                <div class="text-[10px] font-mono text-slate-500 group-hover:text-cyan-400/70">ID: ${p.Id}</div>
-                            </div>
-                            <div class="text-right ml-4">
-                                <div class="text-[10px] font-black ${isWin?'text-cyan-400':'text-red-400'}">${isWin ? t.res_vic : t.res_def}</div>
-                                <div class="text-[10px] text-slate-400 font-mono">ELO ${p.NewRating?.toFixed(0) || '---'}</div>
-                            </div>
-                        </div>
-                    `;
-                };
-
-                document.getElementById('matchModalTeam0').innerHTML = `<div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Team Alpha</div>` + team0Players.map(renderMiniCard).join('');
-                document.getElementById('matchModalTeam1').innerHTML = `<div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Team Bravo</div>` + team1Players.map(renderMiniCard).join('');
-
-                status.innerText = "";
-                resultArea.classList.remove('hidden');
-
-            } catch (e) {
-                status.innerText = t.modal_match_err;
-                status.className = "text-xs mb-4 pl-1 text-red-400";
-            }
-        }
-
-        function useFromMatch(uid) {
-            document.getElementById('steamInput').value = uid;
-            closeMatchSearchModal();
-            handleCheck();
-        }
-
-        async function doNameSearch() {
-            const name = document.getElementById('modalSearchInput').value.trim();
-            const statusEl = document.getElementById('modalStatusMsg');
-            const listEl = document.getElementById('modalResultList');
-            const resultEl = document.getElementById('modalFinalResult');
-            const t = DICT[currentLang];
-
-            if (!name) return;
-
-            statusEl.innerText = t.modal_status_search;
-            statusEl.className = "text-xs text-orange-400 min-h-[1.5rem] mb-2 pl-1 animate-pulse";
-            listEl.classList.add('hidden');
-            resultEl.classList.add('hidden');
-            listEl.innerHTML = '';
+            const status = document.getElementById('matchModalStatus');
+            const area = document.getElementById('matchModalResultArea');
+            status.innerText = "Loading Match..."; area.classList.add('hidden');
 
             try {
-                // Keep this Batrace API call as it was already correct in the source provided
-                const url = `https://batrace.aoeiaol.top/api/v1/search/players?q=${encodeURIComponent(name)}&limit=20`;
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("API Request Failed");
-                const data = await response.json();
-                const results = data.results || [];
-
-                if (results.length === 0) {
-                    statusEl.innerText = t.modal_status_none;
-                    statusEl.className = "text-xs text-red-400 min-h-[1.5rem] mb-2 pl-1";
-                    return;
-                }
-
-                statusEl.innerText = t.modal_status_found.replace('{n}', results.length);
-                statusEl.className = "text-xs text-green-400 min-h-[1.5rem] mb-2 pl-1";
-                renderPlayerList(results);
-
-            } catch (err) {
-                statusEl.innerText = t.modal_status_err + err.message;
-                statusEl.className = "text-xs text-red-400 min-h-[1.5rem] mb-2 pl-1";
-            }
-        }
-
-        function renderPlayerList(players) {
-            const listEl = document.getElementById('modalResultList');
-            listEl.classList.remove('hidden');
-
-            players.forEach(p => {
-                const btn = document.createElement('button');
-                btn.className = "search-result-item w-full text-left p-3 rounded-lg bg-slate-800/50 border border-slate-700 transition flex justify-between items-center group";
-                const safeName = p.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const data = await robustFetch(API.MATCH(mid));
+                if (!data.mvpRanking) throw new Error("Invalid match data");
                 
-                btn.innerHTML = `
-                    <div class="overflow-hidden">
-                        <div class="font-bold text-slate-200 group-hover:text-orange-300 truncate text-sm">${safeName}</div>
-                        <div class="flex items-center text-xs text-slate-500 group-hover:text-orange-200/50 font-mono gap-2">
-                            <span>ID: ${p.id}</span>
-                            <span class="opacity-30">|</span>
-                            <span class="text-[10px] opacity-70">Steam: ${p.steam_id}</span>
-                        </div>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <span class="text-[10px] px-2 py-0.5 bg-yellow-900/30 text-yellow-500 rounded border border-yellow-900/50">Lv.${p.level}</span>
-                    </div>
-                `;
-                btn.onclick = () => selectPlayerFromSearch(p);
-                listEl.appendChild(btn);
-            });
-        }
+                const t0 = data.mvpRanking.filter(p => p.teamId === 0);
+                const t1 = data.mvpRanking.filter(p => p.teamId === 1);
 
-        function selectPlayerFromSearch(player) {
-            document.getElementById('modalResultList').classList.add('hidden');
-            const resultEl = document.getElementById('modalFinalResult');
-            resultEl.classList.remove('hidden');
-            document.getElementById('modalSelectedName').innerText = player.name;
-            document.getElementById('modalSelectedId').innerText = player.id; 
-            document.getElementById('modalStatusMsg').innerText = "";
-        }
+                const renderC = (p) => `<div onclick="document.getElementById('steamInput').value='${p.playerId}'; closeMatchSearchModal(); handleCheck();" class="p-3 bg-slate-800/50 hover:bg-cyan-900/30 border border-slate-700 rounded-xl cursor-pointer"><div class="font-bold text-white text-sm">${p.playerName}</div><div class="text-[10px] text-slate-400 font-mono">ID: ${p.playerId}</div></div>`;
 
-        function useFoundId() {
-            const id = document.getElementById('modalSelectedId').innerText;
-            if(id) {
-                document.getElementById('steamInput').value = id;
-                closeSearchModal();
-                handleCheck();
-            }
+                document.getElementById('matchModalTeam0').innerHTML = t0.map(renderC).join('');
+                document.getElementById('matchModalTeam1').innerHTML = t1.map(renderC).join('');
+                status.innerText = ""; area.classList.remove('hidden');
+            } catch (e) { status.innerText = "Error fetching match"; }
         }
     </script>
 </body>
