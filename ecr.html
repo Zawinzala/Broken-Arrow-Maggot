@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECR 亲密关系依恋类型在线测试</title>
+    <title>ECR “亲密关系”依恋类型在线测试</title>
     <!-- 引入 React 和 ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -55,30 +55,30 @@
 
         // --- 1. 题库定义 (严格遵循报告中的反向计分要求) ---
         const QUESTIONS = [
-            { id: 1, text: "总的来说，我不喜欢让恋人知道自己内心深处的感觉。", dim: "avo", rev: false },
-            { id: 2, text: "我觉得和恋人亲近是一件很惬意的事情。", dim: "avo", rev: true },
-            { id: 3, text: "当恋人开始要跟我亲近时，我发现我自己在退缩。", dim: "avo", rev: false },
-            { id: 4, text: "当恋人开始要跟我亲近时，我会觉得很不自在。", dim: "avo", rev: false },
-            { id: 5, text: "我觉得对恋人开诚布公，不是一件很舒服的事情。", dim: "avo", rev: false },
-            { id: 6, text: "我想与恋人亲近，但又总是会退缩不前。", dim: "avo", rev: false },
-            { id: 7, text: "当恋人跟我过分亲密的时候，我会感到内心紧张。", dim: "avo", rev: false },
-            { id: 8, text: "我愿意把我内心的想法和感觉告诉恋人，我觉得这是一件自在的事情。", dim: "avo", rev: true },
-            { id: 9, text: "我试图避免与恋人变得太亲近。", dim: "avo", rev: false },
-            { id: 10, text: "我觉得我比较容易与恋人亲近。", dim: "avo", rev: true },
-            { id: 11, text: "我发现让我依赖恋人，是一件很困难的事情。", dim: "avo", rev: false },
-            { id: 12, text: "我倾向于不和恋人过分亲密。", dim: "avo", rev: false },
+            { id: 1, text: "总的来说，我不喜欢让“亲密关系”知道自己内心深处的感觉。", dim: "avo", rev: false },
+            { id: 2, text: "我觉得和“亲密关系”亲近是一件很惬意的事情。", dim: "avo", rev: true },
+            { id: 3, text: "当“亲密关系”开始要跟我亲近时，我发现我自己在退缩。", dim: "avo", rev: false },
+            { id: 4, text: "当“亲密关系”开始要跟我亲近时，我会觉得很不自在。", dim: "avo", rev: false },
+            { id: 5, text: "我觉得对“亲密关系”开诚布公，不是一件很舒服的事情。", dim: "avo", rev: false },
+            { id: 6, text: "我想与“亲密关系”亲近，但又总是会退缩不前。", dim: "avo", rev: false },
+            { id: 7, text: "当“亲密关系”跟我过分亲密的时候，我会感到内心紧张。", dim: "avo", rev: false },
+            { id: 8, text: "我愿意把我内心的想法和感觉告诉“亲密关系”，我觉得这是一件自在的事情。", dim: "avo", rev: true },
+            { id: 9, text: "我试图避免与“亲密关系”变得太亲近。", dim: "avo", rev: false },
+            { id: 10, text: "我觉得我比较容易与“亲密关系”亲近。", dim: "avo", rev: true },
+            { id: 11, text: "我发现让我依赖“亲密关系”，是一件很困难的事情。", dim: "avo", rev: false },
+            { id: 12, text: "我倾向于不和“亲密关系”过分亲密。", dim: "avo", rev: false },
             { id: 13, text: "我担心我会被抛弃。", dim: "anx", rev: false },
             { id: 14, text: "我很担心我的恋爱关系。", dim: "anx", rev: false },
-            { id: 15, text: "我担心恋人不会像我关心他/她一样地关心我。", dim: "anx", rev: false },
-            { id: 16, text: "我有点担心会失去恋人。", dim: "anx", rev: false },
-            { id: 17, text: "我常常希望恋人对我的感情和我对恋人的感情一样强烈。", dim: "anx", rev: false },
-            { id: 18, text: "我常常想与恋人形影不离，但有时这样会把恋人吓跑。", dim: "anx", rev: false },
+            { id: 15, text: "我担心“亲密关系”不会像我关心他/她一样地关心我。", dim: "anx", rev: false },
+            { id: 16, text: "我有点担心会失去“亲密关系”。", dim: "anx", rev: false },
+            { id: 17, text: "我常常希望“亲密关系”对我的感情和我对“亲密关系”的感情一样强烈。", dim: "anx", rev: false },
+            { id: 18, text: "我常常想与“亲密关系”形影不离，但有时这样会把“亲密关系”吓跑。", dim: "anx", rev: false },
             { id: 19, text: "我担心一个人独处。", dim: "anx", rev: false },
-            { id: 20, text: "我经常忍不住去猜测恋人到底有多在乎我。", dim: "anx", rev: false },
-            { id: 21, text: "我需要我的恋人一再地保证他/她是爱我的。", dim: "anx", rev: false },
-            { id: 22, text: "我觉得自己有时会要求恋人对我表现出更多的情感和投入。", dim: "anx", rev: false },
-            { id: 23, text: "我并不是常常担心被恋人抛弃。", dim: "anx", rev: true },
-            { id: 24, text: "如果我无法得到恋人的注意和关心，我会心烦意乱或者生气。", dim: "anx", rev: false }
+            { id: 20, text: "我经常忍不住去猜测“亲密关系”到底有多在乎我。", dim: "anx", rev: false },
+            { id: 21, text: "我需要我的“亲密关系”一再地保证他/她是爱我的。", dim: "anx", rev: false },
+            { id: 22, text: "我觉得自己有时会要求“亲密关系”对我表现出更多的情感和投入。", dim: "anx", rev: false },
+            { id: 23, text: "我并不是常常担心被“亲密关系”抛弃。", dim: "anx", rev: true },
+            { id: 24, text: "如果我无法得到“亲密关系”的注意和关心，我会心烦意乱或者生气。", dim: "anx", rev: false }
         ];
 
         // 阈值设定 (取消偏移，采用5分制的绝对物理中点 3.0)
@@ -109,7 +109,7 @@
                 title: "恐惧型 (Fearful)",
                 color: "text-red-600",
                 bg: "bg-red-100",
-                desc: "高焦虑、高回避。您在亲密关系中可能正在经历着强烈的内在撕裂——想靠近却害怕受伤，想逃离却又惧怕孤独。这种仿佛在情感雷区中前行的体验让人十分疲惫。您的防御机制曾在过去保护了您，但如今可能正在阻碍您建立滋养性的新连接。请不必对自己过于严苛，在一个温暖的心理咨询环境中探索深层恐惧将对您大有裨益。"
+                desc: "高焦虑、高回避。您在“亲密关系”中可能正在经历着强烈的内在撕裂——想靠近却害怕受伤，想逃离却又惧怕孤独。这种仿佛在情感雷区中前行的体验让人十分疲惫。您的防御机制曾在过去保护了您，但如今可能正在阻碍您建立滋养性的新连接。请不必对自己过于严苛，在一个温暖的心理咨询环境中探索深层恐惧将对您大有裨益。"
             }
         };
 
@@ -194,7 +194,7 @@
                             </div>
                             <div className="p-8 md:p-12 text-gray-600 text-lg leading-relaxed">
                                 <p className="mb-6">
-                                    欢迎来到全新重构的亲密关系测试。这不仅仅是一个测试，更是一次探索自我情感机制的旅程。
+                                    欢迎来到全新重构的“亲密关系”测试。这不仅仅是一个测试，更是一次探索自我情感机制的旅程。
                                 </p>
                                 <ul className="mb-8 space-y-3">
                                     <li className="flex items-start">
