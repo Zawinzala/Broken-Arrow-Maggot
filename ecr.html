@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECR 亲密关系经历在线测试</title>
+    <!-- 引入 React 和 ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- 引入 Babel 编译 JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Nunito', 'Microsoft YaHei', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* 自定义过渡动画 */
+        .fade-enter { opacity: 0; transform: translateY(10px); }
+        .fade-enter-active { opacity: 1; transform: translateY(0); transition: opacity 400ms, transform 400ms; }
+        
+        /* MBTI风格单选按钮 */
+        .radio-btn {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .radio-btn:hover { transform: scale(1.1); }
+        
+        /* 响应式调整圆圈大小 */
+        @media (max-width: 640px) {
+            .scale-container { gap: 0.5rem !important; }
+            .size-lg { width: 2.5rem; height: 2.5rem; }
+            .size-md { width: 2rem; height: 2rem; }
+            .size-sm { width: 1.5rem; height: 1.5rem; }
+            .size-xs { width: 1.2rem; height: 1.2rem; }
+        }
+        @media (min-width: 641px) {
+            .size-lg { width: 4rem; height: 4rem; }
+            .size-md { width: 3rem; height: 3rem; }
+            .size-sm { width: 2.2rem; height: 2.2rem; }
+            .size-xs { width: 1.8rem; height: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- 1. 题库定义 (严格遵循报告中的反向计分要求) ---
+        const QUESTIONS = [
+            { id: 1, text: "总的来说，我不喜欢让恋人知道自己内心深处的感觉。", dim: "avo", rev: false },
+            { id: 2, text: "我觉得和恋人亲近是一件很惬意的事情。", dim: "avo", rev: true },
+            { id: 3, text: "当恋人开始要跟我亲近时，我发现我自己在退缩。", dim: "avo", rev: false },
+            { id: 4, text: "当恋人开始要跟我亲近时，我会觉得很不自在。", dim: "avo", rev: false },
+            { id: 5, text: "我觉得对恋人开诚布公，不是一件很舒服的事情。", dim: "avo", rev: false },
+            { id: 6, text: "我想与恋人亲近，但又总是会退缩不前。", dim: "avo", rev: false },
+            { id: 7, text: "当恋人跟我过分亲密的时候，我会感到内心紧张。", dim: "avo", rev: false },
+            { id: 8, text: "我愿意把我内心的想法和感觉告诉恋人，我觉得这是一件自在的事情。", dim: "avo", rev: true },
+            { id: 9, text: "我试图避免与恋人变得太亲近。", dim: "avo", rev: false },
+            { id: 10, text: "我觉得我比较容易与恋人亲近。", dim: "avo", rev: true },
+            { id: 11, text: "我发现让我依赖恋人，是一件很困难的事情。", dim: "avo", rev: false },
+            { id: 12, text: "我倾向于不和恋人过分亲密。", dim: "avo", rev: false },
+            { id: 13, text: "我担心我会被抛弃。", dim: "anx", rev: false },
+            { id: 14, text: "我很担心我的恋爱关系。", dim: "anx", rev: false },
+            { id: 15, text: "我担心恋人不会像我关心他/她一样地关心我。", dim: "anx", rev: false },
+            { id: 16, text: "我有点担心会失去恋人。", dim: "anx", rev: false },
+            { id: 17, text: "我常常希望恋人对我的感情和我对恋人的感情一样强烈。", dim: "anx", rev: false },
+            { id: 18, text: "我常常想与恋人形影不离，但有时这样会把恋人吓跑。", dim: "anx", rev: false },
+            { id: 19, text: "我担心一个人独处。", dim: "anx", rev: false },
+            { id: 20, text: "我想和恋人非常亲密的愿望，有时会把恋人吓跑。", dim: "anx", rev: false },
+            { id: 21, text: "我需要我的恋人一再地保证他/她是爱我的。", dim: "anx", rev: false },
+            { id: 22, text: "我觉得自己有时会要求恋人对我表现出更多的情感和投入。", dim: "anx", rev: false },
+            { id: 23, text: "我并不是常常担心被恋人抛弃。", dim: "anx", rev: true },
+            { id: 24, text: "如果我无法得到恋人的注意和关心，我会心烦意乱或者生气。", dim: "anx", rev: false }
+        ];
+
+        // 阈值设定 (采用自然人群常模动态阈值)
+        const CUTOFF_ANX = 3.6;
+        const CUTOFF_AVO = 3.0;
+
+        // 结果文案库
+        const RESULTS_TEXT = {
+            secure: {
+                title: "安全型 (Secure)",
+                color: "text-green-600",
+                bg: "bg-green-100",
+                desc: "低焦虑、低回避。您在关系中展现出卓越的复原力。您能够在保持个人独立空间与享受深刻亲密感之间游刃有余。当冲突发生时，您倾向于使用建设性的沟通而非防御性退缩，这使得您的关系常常充满了滋养感。建议您继续保持这种良性的情感开放状态，您的稳定性往往能为伴侣提供极大的疗愈价值。"
+            },
+            preoccupied: {
+                title: "痴迷/焦虑型 (Preoccupied)",
+                color: "text-purple-600",
+                bg: "bg-purple-100",
+                desc: "高焦虑、低回避。您拥有一颗极其敏锐且渴望融合的心，但这种对联结的极度渴求有时反而成为了您的软肋。您可能会因为伴侣片刻的冷漠而陷入深层的恐慌。试着理解这些恐慌往往源自内部工作模型的旧有创伤，而非当前伴侣的真实背叛。培养独立于伴侣之外的自我安抚能力，将是您打破“追逃模式”的关键课题。"
+            },
+            dismissing: {
+                title: "疏离/回避型 (Dismissing)",
+                color: "text-blue-600",
+                bg: "bg-blue-100",
+                desc: "低焦虑、高回避。独立与强大是您的盔甲，但有时它也阻碍了真正的阳光照进内心。您可能发现自己在关系达到一定深度时，会本能地试图拉开情感距离以确保安全。您其实并非不需要亲密，只是潜意识里认为依赖别人是危险的。尝试在一段安全的关系中进行微小的自我暴露，适度的依赖会带来更深刻的归属感。"
+            },
+            fearful: {
+                title: "恐惧型 (Fearful)",
+                color: "text-red-600",
+                bg: "bg-red-100",
+                desc: "高焦虑、高回避。您在亲密关系中可能正在经历着强烈的内在撕裂——想靠近却害怕受伤，想逃离却又惧怕孤独。这种仿佛在情感雷区中前行的体验让人十分疲惫。您的防御机制曾在过去保护了您，但如今可能正在阻碍您建立滋养性的新连接。请不必对自己过于严苛，在一个温暖的心理咨询环境中探索深层恐惧将对您大有裨益。"
+            }
+        };
+
+        const App = () => {
+            const [step, setStep] = useState('welcome'); // welcome, test, result
+            const [currentQIndex, setCurrentQIndex] = useState(0);
+            const [answers, setAnswers] = useState(new Array(24).fill(null));
+            const [scores, setScores] = useState(null);
+
+            // 选项定义 (MBTI 风格: 7点量表，中间小，两头大)
+            const scaleOptions = [
+                { value: 1, label: '完全不符合', colorClass: 'border-[#8b5cf6] text-[#8b5cf6]', fillClass: 'bg-[#8b5cf6]', size: 'size-lg' },
+                { value: 2, label: '比较不符合', colorClass: 'border-[#a78bfa] text-[#a78bfa]', fillClass: 'bg-[#a78bfa]', size: 'size-md' },
+                { value: 3, label: '有点不符合', colorClass: 'border-[#c4b5fd] text-[#c4b5fd]', fillClass: 'bg-[#c4b5fd]', size: 'size-sm' },
+                { value: 4, label: '一半一半', colorClass: 'border-gray-400 text-gray-500', fillClass: 'bg-gray-400', size: 'size-xs' },
+                { value: 5, label: '有点符合', colorClass: 'border-[#6ee7b7] text-[#6ee7b7]', fillClass: 'bg-[#6ee7b7]', size: 'size-sm' },
+                { value: 6, label: '比较符合', colorClass: 'border-[#34d399] text-[#34d399]', fillClass: 'bg-[#34d399]', size: 'size-md' },
+                { value: 7, label: '完全符合', colorClass: 'border-[#10b981] text-[#10b981]', fillClass: 'bg-[#10b981]', size: 'size-lg' }
+            ];
+
+            const handleAnswer = (val) => {
+                const newAnswers = [...answers];
+                newAnswers[currentQIndex] = val;
+                setAnswers(newAnswers);
+
+                // 自动下一题
+                setTimeout(() => {
+                    if (currentQIndex < QUESTIONS.length - 1) {
+                        setCurrentQIndex(currentQIndex + 1);
+                    } else {
+                        calculateResults(newAnswers);
+                    }
+                }, 300);
+            };
+
+            const calculateResults = (finalAnswers) => {
+                let anxTotal = 0, avoTotal = 0;
+                let anxCount = 0, avoCount = 0;
+
+                QUESTIONS.forEach((q, idx) => {
+                    let rawScore = finalAnswers[idx];
+                    // 核心逻辑：执行 8 - score 反向计分映射
+                    let finalScore = q.rev ? (8 - rawScore) : rawScore; 
+                    
+                    if (q.dim === 'anx') {
+                        anxTotal += finalScore;
+                        anxCount++;
+                    } else {
+                        avoTotal += finalScore;
+                        avoCount++;
+                    }
+                });
+
+                const anxAvg = anxTotal / anxCount;
+                const avoAvg = avoTotal / avoCount;
+
+                // 判断类型 (基于动态阈值)
+                let typeKey = '';
+                if (anxAvg <= CUTOFF_ANX && avoAvg <= CUTOFF_AVO) typeKey = 'secure';
+                else if (anxAvg > CUTOFF_ANX && avoAvg <= CUTOFF_AVO) typeKey = 'preoccupied';
+                else if (anxAvg <= CUTOFF_ANX && avoAvg > CUTOFF_AVO) typeKey = 'dismissing';
+                else typeKey = 'fearful';
+
+                setScores({ anx: anxAvg, avo: avoAvg, type: typeKey });
+                setStep('result');
+                window.scrollTo(0, 0);
+            };
+
+            const resetTest = () => {
+                setAnswers(new Array(24).fill(null));
+                setCurrentQIndex(0);
+                setScores(null);
+                setStep('welcome');
+            };
+
+            // --- 欢迎页组件 ---
+            if (step === 'welcome') {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                        <div className="max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden fade-enter-active">
+                            <div className="bg-gradient-to-r from-purple-500 to-emerald-400 p-10 text-center text-white">
+                                <h1 className="text-4xl font-extrabold mb-4">深入内心的关系引力</h1>
+                                <p className="text-lg opacity-90">成人依恋模式多维测量 (ECR-R架构)</p>
+                            </div>
+                            <div className="p-8 md:p-12 text-gray-600 text-lg leading-relaxed">
+                                <p className="mb-6">
+                                    欢迎来到全新重构的亲密关系测试。这不仅仅是一个测试，更是一次探索自我情感机制的旅程。
+                                </p>
+                                <ul className="mb-8 space-y-3">
+                                    <li className="flex items-start">
+                                        <span className="text-emerald-500 mr-2">✓</span>
+                                        基于心理学实证数据的24道核心题目。
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-emerald-500 mr-2">✓</span>
+                                        采用7点量尺，真实捕捉您在感情中的细微波动与矛盾。
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-emerald-500 mr-2">✓</span>
+                                        请根据您在<strong>大部分恋爱经历</strong>中的普遍感受作答，凭直觉选择即可。
+                                    </li>
+                                </ul>
+                                <button 
+                                    onClick={() => setStep('test')}
+                                    className="w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold py-4 rounded-2xl transition shadow-lg hover:shadow-xl text-xl"
+                                >
+                                    开始探索
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- 测试页组件 ---
+            if (step === 'test') {
+                const q = QUESTIONS[currentQIndex];
+                const progress = ((currentQIndex + 1) / QUESTIONS.length) * 100;
+                const currentAnswer = answers[currentQIndex];
+
+                return (
+                    <div className="min-h-screen flex flex-col items-center pt-10 px-4 pb-20">
+                        {/* 进度条 */}
+                        <div className="w-full max-w-3xl mb-12">
+                            <div className="flex justify-between text-sm text-gray-500 font-bold mb-2">
+                                <span>进度</span>
+                                <span>{Math.round(progress)}%</span>
+                            </div>
+                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-purple-500 to-emerald-400 transition-all duration-300 ease-out"
+                                    style={{ width: `${progress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        {/* 题目卡片 */}
+                        <div className="w-full max-w-3xl fade-enter-active">
+                            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-16 px-4 leading-tight min-h-[120px]">
+                                {q.text}
+                            </h2>
+
+                            {/* MBTI 风格 7点量表 */}
+                            <div className="flex flex-col items-center w-full">
+                                <div className="flex items-center justify-between w-full scale-container max-w-2xl px-2">
+                                    <div className="text-sm font-bold text-purple-600 hidden sm:block w-16 text-right mr-4">不符合</div>
+                                    
+                                    <div className="flex items-center justify-center gap-2 sm:gap-6 flex-1">
+                                        {scaleOptions.map((opt) => (
+                                            <div 
+                                                key={opt.value}
+                                                onClick={() => handleAnswer(opt.value)}
+                                                className={`radio-btn rounded-full border-[3px] flex items-center justify-center
+                                                    ${opt.size} ${opt.colorClass}
+                                                    ${currentAnswer === opt.value ? opt.fillClass : 'bg-transparent'}
+                                                `}
+                                            >
+                                                {/* 选中时的内白点 */}
+                                                {currentAnswer === opt.value && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="text-sm font-bold text-emerald-600 hidden sm:block w-16 text-left ml-4">符合</div>
+                                </div>
+                                {/* 移动端极性标签 */}
+                                <div className="flex justify-between w-full max-w-2xl px-6 mt-4 sm:hidden text-gray-500 font-bold text-sm">
+                                    <span className="text-purple-600">强烈不符合</span>
+                                    <span className="text-emerald-600">强烈符合</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 底部导航 */}
+                        <div className="fixed bottom-0 w-full bg-white border-t border-gray-200 p-4 flex justify-center gap-4">
+                            <button 
+                                onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))}
+                                disabled={currentQIndex === 0}
+                                className="px-6 py-2 rounded-xl border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                            >
+                                上一题
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- 结果页组件 ---
+            if (step === 'result') {
+                const resultData = RESULTS_TEXT[scores.type];
+                
+                // SVG 坐标系计算 (仿射变换)
+                const SVG_SIZE = 400;
+                const PADDING = 40;
+                const INNER_SIZE = SVG_SIZE - PADDING * 2;
+                const RANGE = 6; // 最大分7 - 最小分1 = 6
+
+                // 核心坐标推演 (X: 回避, Y: 焦虑 [反转])
+                const pointX = PADDING + ((scores.avo - 1) / RANGE) * INNER_SIZE;
+                const pointY = SVG_SIZE - PADDING - ((scores.anx - 1) / RANGE) * INNER_SIZE;
+
+                // 绘制常模阈值切割线
+                const lineX = PADDING + ((CUTOFF_AVO - 1) / RANGE) * INNER_SIZE;
+                const lineY = SVG_SIZE - PADDING - ((CUTOFF_ANX - 1) / RANGE) * INNER_SIZE;
+
+                return (
+                    <div className="min-h-screen p-4 md:p-10 flex flex-col items-center pb-20">
+                        <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col lg:flex-row fade-enter-active">
+                            
+                            {/* 左侧：图表区 */}
+                            <div className="w-full lg:w-1/2 p-8 bg-gray-50 border-r border-gray-100 flex flex-col items-center justify-center">
+                                <h3 className="text-2xl font-bold text-gray-800 mb-6">您的依恋维度坐标</h3>
+                                
+                                <div className="relative border-4 border-white shadow-lg rounded-2xl bg-white p-2">
+                                    <svg width="100%" height="100%" viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`} className="max-w-[400px] max-h-[400px]">
+                                        {/* 象限背景色 (基于常模阈值切分) */}
+                                        <rect x={PADDING} y={PADDING} width={lineX - PADDING} height={lineY - PADDING} fill="#f3e8ff" /> {/* 恐惧型背景 (左上) 注:此处坐标其实是低回避高焦虑(痴迷) */}
+                                        
+                                        {/* 调整正确的四象限背景色逻辑：
+                                            X轴(回避)：越小越靠左
+                                            Y轴(焦虑)：越小越靠下 (因为页面Y向下递增，这里做了SVG的倒置)
+                                        */}
+                                        {/* 左下：安全 (低焦虑, 低回避) */}
+                                        <rect x={PADDING} y={lineY} width={lineX - PADDING} height={SVG_SIZE - PADDING - lineY} fill="#dcfce7" />
+                                        {/* 左上：痴迷 (高焦虑, 低回避) */}
+                                        <rect x={PADDING} y={PADDING} width={lineX - PADDING} height={lineY - PADDING} fill="#f3e8ff" />
+                                        {/* 右下：疏离 (低焦虑, 高回避) */}
+                                        <rect x={lineX} y={lineY} width={SVG_SIZE - PADDING - lineX} height={SVG_SIZE - PADDING - lineY} fill="#dbeafe" />
+                                        {/* 右上：恐惧 (高焦虑, 高回避) */}
+                                        <rect x={lineX} y={PADDING} width={SVG_SIZE - PADDING - lineX} height={lineY - PADDING} fill="#fee2e2" />
+
+                                        {/* 阈值分割线 */}
+                                        <line x1={lineX} y1={PADDING} x2={lineX} y2={SVG_SIZE-PADDING} stroke="#9ca3af" strokeWidth="2" strokeDasharray="5,5" />
+                                        <line x1={PADDING} y1={lineY} x2={SVG_SIZE-PADDING} y2={lineY} stroke="#9ca3af" strokeWidth="2" strokeDasharray="5,5" />
+
+                                        {/* 物理中心线(4.0) 作为参考 */}
+                                        <line x1={PADDING + INNER_SIZE/2} y1={PADDING} x2={PADDING + INNER_SIZE/2} y2={SVG_SIZE-PADDING} stroke="#e5e7eb" strokeWidth="1" />
+                                        <line x1={PADDING} y1={PADDING + INNER_SIZE/2} x2={SVG_SIZE-PADDING} y2={PADDING + INNER_SIZE/2} stroke="#e5e7eb" strokeWidth="1" />
+
+                                        {/* 坐标轴框 */}
+                                        <rect x={PADDING} y={PADDING} width={INNER_SIZE} height={INNER_SIZE} fill="none" stroke="#4b5563" strokeWidth="2" />
+                                        
+                                        {/* 坐标轴标签 */}
+                                        <text x={SVG_SIZE/2} y={SVG_SIZE - 10} textAnchor="middle" fill="#6b7280" fontSize="14" fontWeight="bold">回避维度 (Avoidance)</text>
+                                        <text x={15} y={SVG_SIZE/2} textAnchor="middle" fill="#6b7280" fontSize="14" fontWeight="bold" transform={`rotate(-90 15 ${SVG_SIZE/2})`}>焦虑维度 (Anxiety)</text>
+
+                                        <text x={PADDING} y={SVG_SIZE - 25} textAnchor="middle" fill="#9ca3af" fontSize="12">1</text>
+                                        <text x={SVG_SIZE - PADDING} y={SVG_SIZE - 25} textAnchor="middle" fill="#9ca3af" fontSize="12">7</text>
+                                        <text x={25} y={SVG_SIZE - PADDING} textAnchor="middle" fill="#9ca3af" fontSize="12">1</text>
+                                        <text x={25} y={PADDING} textAnchor="middle" fill="#9ca3af" fontSize="12">7</text>
+
+                                        {/* 用户的坐标点 */}
+                                        <circle cx={pointX} cy={pointY} r="8" fill="#1f2937" />
+                                        <circle cx={pointX} cy={pointY} r="16" fill="#1f2937" opacity="0.2" className="animate-ping" style={{transformOrigin: `${pointX}px ${pointY}px`}} />
+                                    </svg>
+                                </div>
+                                <p className="text-sm text-gray-500 mt-4 text-center max-w-sm">
+                                    虚线代表大样本常模分界点<br/>(回避基准: 3.0, 焦虑基准: 3.6)
+                                </p>
+                            </div>
+
+                            {/* 右侧：文本解析区 */}
+                            <div className="w-full lg:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                                <div className={`inline-block px-4 py-1 rounded-full font-bold text-sm mb-4 w-max ${resultData.bg} ${resultData.color}`}>
+                                    您的核心类型
+                                </div>
+                                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-6 leading-tight">
+                                    {resultData.title}
+                                </h1>
+                                
+                                <div className="space-y-6 mb-10">
+                                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="font-bold text-gray-700">依恋焦虑得分</span>
+                                            <span className="text-xl font-bold text-purple-600">{scores.anx.toFixed(2)} <span className="text-sm text-gray-400">/ 7</span></span>
+                                        </div>
+                                        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                            <div className="h-full bg-purple-500" style={{width: `${(scores.anx/7)*100}%`}}></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="font-bold text-gray-700">依恋回避得分</span>
+                                            <span className="text-xl font-bold text-emerald-600">{scores.avo.toFixed(2)} <span className="text-sm text-gray-400">/ 7</span></span>
+                                        </div>
+                                        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                            <div className="h-full bg-emerald-500" style={{width: `${(scores.avo/7)*100}%`}}></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="prose prose-lg text-gray-600">
+                                    <h3 className="font-bold text-gray-800 text-xl mb-3">深度动力学解析</h3>
+                                    <p className="leading-relaxed">
+                                        {resultData.desc}
+                                    </p>
+                                </div>
+
+                                <div className="mt-12 flex flex-col sm:flex-row gap-4">
+                                    <button 
+                                        onClick={resetTest}
+                                        className="flex-1 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-bold py-4 rounded-xl transition text-center"
+                                    >
+                                        重新测试
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="text-center text-gray-400 text-sm mt-8 max-w-2xl">
+                            声明：本测试基于Brennan与Fraley等学者的实证测量体系构建。测试结果供促进自我觉察与伴侣沟通参考，不具备临床排他性精神科诊断效力。
+                        </div>
+                    </div>
+                );
+            }
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
