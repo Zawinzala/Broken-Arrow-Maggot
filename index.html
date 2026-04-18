@@ -11,7 +11,7 @@
       gtag('config', 'G-TNMKLQ79MK');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>断箭蛆指数 V4 - By Zola</title>
+    <title>断箭蛆指数 V4.1 - By Zola</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; overflow-x: hidden; }
@@ -99,7 +99,7 @@
                 <span class="text-base md:text-xl text-cyan-500 italic mt-2 md:mt-0 md:ml-4 opacity-80 font-serif">By Zola</span>
             </h1>
             <div class="flex justify-center gap-6 mb-4">
-                <a href="https://dash.batrace.top/" target="_blank" class="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-700 hover:text-white transition-all font-medium">Data Source: Batrace Dash API</a>
+                <a href="https://app.batrace.top/" target="_blank" class="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-700 hover:text-white transition-all font-medium">Data Source: Batrace App API</a>
             </div>
             <p class="text-cyan-400 font-mono text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold" id="lbl_subtitle">Player Behavior Analysis</p>
         </div>
@@ -128,7 +128,7 @@
                 <span id="loadPercent">0%</span>
             </div>
             <div class="load-progress-bg"><div id="loadProgressFill" class="load-progress-fill"></div></div>
-            <p class="text-xs text-slate-500 mt-3 font-mono font-medium" id="loadDetail">Fetching Dash API...</p>
+            <p class="text-xs text-slate-500 mt-3 font-mono font-medium" id="loadDetail">Fetching App API...</p>
         </div>
 
         <div id="errorArea" class="hidden mb-10 max-w-2xl mx-auto bg-red-900/30 border border-red-500/50 text-red-100 p-6 rounded-3xl text-base text-center font-bold">
@@ -249,7 +249,6 @@
                 </div>
 
                 <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-white/10 pb-1">Class Preferences</h3>
-                <!-- 新的兵种列表容器 -->
                 <div id="pd_categories_list" class="flex flex-col gap-2"></div>
             </div>
         </div>
@@ -259,10 +258,10 @@
         let CURRENT_MATCH_STATS = []; 
 
         const API = {
-            INFO: (id) => `https://dash.batrace.top/api/players/info?stbid=${id}`,
-            ANALYSIS: (id) => `https://dash.batrace.top/api/analysis/player?stbid=${id}`,
-            MATCH: (id) => `https://dash.batrace.top/api/analysis/match?matchid=${id}`,
-            SEARCH: (q) => `https://dash.batrace.top/api/players/search?q=${encodeURIComponent(q)}&limit=20`
+            INFO: (id) => `https://app.batrace.top/api/players/info?stbid=${id}`,
+            ANALYSIS: (id) => `https://app.batrace.top/api/analysis/player?stbid=${id}`,
+            MATCH: (id) => `https://app.batrace.top/api/analysis/match?matchid=${id}`,
+            SEARCH: (q) => `https://app.batrace.top/api/players/search?q=${encodeURIComponent(q)}&limit=20`
         };
 
         const CONFIG = { MATCH_GOAL: 12, MIN_PLAYERS: 10 };
@@ -273,7 +272,7 @@
             dlRatio: { icon: '🛡️', color: 'text-emerald-400' },
             efficiency: { icon: '💰', color: 'text-yellow-400' },
             objectives: { icon: '🚩', color: 'text-blue-400' },
-            supply: { icon: '🍔', color: 'text-pink-400' } // 移除了 experience
+            supply: { icon: '🍔', color: 'text-pink-400' }
         };
 
         const COLOR_STYLES = {
@@ -406,9 +405,9 @@
             document.getElementById('loadDetail').innerText = detail;
         }
 
+        // 修改点：去掉了直接请求 (u) => u，避免触发红字报错，直接走代理加速执行
         async function robustFetch(url, attempt = 0) {
             const proxies = [
-                (u) => u,
                 (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
                 (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}&cb=${Date.now()}`,
                 (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
@@ -426,6 +425,46 @@
             }
         }
 
+        async function fetchWithCache(url, cacheType = 'DEFAULT') {
+            const cacheKey = 'ba_cache_' + url.replace(/[^a-zA-Z0-9]/g, '_').slice(-50);
+            
+            const expireMs = cacheType === 'MATCH' ? 24 * 60 * 60 * 1000 : 5 * 60 * 1000;
+            
+            try {
+                const cached = sessionStorage.getItem(cacheKey);
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (Date.now() - parsed.timestamp < expireMs) {
+                        return parsed.data;
+                    }
+                }
+            } catch (e) {
+                console.warn("Cache read error", e);
+            }
+
+            const data = await robustFetch(url);
+            
+            try {
+                sessionStorage.setItem(cacheKey, JSON.stringify({
+                    timestamp: Date.now(),
+                    data: data
+                }));
+            } catch (e) {
+                console.warn("Cache write limit reached, clearing session storage...");
+                try {
+                    sessionStorage.clear();
+                    sessionStorage.setItem(cacheKey, JSON.stringify({
+                        timestamp: Date.now(),
+                        data: data
+                    }));
+                } catch(err) {
+                    console.error("Cache saving failed", err);
+                }
+            }
+
+            return data;
+        }
+
         async function handleCheck() {
             let input = document.getElementById('steamInput').value.trim();
             if(!input) return;
@@ -440,14 +479,14 @@
                 updateProgress(5, "Resolving...", "Checking ID");
 
                 if (isNaN(input)) {
-                    const searchRes = await robustFetch(API.SEARCH(input));
+                    const searchRes = await fetchWithCache(API.SEARCH(input), 'DEFAULT');
                     if (!searchRes.players || searchRes.players.length === 0) throw new Error("Player not found.");
                     input = searchRes.players[0].id.toString();
                 }
 
                 updateProgress(15, "Connecting...", "Fetching Player Stats...");
-                const infoRes = await robustFetch(API.INFO(input));
-                const analysisRes = await robustFetch(API.ANALYSIS(input));
+                const infoRes = await fetchWithCache(API.INFO(input), 'DEFAULT');
+                const analysisRes = await fetchWithCache(API.ANALYSIS(input), 'DEFAULT');
                 
                 if (!infoRes.last_fights_data || infoRes.last_fights_data.length === 0) {
                     throw new Error("No recent matches found.");
@@ -469,7 +508,7 @@
                             continue;
                         }
 
-                        const matchData = await robustFetch(API.MATCH(mid));
+                        const matchData = await fetchWithCache(API.MATCH(mid), 'MATCH');
                         if (matchData && matchData.mvpRanking && matchData.mvpRanking.length >= CONFIG.MIN_PLAYERS) {
                             validMatches.push(formatNewMatchData(mid, matchData, input, trendData));
                         }
@@ -489,9 +528,9 @@
 
                 document.getElementById('userNameDisplay').innerText = infoRes.info.name;
                 const dateStr = new Date().toLocaleString();
-                document.getElementById('calcTimeDisplay').innerHTML = `Lv.${infoRes.info.level} <span class="mx-1 md:mx-2 opacity-30">|</span> ELO ${Math.round(infoRes.info.rating)} <span class="mx-1 md:mx-2 opacity-30">|</span> ${dateStr}`;
+                document.getElementById('calcTimeDisplay').innerHTML = `Lv.${infoRes.info.level} <span class="mx-1 md:mx-2 opacity-30">|</span> ${dateStr}`;
 
-                processFinalData(input, validMatches, analysisRes);
+                processFinalData(input, validMatches, analysisRes, infoRes);
 
             } catch (e) {
                 document.getElementById('errorArea').classList.remove('hidden');
@@ -596,7 +635,7 @@
             };
         }
 
-        function processFinalData(myUid, matches, analysisRes) {
+        function processFinalData(myUid, matches, analysisRes, infoRes) {
             let kRankSum=0, oRankSum=0, kdRankSum=0, lossRankSum=0, wins=0;
             const tagCounts = {};
 
@@ -651,16 +690,14 @@
             trendEl.innerText = t[trendKey];
             rightContainer.appendChild(trendEl);
 
-            // 游玩风格不翻译，原文大写直出
-            if (analysisRes.playStyle && analysisRes.playStyle.primaryStyle) {
-                const styleKey = analysisRes.playStyle.primaryStyle.replace('_', ' ').toUpperCase();
+            if (infoRes && infoRes.info && infoRes.info.rating !== undefined) {
+                const eloValue = Math.round(infoRes.info.rating);
                 const el = document.createElement('div');
-                el.className = "tag-sticker bg-fuchsia-600/20 border-fuchsia-500/50 text-fuchsia-300";
-                el.innerText = styleKey;
+                el.className = "tag-sticker bg-fuchsia-600/20 border-fuchsia-500/50 text-fuchsia-300 flex items-center gap-1.5 font-mono font-bold";
+                el.innerHTML = `<span class="text-lg">🏆</span><span>ELO ${eloValue}</span>`;
                 rightContainer.appendChild(el);
             }
 
-            // 获取最多的 前两个 能力徽章 (Req: 变成2个最多徽章)
             Object.entries(tagCounts).sort((a,b) => b[1] - a[1]).slice(0, 2).forEach(x => {
                 const def = BREAKDOWN_DEFS[x[0]];
                 if(!def) return;
@@ -764,7 +801,7 @@
         }
 
         // ==========================================
-        // 模态框交互辅助代码 (重构兵种偏好展示)
+        // 模态框交互辅助代码
         // ==========================================
         function openPlayerDetail(matchId, playerId) {
             const match = CURRENT_MATCH_STATS.find(m => String(m.id) === String(matchId));
@@ -793,7 +830,6 @@
             document.getElementById('pd_refund').innerText = Math.round(player.Refunded).toLocaleString();
             document.getElementById('pd_roi').innerText = player.roi !== undefined ? player.roi.toFixed(2) : 'N/A';
 
-            // 全新：战术偏好列表渲染
             let catsHtml = '';
             if (player.unitCategories && player.unitCategories.length > 0) {
                 let sortedCats = [...player.unitCategories].sort((a,b) => b.totalCost - a.totalCost);
@@ -836,7 +872,7 @@
             list.innerHTML = ''; list.classList.remove('hidden');
             
             try {
-                const res = await robustFetch(API.SEARCH(name));
+                const res = await fetchWithCache(API.SEARCH(name), 'DEFAULT');
                 if (!res.players || res.players.length === 0) { status.innerText = "No players found."; return; }
                 status.innerText = `Found ${res.players.length} players.`;
                 
@@ -858,7 +894,7 @@
             status.innerText = "Loading Match..."; area.classList.add('hidden');
 
             try {
-                const data = await robustFetch(API.MATCH(mid));
+                const data = await fetchWithCache(API.MATCH(mid), 'MATCH');
                 if (!data.mvpRanking) throw new Error("Invalid match data");
                 
                 const t0 = data.mvpRanking.filter(p => p.teamId === 0);
