@@ -82,7 +82,7 @@
             <a href="https://github.com/Zawinzala/Broken-Arrow-Maggot" target="_blank" class="flex items-center gap-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 hover:text-white transition group">
                 <span class="text-[10px] md:text-xs font-mono font-bold">GitHub</span>
             </a>
-            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">V4.1</div>
+            <div class="text-[10px] md:text-xs text-slate-400 font-mono tracking-widest uppercase font-bold">V4.2</div>
         </div>
         <div class="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700 flex-wrap justify-center">
             <button onclick="setLang('en')" id="btn_lang_en" class="px-3 py-1 md:px-4 md:py-1.5 text-xs rounded-lg transition font-bold">English</button>
@@ -143,7 +143,7 @@
                 <div class="text-center mb-4 mt-2 md:mt-0 w-full px-2">
                     <div id="userNameDisplay" class="text-2xl md:text-4xl font-black text-white mb-2 truncate">Commander Name</div>
                     <div id="calcTimeDisplay" class="text-[10px] md:text-xs font-mono text-slate-400 uppercase tracking-widest bg-black/20 inline-block px-4 py-1.5 rounded-full border border-white/5">
-                        Lv.0 <span class="mx-1 md:mx-2 opacity-30">|</span> ELO 0 <span class="mx-1 md:mx-2 opacity-30">|</span> 2024-01-01
+                        Lv.0 <span class="mx-1 md:mx-2 opacity-30">|</span> 2024-01-01
                     </div>
                 </div>
 
@@ -405,7 +405,6 @@
             document.getElementById('loadDetail').innerText = detail;
         }
 
-        // 修改点：去掉了直接请求 (u) => u，避免触发红字报错，直接走代理加速执行
         async function robustFetch(url, attempt = 0) {
             const proxies = [
                 (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
@@ -428,7 +427,8 @@
         async function fetchWithCache(url, cacheType = 'DEFAULT') {
             const cacheKey = 'ba_cache_' + url.replace(/[^a-zA-Z0-9]/g, '_').slice(-50);
             
-            const expireMs = cacheType === 'MATCH' ? 24 * 60 * 60 * 1000 : 5 * 60 * 1000;
+            // 将所有接口的缓存失效时间统一设置为 5 分钟 (5 * 60 * 1000 毫秒)
+            const expireMs = 5 * 60 * 1000;
             
             try {
                 const cached = sessionStorage.getItem(cacheKey);
